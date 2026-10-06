@@ -16,3 +16,14 @@
 @keyframes pendulumSwing{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
 @keyframes drip{from{opacity:0}50%{opacity:1}to{opacity:0}}
 @media(max-width:720px){.action-dock{left:10px;right:10px;bottom:30px}.procedure span{min-width:155px}}
+
+.generic-bench{position:absolute;left:15%;right:15%;top:85px;height:300px;border-bottom:3px solid #405873}
+.rack{position:absolute;left:8%;top:20px;width:160px;height:120px;border:3px solid #607a94;border-radius:7px;display:flex;align-items:flex-end;justify-content:space-around;padding:8px;background:#0c1929}
+.rack i{width:25px;height:82px;border:2px solid #9eb4ca;border-top:0;border-radius:0 0 13px 13px;background:linear-gradient(#78aaff1c 45%,#78aaff55 46%);display:block}
+.beaker{position:absolute;left:42%;top:60px;width:85px;height:100px;border:3px solid #9eb4ca;border-top:0;border-radius:4px 4px 18px 18px;background:linear-gradient(180deg,transparent 42%,#6ee7c825 43%);transform:skew(-3deg)}
+.beaker:before{content:"";position:absolute;left:-8px;right:-8px;top:-3px;border-top:3px solid #9eb4ca}
+.test-tube{position:absolute;left:65%;top:35px;width:30px;height:115px;border:2px solid #9eb4ca;border-top:0;border-radius:0 0 16px 16px;background:linear-gradient(#78aaff14 50%,#78aaff4a 51%)}
+.test-tube.t2{left:72%;top:50px}
+.balance{position:absolute;right:7%;bottom:50px;width:120px;height:70px;border:2px solid #7188a1;border-radius:10px;background:#14273d;text-align:center;padding-top:17px}
+.balance strong{display:block;color:var(--accent);font-size:18px}.balance small{color:#7187a0}
+.lab-label{position:absolute;left:0;right:0;bottom:8px;text-align:center;color:#70869e;font-size:9px;letter-spacing:1.2px}

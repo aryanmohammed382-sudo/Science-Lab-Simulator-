@@ -48,6 +48,24 @@ The simulator is intended to build the skills needed for Cambridge practical ass
 
 These skills are particularly important because Cambridge IGCSE practical assessment tests experimental skills and contexts, while the AS & A Level science courses place strong emphasis on advanced practical skills and experimental investigation.
 
+## Scientific simulation layer
+
+The latest laboratory upgrade adds an experiment-specific science layer on top of the reusable apparatus engine. Every catalogue entry now resolves to a named scientific profile containing its own apparatus, variables, equations/formulas, laws and principles, procedure, observations, explanation of why the observed event occurs, and experiment-specific takeaways. This keeps the 200-practical catalogue maintainable without presenting the student with a generic “change two numbers” experiment.
+
+The laboratory workspace now includes:
+
+- **Key Details** with objective, apparatus/materials, formulas, symbol meanings, laws/principles, reaction information and key takeaways
+- **Live observation** text that changes with the simulated experimental state
+- **Experiment status** that progresses from ready to performing/reaction to complete
+- **Specific apparatus scenes** for circuits, pendulums, titrations, precipitation, electrolysis, pH testing, food tests, microscopy, optics, thermal work, waves, fieldwork and more
+- **Progressive reaction states** for relevant chemistry/biology/environmental practicals rather than an instant before/after swap
+- **Reaction-specific colours and precipitation states**, including nucleation, suspension and settling behaviour where appropriate
+- **Measurement-linked recording**, so recorded readings are generated from the current simulated state rather than decorative graph points
+- **Why did this happen?** explanations connected to the scientific principle or equation behind an observed event
+- **Experiment completion summary and XP feedback** after the required measurements are recorded
+
+The chemistry precipitation model is deliberately state-driven: clear solution → initial nucleation → increasing suspended particles/cloudiness → settling → accumulated solid layer. Precipitate colour is selected from the named reaction rather than using one universal coloured block.
+
 ## Design goals
 
 - **Instant startup:** no runtime API, backend, database, image CDN or font CDN is required.

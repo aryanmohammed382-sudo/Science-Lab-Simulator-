@@ -542,3 +542,299 @@ window.__scienceSpecificTick=setInterval(()=>{
   if(labState.burner)labState.temp=clamp((labState.temp||20)+.08,20,120);
   updateSpecificUI();updateSpecificVisual();
 },100);
+
+
+/* =========================================================
+   SCIENCE LAB V2 — experiment-specific reaction + game layer
+   ========================================================= */
+const SCIENCE_V2={
+
+ "separation":{apparatus:["Filter funnel","Filter paper","Conical flask","Glass rod","Wash bottle"],reactants:["Insoluble solid + liquid mixture"],products:["Separated residue","Filtrate"],equation:"No chemical reaction — filtration is a physical separation.",laws:["Conservation of mass","Particle-size separation"],formulas:["percentage recovery = recovered mass / original mass × 100%"],symbols:["m = mass (g)"],procedure:["Fold and seat the filter paper.","Wet the paper and place the funnel over the flask.","Pour the mixture down a glass rod.","Allow the filtrate to pass through and inspect the residue."],takeaways:["Filtration separates an insoluble solid from a liquid.","The filter paper retains particles larger than its pores.","No new substance is required for the separation."],scene:"filtration",reaction:false},
+ "relative-formula-mass-by-mass-data":{apparatus:["Electronic balance","Crucible","Tripod","Bunsen burner","Tongs"],reactants:["Measured compound sample"],products:["Measured masses used to determine composition"],equation:"Mᵣ = sum of relative atomic masses in the formula.",laws:["Conservation of mass","Stoichiometry"],formulas:["Mᵣ = ΣAᵣ","n = m/Mᵣ"],symbols:["Aᵣ = relative atomic mass","Mᵣ = relative formula mass","m = mass (g)","n = amount (mol)"],procedure:["Measure the sample mass accurately.","Heat only when the practical requires thermal decomposition.","Record the final mass after cooling.","Use the mass data to calculate the required formula quantity."],takeaways:["Relative formula mass is dimensionless.","Accurate mass measurements directly affect the calculated amount.","Repeated measurements improve confidence in the result."],scene:"measurement",reaction:false},
+ "moles-and-avogadro-constant":{apparatus:["Electronic balance","Measuring cylinder","Volumetric flask"],reactants:["Measured substance"],products:["Calculated amount of substance"],equation:"n = m/Mᵣ; N = nNₐ",laws:["Stoichiometry","Avogadro constant"],formulas:["n = m/Mᵣ","N = nNₐ","c = n/V"],symbols:["n = amount (mol)","m = mass (g)","Mᵣ = relative formula mass","N = number of particles","Nₐ = 6.022 × 10²³ mol⁻¹"],procedure:["Measure the mass or volume specified.","Convert the measurement to moles.","Use the Avogadro constant when particle number is required.","Record the calculated amount with units."],takeaways:["The mole links measurable laboratory quantities to particles.","Mass and concentration measurements can be converted to amount of substance.","Volume must be expressed consistently when calculating concentration."],scene:"measurement",reaction:false},
+ "preparation-of-a-standard-solution":{apparatus:["Analytical balance","Beaker","Glass rod","Funnel","Volumetric flask","Wash bottle"],reactants:["Accurately weighed solute","Deionised water"],products:["Standard solution of known concentration"],equation:"c = n/V",laws:["Stoichiometry","Conservation of mass"],formulas:["n = m/Mᵣ","c = n/V"],symbols:["m = mass (g)","Mᵣ = relative formula mass","n = amount (mol)","V = volume (dm³)","c = concentration (mol dm⁻³)"],procedure:["Weigh the required solute.","Dissolve it completely in a small volume of water.","Transfer quantitatively to the volumetric flask.","Make up to the calibration mark and mix thoroughly."],takeaways:["A standard solution has a known concentration.","Quantitative transfer matters because lost solute changes the concentration.","The meniscus should be read at eye level."],scene:"solution-prep",reaction:false},
+ "acid-alkali-titration-with-concordant-results":{apparatus:["Burette","Pipette","Conical flask","Indicator","White tile"],reactants:["Hydrochloric acid","Sodium hydroxide","Indicator"],products:["Sodium chloride","Water"],equation:"HCl + NaOH → NaCl + H₂O",laws:["Conservation of mass","Stoichiometry","Neutralisation"],formulas:["n = cV","c₁V₁ = c₂V₂ (1:1 reaction)"],symbols:["n = amount (mol)","c = concentration (mol dm⁻³)","V = volume (dm³)"],procedure:["Pipette the measured alkali into the flask.","Add a few drops of indicator.","Run acid from the burette while swirling.","Approach the endpoint dropwise and repeat until concordant titres are obtained."],takeaways:["The endpoint is detected by the indicator colour change.","Concordant titres reduce random uncertainty.","Use the balanced equation to relate the reacting amounts."],scene:"titration",reaction:true,visual:{colour:true},colour:{start:"pink",mid:"pale pink",end:"colourless",reason:"The indicator changes protonation state near its transition range."}},
+ "redox-titration-with-potassium-manganate-vii":{apparatus:["Burette","Pipette","Conical flask","White tile","Water bath"],reactants:["Acidified potassium manganate(VII)","Iron(II) solution"],products:["Iron(III) ions","Mn²⁺ ions","Water"],equation:"MnO₄⁻ + 8H⁺ + 5Fe²⁺ → Mn²⁺ + 4H₂O + 5Fe³⁺",laws:["Redox","Stoichiometry","Conservation of charge"],formulas:["n = cV","1 mol MnO₄⁻ reacts with 5 mol Fe²⁺"],symbols:["c = concentration (mol dm⁻³)","V = volume (dm³)"],procedure:["Pipette the iron(II) solution into the flask.","Add dilute sulfuric acid.","Titrate with purple manganate(VII).","Stop when a very pale permanent pink persists."],takeaways:["Manganate(VII) acts as its own indicator in acidic solution.","The purple MnO₄⁻ ion is reduced to nearly colourless Mn²⁺.","The stoichiometric ratio is 1:5 for MnO₄⁻:Fe²⁺."],scene:"titration",reaction:true,visual:{colour:true},colour:{start:"colourless",mid:"faint pink",end:"pale permanent pink",reason:"Purple MnO₄⁻ is consumed as Fe²⁺ is oxidised to Fe³⁺."}},
+ "determining-water-of-crystallisation":{apparatus:["Crucible","Lid","Tripod","Bunsen burner","Balance","Tongs"],reactants:["Hydrated copper(II) sulfate"],products:["Anhydrous copper(II) sulfate","Water vapour"],equation:"CuSO₄·xH₂O → CuSO₄ + xH₂O",laws:["Conservation of mass","Stoichiometry"],formulas:["n = m/Mᵣ","x = m(H₂O)/18"],symbols:["x = waters of crystallisation per formula unit","m = mass (g)"],procedure:["Weigh the dry crucible and hydrated salt.","Heat gently, then more strongly as appropriate.","Cool before weighing.","Repeat heating and weighing until a near-constant mass is obtained."],takeaways:["Heating removes water of crystallisation.","The mass loss represents water driven from the crystal lattice.","Cooling before weighing prevents convection errors."],scene:"thermal",reaction:true,visual:{colour:true},colour:{start:"blue",mid:"paler blue",end:"white/grey anhydrous solid",reason:"Removing coordinated water changes the copper(II) sulfate crystal environment."}},
+ "gravimetric-analysis-of-a-carbonate":{apparatus:["Balance","Conical flask","Delivery tube","Gas syringe","Dilute hydrochloric acid"],reactants:["Carbonate sample","Dilute hydrochloric acid"],products:["Carbon dioxide","Water","Soluble salt"],equation:"CO₃²⁻ + 2H⁺ → CO₂ + H₂O",laws:["Conservation of mass","Stoichiometry"],formulas:["n = m/Mᵣ","n(CO₂) = n(CO₃²⁻)","percentage = measured/theoretical × 100%"],symbols:["n = amount (mol)","m = mass (g)","V = gas volume (cm³)"],procedure:["Weigh the carbonate sample.","Add acid and immediately seal the apparatus.","Collect the carbon dioxide.","Use the measured gas or mass change to determine carbonate amount."],takeaways:["Effervescence is evidence of carbon dioxide formation.","A closed collection system reduces loss of gas.","The balanced ionic equation gives the 1:1 carbonate-to-CO₂ ratio."],scene:"gas",reaction:true,visual:{gas:true}},
+ "gas-volume-from-a-carbonate":{apparatus:["Conical flask","Thistle funnel","Delivery tube","Gas syringe","Dilute acid"],reactants:["Metal carbonate","Dilute hydrochloric acid"],products:["Carbon dioxide","Water","Metal chloride"],equation:"MCO₃ + 2HCl → MCl₂ + CO₂ + H₂O",laws:["Conservation of mass","Stoichiometry","Molar gas relationships"],formulas:["n = V/Vₘ","n(CO₂) = n(MCO₃)"],symbols:["V = gas volume (cm³ or dm³)","Vₘ = molar gas volume"],procedure:["Assemble the flask and gas syringe without leaks.","Add the acid to the carbonate.","Collect the gas while swirling gently.","Record the final gas volume at the stated conditions."],takeaways:["Carbon dioxide volume is proportional to carbonate amount under fixed conditions.","Gas leaks make the measured volume too small.","The gas syringe reading must be taken at eye level."],scene:"gas",reaction:true,visual:{gas:true}},
+ "gas-volume-and-molar-volume":{apparatus:["Conical flask","Gas syringe","Balance","Acid","Reactive metal"],reactants:["Magnesium or zinc","Hydrochloric acid"],products:["Hydrogen gas","Soluble metal chloride"],equation:"Mg + 2HCl → MgCl₂ + H₂",laws:["Stoichiometry","Molar gas relationship"],formulas:["n = m/Aᵣ","Vₘ = V/n"],symbols:["n = amount (mol)","m = mass (g)","V = gas volume (dm³)","Vₘ = molar volume (dm³ mol⁻¹)"],procedure:["Measure a known mass of metal.","React it with excess acid in a gas-tight setup.","Collect the hydrogen.","Calculate the molar gas volume from the measured gas volume and amount."],takeaways:["The equation fixes the mole ratio between metal and hydrogen.","Molar volume depends on temperature and pressure.","Gas collection must be leak-free."],scene:"gas",reaction:true,visual:{gas:true}},
+ "activation-energy-from-arrhenius-data":{apparatus:["Water bath","Thermometer","Reaction vessel","Stopwatch"],reactants:["Reactants for a temperature-controlled rate experiment"],products:["Measured reaction progress"],equation:"ln k = ln A − Eₐ/(RT)",laws:["Collision theory","Arrhenius equation"],formulas:["k = Ae^(−Eₐ/RT)","ln k = ln A − Eₐ/(RT)"],symbols:["k = rate constant","A = frequency factor","Eₐ = activation energy (J mol⁻¹)","R = 8.314 J mol⁻¹ K⁻¹","T = temperature (K)"],procedure:["Run the same reaction at several controlled temperatures.","Measure the rate constant for each temperature.","Plot ln k against 1/T.","Use the gradient to estimate Eₐ."],takeaways:["Higher temperature generally increases k.","The Arrhenius plot should be approximately linear for the model.","Temperature must be converted to kelvin."],scene:"thermal",reaction:true},
+ "electroplating":{apparatus:["DC power supply","Electrolyte bath","Cathode object","Copper anode","Connecting wires"],reactants:["Cu²⁺ electrolyte","Copper anode"],products:["Copper deposited at cathode","Cu²⁺ released at anode"],equation:"Cu²⁺ + 2e⁻ → Cu at the cathode; Cu → Cu²⁺ + 2e⁻ at the anode",laws:["Faraday's laws","Redox"],formulas:["Q = It","n = Q/(zF)","m = nMᵣ"],symbols:["Q = charge (C)","I = current (A)","t = time (s)","F = Faraday constant","z = electrons per ion"],procedure:["Clean the object and connect it as the cathode.","Place it and the copper anode in the electrolyte.","Switch on a controlled current.","Observe deposition and compare mass before and after."],takeaways:["Reduction occurs at the cathode.","Copper ions gain electrons and become solid copper.","Deposited mass increases with charge passed in the ideal model."],scene:"electroplating",reaction:true,visual:{deposition:true}},
+ "qualitative-analysis-of-anions":{apparatus:["Test tubes","Droppers","Dilute nitric acid","Silver nitrate","Barium nitrate","Sodium hydroxide","Aluminium foil"],reactants:["Unknown anion solution","Diagnostic reagents"],products:["Diagnostic precipitate or gas"],equation:"Test depends on the selected anion: Cl⁻/Br⁻/I⁻ + Ag⁺ → AgCl/AgBr/AgI; SO₄²⁻ + Ba²⁺ → BaSO₄; CO₃²⁻ + 2H⁺ → CO₂ + H₂O",laws:["Solubility rules","Acid-base reactions","Redox where applicable"],formulas:["n = cV"],symbols:["c = concentration (mol dm⁻³)","V = volume (dm³)"],procedure:["Select the unknown anion sample.","Add the prescribed reagent.","Watch for the characteristic precipitate or gas.","Compare the observation with the qualitative-analysis key."],takeaways:["Qualitative analysis identifies ions from characteristic observations.","Chloride, bromide and iodide give different silver halide colours.","Carbonate produces carbon dioxide with acid."],scene:"qualitative-anion",reaction:true,visual:{precipitate:true,gas:true},sampleVariants:[
+  {name:"chloride",label:"Cl⁻",equation:"Ag⁺ + Cl⁻ → AgCl(s)",colour:"#f4f4f4",observation:"A white silver chloride precipitate forms."},
+  {name:"bromide",label:"Br⁻",equation:"Ag⁺ + Br⁻ → AgBr(s)",colour:"#e8dcc8",observation:"A cream silver bromide precipitate forms."},
+  {name:"iodide",label:"I⁻",equation:"Ag⁺ + I⁻ → AgI(s)",colour:"#e7cf38",observation:"A yellow silver iodide precipitate forms."},
+  {name:"sulfate",label:"SO₄²⁻",equation:"Ba²⁺ + SO₄²⁻ → BaSO₄(s)",colour:"#f7f7f7",observation:"A white barium sulfate precipitate forms."},
+  {name:"carbonate",label:"CO₃²⁻",equation:"CO₃²⁻ + 2H⁺ → CO₂(g) + H₂O",colour:"#cfe9ef",observation:"Effervescence shows carbon dioxide is being produced."}
+]},
+ "test-for-ammonium-ions":{apparatus:["Test tube","Sodium hydroxide","Aluminium foil","Warm water bath"],reactants:["Ammonium salt solution","Aqueous sodium hydroxide"],products:["Ammonia","Water","Sodium salt"],equation:"NH₄⁺ + OH⁻ → NH₃(g) + H₂O",laws:["Brønsted–Lowry acid-base principle","Gas evolution"],formulas:["n = cV"],symbols:["n = amount (mol)","c = concentration (mol dm⁻³)","V = volume (dm³)"],procedure:["Add sodium hydroxide to the sample.","Warm carefully.","Observe gas evolution and test the gas using the appropriate laboratory method.","Record the positive result."],takeaways:["Ammonium ions release ammonia when warmed with hydroxide ions.","Gas formation is a diagnostic observation.","Use a controlled warm bath rather than directly overheating the test tube."],scene:"ammonium",reaction:true,visual:{gas:true}}
+};
+
+const V2_GENERIC_REACTION={
+ "rate-and-concentration":{equation:"Rate = Δquantity/Δt",visual:{gas:true},why:"Increasing concentration places more reactant particles in the same volume, increasing collision frequency; the measured rate therefore changes."},
+ "rate-and-temperature":{equation:"Rate = Δquantity/Δt",visual:{gas:true},why:"Heating increases particle kinetic energy and the fraction of collisions with enough energy to react."},
+ "rate-and-surface-area":{equation:"Rate = Δquantity/Δt",visual:{gas:true},why:"A larger exposed surface gives more frequent collisions at the reacting interface."},
+ "rate-and-catalyst":{equation:"Rate = Δquantity/Δt",visual:{gas:true},why:"A catalyst provides an alternative pathway with lower activation energy and is regenerated."},
+ "equilibrium-and-concentration":{equation:"Forward rate = reverse rate at dynamic equilibrium.",visual:{colour:true},why:"Changing concentration disturbs the equilibrium composition, so the system shifts until forward and reverse rates become equal again."},
+ "equilibrium-and-temperature":{equation:"Forward rate = reverse rate at dynamic equilibrium.",visual:{colour:true},why:"Changing temperature favours the direction that absorbs or releases heat according to the equilibrium system."},
+ "equilibrium-and-pressure":{equation:"Forward rate = reverse rate at dynamic equilibrium.",visual:{colour:true},why:"For gaseous equilibria, pressure changes alter the relative importance of the side with fewer or more gas molecules."},
+ "organic-functional-group-tests":{equation:"Diagnostic reaction depends on the functional group.",visual:{colour:true},why:"The reagent reacts selectively with a functional group, producing a characteristic visible change."},
+ "alkene-addition-reaction-model":{equation:"C=C + Br₂ → Br–C–C–Br",visual:{colour:true},why:"Bromine adds across the carbon-carbon double bond, removing the coloured bromine species from solution."},
+ "alcohol-oxidation":{equation:"Primary alcohol + [O] → aldehyde → carboxylic acid",visual:{colour:true},why:"The alcohol is oxidised while the oxidising agent is reduced, producing the characteristic colour change."},
+ "ph-indicators":{equation:"pH = −log₁₀[H⁺]",visual:{colour:true},why:"The indicator exists in differently coloured protonated and deprotonated forms."},
+ "buffer-solution-investigation":{equation:"pH = pKₐ + log([A⁻]/[HA])",visual:{colour:true},why:"A buffer consumes added H⁺ or OH⁻ through its conjugate acid-base pair, resisting a large pH change."}
+};
+Object.assign(SCIENCE_V2,V2_GENERIC_REACTION);
+
+const __scienceProfileBase=profileFor;
+profileFor=function(e){
+  const base=__scienceProfileBase(e);
+  const o=SCIENCE_V2[e.id];
+  if(!o)return base;
+  const merged=Object.assign({},base,o);
+  merged.visual=Object.assign({},base.visual||{},o.visual||{});
+  merged.colour=Object.assign({},base.colour||{},o.colour||{});
+  return merged;
+};
+
+function v2Sample(){
+  const p=SCIENCE_V2[current.id];
+  if(!p||!p.sampleVariants)return null;
+  return p.sampleVariants[labState.sampleIndex%p.sampleVariants.length];
+}
+
+const __sceneBase=sceneHTML;
+sceneHTML=function(p,e){
+  const common='<div class="scene-label">'+e.name.toUpperCase()+'</div>';
+  if(p.scene==="filtration")return common+'<div class="specific-lab filtration-scene"><div class="filter-funnel"><div class="filter-paper"></div><div class="filter-residue" id="filterResidue"></div></div><div class="filter-flask"><div class="filter-filtrate" id="filterFiltrate"></div></div><div class="glass-rod"></div><div class="wash-bottle"></div><div class="scene-note">RESIDUE → FILTER PAPER · FILTRATE → FLASK</div></div>';
+  if(p.scene==="solution-prep")return common+'<div class="specific-lab solution-prep-scene"><div class="balance-specific"><b id="prepMass">2.50 g</b><small>BALANCE</small></div><div class="prep-beaker"><div class="specific-liquid"></div></div><div class="volumetric-flask"><div class="flask-neck"></div><div class="specific-liquid" id="prepLiquid"></div><span>100 mL</span></div><div class="transfer-stream" id="transferStream"></div></div>';
+  if(p.scene==="measurement")return common+'<div class="specific-lab measurement-scene"><div class="balance-specific"><b id="measurementRead">0.00 g</b><small>ELECTRONIC BALANCE</small></div><div class="sample-dish"></div><div class="measurement-calculation">Mᵣ / n / mass data</div></div>';
+  if(p.scene==="qualitative-anion")return common+'<div class="specific-lab qualitative-scene"><div class="qualitative-tube"><div class="qual-liquid" id="qualLiquid"></div><div class="qual-particles" id="qualParticles"></div><div class="qual-sediment" id="qualSediment"></div><div class="qual-gas" id="qualGas"></div></div><div class="qual-label" id="qualLabel">Cl⁻ sample</div><div class="qual-reagent">DIAGNOSTIC REAGENT</div></div>';
+  if(p.scene==="ammonium")return common+'<div class="specific-lab ammonium-scene"><div class="test-tube-ammonium"><div class="specific-liquid" id="ammoniumLiquid"></div><div class="ammonium-bubbles" id="ammoniumBubbles"></div></div><div class="warm-bath"></div><div class="gas-read">NH₃ TEST</div></div>';
+  if(p.scene==="electroplating")return common+'<div class="specific-lab electroplating-scene"><div class="plate-supply">DC SUPPLY<br><b id="plateCurrent">0.00 A</b></div><div class="plating-bath"><div class="plating-liquid"></div><div class="plate anode-plate">Cu ANODE</div><div class="plate cathode-plate" id="cathodePlate">CATHODE</div><div class="copper-ions"></div></div><div class="deposit-read" id="depositRead">0.00 g Cu</div></div>';
+  return __sceneBase(p,e);
+};
+
+const __renderDetailsBase=renderKeyDetails;
+renderKeyDetails=function(p,e){
+  const box=$("#keyDetails");if(!box)return;
+  const sample=v2Sample();
+  const units=[...(p.units||e.units||[])].filter(Boolean);
+  const variableRows=(p.variables||[]).map((v,i)=>'<span><b>'+v+'</b><small>'+unitForVariable(v,e.subject)+'</small></span>').join("");
+  box.innerHTML=
+   '<details open><summary>📘 Key Details</summary><div class="detail-grid">'+
+   '<div><b>Objective</b><p>'+p.objective+'</p></div>'+
+   '<div><b>Apparatus</b><p>'+p.apparatus.join(" · ")+'</p></div>'+
+   '<div><b>Materials / reactants</b><p>'+((p.reactants.length?p.reactants:e.materials||[]).join(" · "))+'</p></div>'+
+   '<div><b>Products / result</b><p>'+((p.products.length?p.products:["Measured experimental result"]).join(" · "))+'</p></div>'+
+   '</div></details>'+
+   '<details><summary>🧮 Formulas & symbols</summary><div class="formula-list">'+(p.formulas.length?p.formulas:["Direct observation only."]).map((x,i)=>'<div><strong>'+x+'</strong>'+(p.symbols[i]?'<small>'+p.symbols[i]+'</small>':"")+'</div>').join("")+'</div></details>'+
+   '<details><summary>⚖️ Laws & Principles</summary><ul>'+p.laws.map(x=>'<li>'+x+'</li>').join("")+'</ul></details>'+
+   '<details><summary>🧪 Reaction, conditions & species</summary><p><b>Equation:</b> '+(sample?sample.equation:(p.equation||"No chemical reaction — this is a measurement/physical process."))+'</p><p><b>Variables:</b> '+(variableRows||"None")+'</p></details>'+
+   '<details><summary>🧭 Procedure</summary><ol>'+p.procedure.map(x=>'<li>'+x+'</li>').join("")+'</ol></details>'+
+   '<details><summary>👁️ What to Observe</summary><p id="detailObservation">'+(p.observation||"Watch the apparatus and record evidence.")+'</p></details>'+
+   '<details><summary>💡 Key Takeaways</summary><ul>'+p.takeaways.map(x=>'<li>'+x+'</li>').join("")+'</ul></details>';
+};
+
+function v2ReactionObservation(p,t){
+  const sample=v2Sample();
+  if(sample)return t<.12?"The sample is clear and the diagnostic reagent is ready.":t<.3?sample.observation.replace("forms","is beginning to form"):t<.68?"The diagnostic product is developing; particles or gas are becoming easier to see.":sample.observation;
+  if(p.visual&&p.visual.precipitate){
+    if(t<.12)return p.observation||"The solutions are clear before mixing.";
+    if(t<.28)return"Initial nucleation: tiny solid particles are appearing where the reacting ions meet.";
+    if(t<.55)return"The suspension is becoming cloudier as more solid particles form.";
+    if(t<.78)return"Particles are suspended and some are falling through the liquid.";
+    return"The precipitate has settled into a visible layer while the liquid above becomes clearer.";
+  }
+  if(p.visual&&p.visual.gas){
+    if(t<.15)return p.observation||"The reactants are ready.";
+    if(t<.35)return"Small gas bubbles are beginning to form at the reacting interface.";
+    if(t<.7)return"Effervescence is increasing as more gas is produced.";
+    return"Gas evolution is slowing as the available reactant is consumed.";
+  }
+  if(p.visual&&p.visual.deposition){
+    if(t<.2)return"The electrolyte is clear and the electrodes are ready.";
+    if(t<.5)return"Metal ions are being reduced at the cathode; a thin coating is beginning to appear.";
+    return"A visible metal coating has accumulated on the cathode.";
+  }
+  if(p.visual&&p.visual.colour){
+    if(t<.2)return p.colour?.start?"Starting state: "+p.colour.start+".":p.observation;
+    if(t<.5)return p.colour?.mid?"The colour is developing toward "+p.colour.mid+".":"The reacting species are changing concentration.";
+    return p.colour?.end?"Endpoint state: "+p.colour.end+".":"The characteristic colour change is now visible.";
+  }
+  return t>0.75?(p.takeaways[0]||p.observation):p.observation;
+}
+
+const __uiBaseV2=updateSpecificUI;
+updateSpecificUI=function(){
+  __uiBaseV2();
+  const p=profileFor(current),t=clamp(labState.reactionProgress||0,0,1),obs=$("#liveObservation");
+  if(obs&&p.reaction)obs.textContent=v2ReactionObservation(p,t);
+  const detail=$("#detailObservation");if(detail)detail.textContent=obs?.textContent||p.observation;
+  if($("#qualLabel")){const s=v2Sample();$("#qualLabel").textContent=s?s.label:"Sample"; }
+  if($("#experimentStatus")&&labState.paused){$("#experimentStatus").className="experiment-status paused";$("#experimentStatus").innerHTML="<span>●</span><b>PAUSED</b><small>Simulation clock paused</small>";}
+};
+
+function v2ColourFor(p,t){
+  const s=v2Sample(); if(s)return s.colour;
+  if(p.colour){
+    if(t<.25)return p.colour.start;
+    if(t<.65)return p.colour.mid;
+    return p.colour.end;
+  }
+  if(current.id==="alkene-addition-reaction-model")return t>.6?"rgba(245,245,245,.7)":"rgba(190,120,35,.55)";
+  if(current.id==="alcohol-oxidation")return t>.7?"rgba(60,125,85,.6)":"rgba(90,105,110,.5)";
+  return null;
+}
+const __visualBaseV2=updateSpecificVisual;
+updateSpecificVisual=function(){
+  __visualBaseV2();
+  const p=profileFor(current),t=clamp(labState.reactionProgress||0,0,1),s=v2Sample();
+
+  const particles=$("#precipParticles"),sed=$("#precipSediment"),liq=$("#specificLiquid");
+  if(p.visual?.precipitate&&particles&&sed&&liq&&!s){
+    const colour=p.precipitateColour||"#f2f2f2";
+    particles.innerHTML="";
+    const count=Math.floor(4+t*66);
+    for(let i=0;i<count;i++){
+      const d=document.createElement("i");
+      const seed=(i*47+13)%97/97;
+      const x=8+(seed*84);
+      const phase=(i%7)/7;
+      const formation=Math.max(0,(t-phase*.08));
+      const suspended=formation<.62;
+      const y=suspended ? 26+((i*19)%58)*(1-t*.28) : 76+((i*11)%18);
+      d.style.left=x+"%";d.style.top=y+"%";d.style.background=colour;
+      d.style.width=(3+(i%3))+"px";d.style.height=(3+(i%3))+"px";
+      d.style.opacity=String(.35+formation*.65);
+      d.style.animationDelay=(phase*1.2)+"s";
+      particles.appendChild(d);
+    }
+    sed.style.height=(t<.35?2:2+(t-.35)/.65*30)+"%";
+    sed.style.background=colour;
+    sed.style.opacity=t<.25?".2":"1";
+    liq.style.background=t>.75?"rgba(205,215,220,.35)":"rgba(70,160,205,.38)";
+  }
+
+  if(s&&particles&&sed&&liq){
+    const colour=s.colour;particles.innerHTML="";
+    const count=Math.floor(3+t*62);
+    for(let i=0;i<count;i++){const d=document.createElement("i");const q=(i*37%101)/101;d.style.left=(8+q*84)+"%";d.style.top=(28+((i*23)%60)*(1-t*.3))+"%";d.style.background=colour;d.style.opacity=(.35+t*.65);particles.appendChild(d)}
+    sed.style.height=(t<.45?1:1+(t-.45)/.55*28)+"%";sed.style.background=colour;
+    liq.style.background="rgba(110,170,205,.25)";
+    if($("#qualLiquid"))$("#qualLiquid").style.background="rgba(110,170,205,.25)";
+  }
+
+  if($("#qualParticles")&&s&&s.colour){
+    const qp=$("#qualParticles");qp.innerHTML="";
+    for(let i=0;i<Math.floor(t*35);i++){const d=document.createElement("i");d.style.left=(10+(i*29%80))+"%";d.style.top=(30+(i*17%55)*(1-t*.3))+"%";d.style.background=s.colour;qp.appendChild(d)}
+    $("#qualSediment").style.height=Math.max(1,(t-.5)*45)+"%";$("#qualSediment").style.background=s.colour;
+    $("#qualGas").style.opacity=(s.name==="carbonate"&&t>.12)?String(Math.min(1,t*1.4)):"0";
+  }
+
+  if($("#ammoniumBubbles"))$("#ammoniumBubbles").style.opacity=(current.id==="test-for-ammonium-ions"&&t>.12)?String(Math.min(1,t*1.3)):"0";
+  if($("#ammoniumLiquid"))$("#ammoniumLiquid").style.background="rgba(90,170,205,.28)";
+
+  if($("#cathodePlate")){$("#cathodePlate").style.boxShadow="inset 0 0 "+(4+t*24)+"px rgba(231,160,65,.85)";$("#depositRead").textContent=(t*0.12).toFixed(2)+" g Cu";}
+  if($("#plateCurrent"))$("#plateCurrent").textContent=(labState.power?"+1.00":"0.00")+" A";
+
+  const colour=v2ColourFor(p,t);
+  if(colour&&$("#specificFlask"))$("#specificFlask").style.background=colour;
+  if(colour&&$("#specificFoodLiquid"))$("#specificFoodLiquid").style.background=colour;
+  if(colour&&$("#specificPhLiquid")&&p.visual?.colour)$("#specificPhLiquid").style.background=colour;
+
+  if(current.id==="determining-water-of-crystallisation"&&$("#specificFlame"))$("#specificFlame").classList.toggle("on",labState.burner);
+  if(current.id==="determining-water-of-crystallisation"&&$("#specificGenericLiquid"))$("#specificGenericLiquid").style.background=t>.7?"rgba(225,225,230,.35)":"rgba(65,140,205,.35)";
+};
+
+const __actionBaseV2=performAction;
+performAction=function(action){
+  if(action==="sample"&&SCIENCE_V2[current.id]?.sampleVariants){
+    labState.sampleIndex=(labState.sampleIndex||0)+1;
+    labState.reactionProgress=0;
+    toast("Sample changed · "+v2Sample().label);
+  }
+  __actionBaseV2(action);
+  const p=profileFor(current);
+  if(p.reaction&&["pour","reagent","heat","indicator","action","sample","power"].includes(action)){
+    labState.running=true;labState.paused=false;
+    labState.reactionProgress=clamp((labState.reactionProgress||0)+.08,.0,1);
+  }
+  updateSpecificUI();updateSpecificVisual();
+};
+
+const __labActionsBaseV2=labActions;
+labActions=function(){
+  __labActionsBaseV2();
+  const dock=$("#actionDock");if(!dock)return;
+  if(!$("#timeControls")){
+    const bar=document.createElement("div");bar.id="timeControls";bar.className="time-controls";
+    bar.innerHTML='<span>SIMULATION TIME</span><button data-speed="0.5">0.5×</button><button class="active" data-speed="1">1×</button><button data-speed="2">2×</button><button id="pauseLab">Ⅱ Pause</button><button id="resetLabTime">↺ Reset time</button>';
+    dock.appendChild(bar);
+    $$("#timeControls [data-speed]").forEach(b=>b.onclick=()=>{labState.timeScale=+b.dataset.speed;$$("#timeControls [data-speed]").forEach(x=>x.classList.toggle("active",x===b));});
+    $("#pauseLab").onclick=()=>{labState.paused=!labState.paused;$("#pauseLab").textContent=labState.paused?"▶ Resume":"Ⅱ Pause";updateSpecificUI();};
+    $("#resetLabTime").onclick=()=>{labState.timer=0;labState.reactionProgress=0;labState.paused=false;updateSpecificUI();updateSpecificVisual();toast("Simulation time reset");};
+  }
+};
+
+const __tickV2=window.__scienceSpecificTick;
+if(__tickV2)clearInterval(__tickV2);
+window.__scienceSpecificTick=setInterval(()=>{
+  if(!labState.running||labState.paused)return;
+  const scale=labState.timeScale||1;
+  labState.timer=(labState.timer||0)+0.1*scale;
+  const p=profileFor(current);
+  if(p.reaction)labState.reactionProgress=clamp((labState.reactionProgress||0)+0.006*scale,0,1);
+  if(labState.burner)labState.temp=clamp((labState.temp||20)+0.08*scale,20,120);
+  updateSpecificUI();updateSpecificVisual();
+},100);
+
+const __loadV2=load;
+load=function(e){
+  __loadV2(e);
+  labState.sampleIndex=0;labState.timeScale=1;labState.paused=false;
+  const p=profileFor(e);SCIENCE_PROFILES[e.id]=p;
+  renderKeyDetails(p,e);updateSpecificUI();updateSpecificVisual();
+};
+
+function v2XP(){
+  return Number(localStorage.getItem("sls-xp")||0);
+}
+function v2AddXP(n,reason){
+  const next=v2XP()+n;localStorage.setItem("sls-xp",String(next));
+  toast("+"+n+" XP · "+reason);
+  const x=$("#xpValue");if(x)x.textContent=next+" XP";
+}
+function v2RenderHUD(){
+  let hud=$("#labHud");if(!hud){hud=document.createElement("div");hud.id="labHud";hud.className="lab-hud";document.querySelector("header")?.appendChild(hud);}
+  hud.innerHTML='<span class="xp-pill">✦ <b id="xpValue">'+v2XP()+' XP</b></span><span class="status-pill"><i></i> LOCAL LAB</span>';
+}
+v2RenderHUD();
+
+const __recordV2=scientificRecord;
+scientificRecord=function(){
+  __recordV2();
+  v2AddXP(15,"measurement recorded");
+  if(rows.length===1)v2AddXP(10,"first evidence collected");
+  if(rows.length>=3)v2AddXP(25,"analysis threshold reached");
+  updateSpecificUI();updateSpecificVisual();
+};
+
+const __finishV2=specificFinish;
+specificFinish=function(){
+  if(rows.length<3){toast("Take at least 3 readings first");return;}
+  __finishV2();
+  v2AddXP(75,"experiment completed");
+  const done=Number(localStorage.getItem("sls-experiments-completed")||0)+1;
+  localStorage.setItem("sls-experiments-completed",String(done));
+  const p=profileFor(current);
+  const box=$("#completionPanel");
+  if(box){
+    const key=rows[rows.length-1]?.slice(-1)[0]||"Recorded";
+    box.innerHTML='<div class="complete-burst">✓</div><label>EXPERIMENT COMPLETE</label><h2>'+current.name+'</h2><div class="summary-grid"><div><small>OBJECTIVE</small><b>'+p.objective+'</b></div><div><small>FINAL OBSERVATION</small><b>'+($("#liveObservation")?.textContent||p.observation)+'</b></div><div><small>KEY RESULT</small><b>'+key+'</b></div><div><small>FORMULA</small><b>'+(p.formulas[0]||"Direct observation")+'</b></div></div><div class="takeaway-highlight"><span>KEY TAKEAWAY</span><p>'+p.takeaways[0]+'</p></div><div class="xp-award">+75 XP</div>';
+  }
+  updateSpecificUI();
+};
+
+load(current);

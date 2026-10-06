@@ -530,3 +530,15 @@ const timerSpecificFix=setInterval(()=>{
   }
 },100);
 /* Keep the scientific reaction clock independent from the stopwatch timer. */
+
+/* Replace the provisional clock with one clock: the stopwatch owns timerId; otherwise the lab clock advances here. */
+if(window.__scienceSpecificTick)clearInterval(window.__scienceSpecificTick);
+if(typeof timerSpecificFix!=="undefined")clearInterval(timerSpecificFix);
+window.__scienceSpecificTick=setInterval(()=>{
+  if(typeof labState==="undefined"||!labState.running||labState.paused)return;
+  if(!labState.timerId)labState.timer=(labState.timer||0)+.1;
+  const p=SCIENCE_PROFILES[current.id]||profileFor(current);
+  if(p.reaction)labState.reactionProgress=clamp((labState.reactionProgress||0)+.006,0,1);
+  if(labState.burner)labState.temp=clamp((labState.temp||20)+.08,20,120);
+  updateSpecificUI();updateSpecificVisual();
+},100);

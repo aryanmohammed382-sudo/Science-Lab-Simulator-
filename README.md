@@ -64,7 +64,7 @@ The laboratory workspace now includes:
 - **Why did this happen?** explanations connected to the scientific principle or equation behind an observed event
 - **Experiment completion summary and XP feedback** after the required measurements are recorded
 
-The chemistry precipitation model is deliberately state-driven: clear solution → initial nucleation → increasing suspended particles/cloudiness → settling → accumulated solid layer. Precipitate colour is selected from the named reaction rather than using one universal coloured block.
+The chemistry precipitation model is deliberately state-driven: clear solution → initial nucleation → increasing suspended particles/cloudiness → settling → accumulated solid layer. Particle positions are deterministic from the reaction state, so the solid does not visually jump between frames. Precipitate colour is selected from the named reaction rather than using one universal coloured block. Qualitative-analysis simulations use named ion tests (for example chloride, bromide, iodide, sulfate and carbonate) with reaction-specific equations and observations.
 
 ## Design goals
 
@@ -79,7 +79,7 @@ The chemistry precipitation model is deliberately state-driven: clear solution �
 
 These are educational simulations, not substitutes for supervised laboratory work. Where a real experiment involves complex apparatus, uncertainty, heat transfer, reaction kinetics or biological variation, the simulator uses an idealised educational model rather than pretending to reproduce every real-world effect.
 
-Some of the newly added practicals currently use the simulator's generic measurement engine. Their **experiment titles, objectives and curriculum placement are deliberately based on relevant Cambridge practical contexts**; they can be upgraded later with dedicated apparatus and equations without changing the curriculum catalogue.
+The catalogue has been audited so every one of the 200 practicals resolves to an apparatus, variables, units, formula/law set, procedure and takeaways. Chemistry entries that previously fell through to generic placeholder chemistry now have named reactions or physical-process descriptions, dedicated apparatus scenes where needed, and reaction-specific visual states. The reusable engine remains underneath this data layer so the catalogue stays maintainable.
 
 ## Files
 

@@ -214,7 +214,8 @@ const IGCSE_CHEMISTRY={
   label:"Flame tests",
   basis:"Cambridge 0620 qualitative analysis",
   requirements:[
-   {chemical:"Dilute hydrochloric acid",amount:2,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"cleaning acid"}
+   {chemical:"Metal salt sample",amount:0.1,unit:"g",target:"Nichrome wire",role:"salt sample"},
+   {chemical:"Dilute hydrochloric acid",amount:2,unit:"mL",concentration:"1.0 mol/dm³",target:"Nichrome wire",role:"cleaning acid"}
   ],
   observation:"Characteristic flame colours: Li⁺ red, Na⁺ yellow, K⁺ lilac, Ca²⁺ orange-red, Ba²⁺ light green, Cu²⁺ blue-green.",
   reaction:"No single solution colour change; the diagnostic observation is the flame colour."
@@ -366,9 +367,10 @@ const IGCSE_CHEMISTRY={
   label:"Test for an unsaturated hydrocarbon",
   basis:"Cambridge IGCSE bromine-water test",
   requirements:[
+   {chemical:"Alkene sample",amount:2,unit:"mL",target:"Test tube",role:"unknown hydrocarbon"},
    {chemical:"Bromine water",amount:2,unit:"mL",target:"Test tube",role:"test reagent"}
   ],
-  observation:"Bromine water is orange/brown and decolourises when an alkene is present; a saturated compound leaves it orange/brown.",
+  observation:"Bromine water is orange/brown and decolourises when an alkene is present; a saturated hydrocarbon leaves the bromine colour unchanged.",
   reaction:"C=C + Br₂ → dibromo compound"
  },
  "alcohol-oxidation":{

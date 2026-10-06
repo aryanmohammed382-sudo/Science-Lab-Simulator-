@@ -7,7 +7,7 @@ const normalizeSubject=s=>s==="Environmental Science"?"Environmental":s;
 const fallback={Physics:["DC power supply","Ammeter","Voltmeter","Connecting wires"],Chemistry:["Beaker","Conical flask","Measuring cylinder","Thermometer"],Biology:["Microscope","Microscope slide","Coverslip","Plant sample"],Environmental:["Quadrat","Soil sample","Measuring instruments","Data sheet"]};
 const ranges=n=>{n=n.toLowerCase();if(n.includes("ph"))return[1,14,.1,7];if(n.includes("angle"))return[0,85,1,30];if(n.includes("temperature"))return[5,90,1,25];if(n.includes("voltage"))return[0,12,.1,6];if(n.includes("resistance"))return[1,100,1,20];if(n.includes("mass"))return[1,500,1,50];if(/length|distance|height|diameter|volume/.test(n))return[1,100,.1,20];if(n.includes("time"))return[1,120,1,10];return[0,100,.1,20]};
 const req=e=>[...new Set((e?.materials?.length?e.materials:fallback[e?.subject]||fallback.Physics).filter(Boolean))].slice(0,8);
-const newState=e=>({setup:[],values:(e.controls||["Variable A","Variable B"]).slice(0,2).map((n,i)=>ranges(n)[3]),rows:[],running:false,completed:false});
+const newState=e=>({setup:[],values:(e.controls||["Variable A","Variable B"]).slice(0,2).map((n,i)=>ranges(n)[3]),rows:[],running:false,completed:false,chemicals:{},pours:[],connections:[],markers:[],resistorResistance:20});
 function toast(t){const x=$("#toast");if(!x)return;x.textContent=t;x.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.remove("show"),1900)}
 function save(){localStorage.setItem("sls-redesign-state",JSON.stringify({subject,current:current?.id,S}))}
 function formula(e){const a=+S.values[0]||0,b=+S.values[1]||0;switch(e.type){case"ohm":return a/(b||1);case"series":return a/(b+20);case"parallel":return a/(b||1);case"resistivity":return .0175*a/(Math.PI*Math.pow(b/2000,2));case"power":return a*a/(b||1);case"density":return a/(b||1);case"hooke":return a/(b||1);case"pendulum":return 2*Math.PI*Math.sqrt(Math.max(.01,a/100));case"moments":case"friction":return a*b;case"lens":return a===b?Infinity:a*b/(a-b);case"refraction":return Math.asin(Math.sin(a*Math.PI/180)/(b||1))*180/Math.PI;case"thermal":return a*50;case"gas":return a?b*100/a:0;default:return(a+b)/2}}
@@ -41,7 +41,7 @@ function renderInteractionGraphics(){
  const layer=$("#connectionLayer"),markers=$("#fiducials");
  if(layer)layer.innerHTML=(S.connections||[]).map(c=>{
   const a=S.setup[c.a],b=S.setup[c.b];if(!a||!b)return "";
-  return '<line x1="'+a.x+'%" y1="'+a.y+'%" x2="'+b.x+'%" y2="'+b.y+'%" class="connection-line"/>';
+  return '<line x1="'+a.x+'%" y1="'+a.y+'%" x2="'+b.x+'%" y2="'+b.y+'%" class="connection-line"/><circle cx="'+a.x+'%" cy="'+a.y+'%" r="1.5" class="connection-node"/><circle cx="'+b.x+'%" cy="'+b.y+'%" r="1.5" class="connection-node"/>';
  }).join("");
  if(markers)markers.innerHTML=(S.markers||[]).map(m=>'<div class="fiducial-marker" style="left:'+m.x+'%;top:'+m.y+'%"><span>'+m.id+'</span></div>').join("");
 }
@@ -69,20 +69,17 @@ function placeMarkerAtEvent(e){
  markerMode=false;renderAll();save();toast("Fiducial marker "+S.markers.length+" placed");
  return true;
 }
+
 function enablePlacedDrag(el){
  el.addEventListener("pointerdown",e=>{
   if(e.target.closest(".remove-apparatus"))return;
   const i=+el.dataset.index;
   if(pourMode){e.preventDefault();pourChemical(i);return}
-  if(selectConnection(i))return;
-  if(markerMode)return;
+  if(selectConnection(i)){e.preventDefault();return}
+  if(markerMode){e.preventDefault();return}
   e.preventDefault();
   const bench=$("#bench"),r=bench.getBoundingClientRect(),item=S.setup[i];
-  const move=ev=>{
-   const x=Math.max(6,Math.min(94,((ev.clientX-r.left)/r.width)*100));
-   const y=Math.max(10,Math.min(88,((ev.clientY-r.top)/r.height)*100));
-   item.x=+x.toFixed(2);item.y=+y.toFixed(2);el.style.left=item.x+"%";el.style.top=item.y+"%";renderInteractionGraphics();
-  };
+  const move=ev=>{const x=Math.max(6,Math.min(94,((ev.clientX-r.left)/r.width)*100));const y=Math.max(10,Math.min(88,((ev.clientY-r.top)/r.height)*100));item.x=+x.toFixed(2);item.y=+y.toFixed(2);el.style.left=item.x+"%";el.style.top=item.y+"%";renderInteractionGraphics()};
   const up=ev=>{el.releasePointerCapture?.(ev.pointerId);el.classList.remove("moving");el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",up);save()};
   el.setPointerCapture?.(e.pointerId);el.classList.add("moving");el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);
  });
@@ -92,8 +89,8 @@ function renderDrawer(){const box=$("#apparatusTray"),q=($("#apparatusSearch").v
 function enableTrayDrag(el){el.addEventListener("pointerdown",e=>{if(e.button!==0)return;e.preventDefault();drag={name:el.dataset.name,moved:false,startX:e.clientX,startY:e.clientY,ghost:null,pointerId:e.pointerId};el.setPointerCapture?.(e.pointerId);document.addEventListener("pointermove",dragMove);document.addEventListener("pointerup",dragEnd,{once:true})})}
 function dragMove(e){if(!drag)return;if(!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<4)return;if(!drag.moved){drag.moved=true;drag.ghost=document.createElement("div");drag.ghost.className="drag-ghost";drag.ghost.innerHTML=apparatusSvg(drag.name);document.body.appendChild(drag.ghost);$("#bench").classList.add("drag-target")}if(drag.ghost){drag.ghost.style.left=e.clientX+"px";drag.ghost.style.top=e.clientY+"px"}}
 function dragEnd(e){if(!drag)return;const d=drag;drag=null;document.removeEventListener("pointermove",dragMove);$("#bench").classList.remove("drag-target");if(d.ghost)d.ghost.remove();if(!d.moved){toast("Drag the apparatus onto the bench to place it");return}const r=$("#bench").getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom){toast("Release the apparatus over the bench");return}placeAt(d.name,e.clientX,e.clientY)}
-function placeAt(name,clientX,clientY){if(S.setup.some(x=>x.name===name)){toast(name+" is already on the bench");return}const r=$("#bench").getBoundingClientRect();const x=Math.max(6,Math.min(94,((clientX-r.left)/r.width)*100));const y=Math.max(10,Math.min(88,((clientY-r.top)/r.height)*100));S.setup.push({name,x:+x.toFixed(2),y:+y.toFixed(2)});renderAll();toast(name+" placed exactly where you dropped it")}
-function enablePlacedDrag(el){el.addEventListener("pointerdown",e=>{if(e.target.closest(".remove-apparatus"))return;e.preventDefault();const i=+el.dataset.index,bench=$("#bench"),r=bench.getBoundingClientRect(),item=S.setup[i];const move=ev=>{const x=Math.max(6,Math.min(94,((ev.clientX-r.left)/r.width)*100));const y=Math.max(10,Math.min(88,((ev.clientY-r.top)/r.height)*100));item.x=+x.toFixed(2);item.y=+y.toFixed(2);el.style.left=item.x+"%";el.style.top=item.y+"%"};const up=ev=>{el.releasePointerCapture?.(ev.pointerId);el.classList.remove("moving");el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",up);save()};el.setPointerCapture?.(e.pointerId);el.classList.add("moving");el.addEventListener("pointermove",move);el.addEventListener("pointerup",up)})}
+function placeAt(name,clientX,clientY){if(S.setup.some(x=>x.name===name)){toast(name+" is already on the bench");return}const r=$("#bench").getBoundingClientRect();const x=Math.max(6,Math.min(94,((clientX-r.left)/r.width)*100));const y=Math.max(10,Math.min(88,((clientY-r.top)/r.height)*100));S.setup.push({name,x:+x.toFixed(2),y:+y.toFixed(2),resistance:/resistor/i.test(name)?(S.resistorResistance||20):undefined});renderAll();toast(name+" placed exactly where you dropped it")}
+
 function renderControls(){const box=$("#controls"),cs=(current.controls||["Variable A","Variable B"]).slice(0,2);box.innerHTML=cs.map((n,i)=>{const r=ranges(n);return'<div class="control"><label><span>'+esc(n)+'</span><output id="out'+i+'">'+S.values[i]+'</output></label><input class="range" data-i="'+i+'" type="range" min="'+r[0]+'" max="'+r[1]+'" step="'+r[2]+'" value="'+S.values[i]+'"></div>'}).join("");box.querySelectorAll(".range").forEach(x=>x.addEventListener("input",()=>{S.values[+x.dataset.i]=+x.value;$("#out"+x.dataset.i).textContent=x.value;renderReadings();save()}))}
 function renderProcedure(){const items=["Read the objective: "+current.objective,"Place every required apparatus on the bench using the drawer.","Set "+(current.controls?.[0]||"the first variable")+" and "+(current.controls?.[1]||"the second variable")+" using the controls.","Start the experiment and observe the live response.","Record at least three measurements, changing one variable at a time.","Compare the evidence with the expected relationship: "+equation(current)];$("#procedureTab").innerHTML='<h3 class="procedure-title">Step-by-Step Guide</h3>'+items.map((t,i)=>'<div class="step"><span class="step-num">'+(i+1)+'</span><p>'+esc(t)+'</p></div>').join("")+'<div class="apparatus-check"><h4>Required Apparatus</h4>'+req(current).map(n=>{const done=S.setup.some(x=>x.name===n);return'<div class="check-row '+(done?"done":"")+'"><span>'+(done?"✓":"")+'</span>'+esc(n)+'</div>'}).join("")+'</div><p class="procedure-note">'+esc(current.safety||"Follow normal laboratory safety procedures.")+'</p>'}
 function renderReadings(){const r=formula(current),b=$("#readings"),result=Number.isFinite(r)?r.toFixed(3):"∞";b.innerHTML='<div class="reading"><small>'+esc(current.controls?.[0]||"Variable A")+'</small><strong>'+Number(S.values[0]).toFixed(2)+'</strong><em>'+esc(current.units?.[0]||"")+'</em></div><div class="reading"><small>'+esc(current.controls?.[1]||"Variable B")+'</small><strong>'+Number(S.values[1]).toFixed(2)+'</strong><em>'+esc(current.units?.[1]||"")+'</em></div><div class="reading"><small>Calculated result</small><strong>'+result+'</strong><em>live simulation</em></div>'}
@@ -493,33 +490,22 @@ function renderChemicals(){
  const box=$("#chemicalTray"),status=$("#chemicalStatus"),spec=interactionSpec(current);
  if(!box)return;
  const reqs=spec.requirements;
- if(!reqs.length){
-  box.innerHTML='<div class="reaction-note">No chemical reaction setup is required for this experiment.</div>';
-  if(status)status.textContent="No reagent setup required.";
-  return;
- }
- box.innerHTML=reqs.map(r=>{
-  const done=Math.min(chemistryAmount(r.chemical),r.amount);
-  const remaining=Math.max(0,r.amount-done);
-  const label=r.unit==="drops"?r.amount+" drops":r.amount+" mL";
-  const currentLabel=r.unit==="drops"?done.toFixed(0)+" drops":done.toFixed(1)+" mL";
-  const stock=S.chemicals[r.chemical]||{}; const v=stock.quantity!=null?stock.quantity:(stock.volume??(/^(g|mg)$/.test(r.unit)?100:250));
-  return '<button class="chemical-card '+(selectedChemical===r.chemical?"selected":"")+(remaining<=0?" complete":"")+'" data-chemical="'+esc(r.chemical)+'">'+
-   '<span class="chemical-bottle" style="--chemical:'+chemicalColor(r.chemical)+'"><b>'+esc(CHEMICALS[r.chemical]?.symbol||"")+'</b></span>'+
-   '<span><strong>'+esc(r.chemical)+'</strong><small>'+currentLabel+' / '+label+' required'+(r.concentration?" · "+esc(r.concentration):"")+'</small><small>Source: '+v.toFixed(1)+' '+esc(r.unit)+'</small></span></button>';
- }).join("");
- box.querySelectorAll(".chemical-card").forEach(b=>b.addEventListener("click",()=>{
-  const need=chemistryNeed(spec.profile,b.dataset.chemical);
-  if(!need||chemistryFulfilled(spec.profile,need))return toast(b.dataset.chemical+" requirement is already satisfied");
-  selectedChemical=b.dataset.chemical;pourMode=true;connectionMode=false;connectionFirst=null;markerMode=false;
-  document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));
-  renderChemicals();renderConnections();
-  const amount=need.unit==="drops"?need.amount+" drops":need.amount+" mL";
-  toast("Selected "+selectedChemical+" — add exactly "+amount);
- }));
- if(status)status.textContent=selectedChemical?"Selected: "+selectedChemical+" — click the specified target.":"Select a reagent to add its required quantity.";
+ if(!reqs.length){box.innerHTML='<div class="reaction-note">No chemical addition is required for this experiment.</div>';if(status)status.textContent="No reagent setup required.";return}
+ const options=reqs.map(r=>{const done=Math.min(chemistryAmount(r.chemical),r.amount);const label=r.unit==="drops"?r.amount+" drops":r.amount+" "+r.unit;return '<option value="'+esc(r.chemical)+'" '+(selectedChemical===r.chemical?"selected":"")+' '+(done>=r.amount?"disabled":"")+'>'+esc(r.chemical)+' — '+done.toFixed(r.unit==="drops"?0:1)+' / '+label+(r.concentration?" · "+esc(r.concentration):"")+'</option>'}).join("");
+ box.innerHTML='<div class="chemical-picker-row"><label class="picker-label">Chemical / indicator</label><select id="chemicalSelect" class="interaction-select"><option value="">Choose a chemical…</option>'+options+'</select><button id="chemicalPourBtn" class="interaction-action '+(pourMode?"active":"")+'">◉ '+(pourMode?"Pour mode active":"Select & pour")+'</button></div>'+
+ '<div class="chemical-stock-grid">'+reqs.map(r=>{const stock=S.chemicals[r.chemical]||{};const available=stock.quantity!=null?stock.quantity:(stock.volume??(/^(g|mg)$/.test(r.unit)?100:250));return '<div class="stock-chip"><b>'+esc(r.chemical)+'</b><small>Need '+(r.unit==="drops"?r.amount+" drops":r.amount+" "+r.unit)+' · Remaining stock '+available.toFixed(1)+' '+esc(r.unit)+'</small></div>'}).join("")+'</div>';
+ $("#chemicalSelect")?.addEventListener("change",()=>{
+  selectedChemical=$("#chemicalSelect").value||null;
+  if(selectedChemical){pourMode=true;connectionMode=false;connectionFirst=null;markerMode=false;document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));renderConnections();const need=chemistryNeed(spec.profile,selectedChemical);toast("Selected "+selectedChemical+" — click the "+need.target+" to add "+(need.unit==="drops"?need.amount+" drops":need.amount+" "+need.unit))}
+  else{pourMode=false;document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("pour-target"));renderConnections()}
+ });
+ $("#chemicalPourBtn")?.addEventListener("click",()=>{
+  const need=chemistryNeed(spec.profile,selectedChemical)||spec.requirements.find(r=>!chemistryFulfilled(spec.profile,r));
+  if(!need)return toast("All required chemical quantities are complete");
+  selectedChemical=need.chemical;pourMode=true;connectionMode=false;markerMode=false;document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));renderChemicals();renderConnections();toast("Pour mode: click the "+need.target);
+ });
+ if(status)status.textContent=selectedChemical?"Selected: "+selectedChemical+" — click its target apparatus.":"Choose a reagent or indicator from the dropdown.";
 }
-
 function pourChemical(targetIndex){
  ensureInteractionState();
  if(!selectedChemical)return toast("Choose the required chemical first");
@@ -560,38 +546,27 @@ function renderReactionProfile(spec){
 function renderConnections(){
  ensureInteractionState();
  const box=$("#connectionPanel");if(!box)return;
- const spec=interactionSpec(current);
- box.innerHTML='<div class="interaction-title">Real-world setup</div>'+
+ const spec=interactionSpec(current),resistorItems=S.setup.filter(x=>/resistor/i.test(x.name)),resistanceOptions=[1,2,5,10,20,50,100,220,330,470,1000];
+ const resistanceUI=resistorItems.length?'<div class="resistor-picker"><label class="picker-label">Resistor resistance</label><select id="resistanceSelect" class="interaction-select">'+resistanceOptions.map(v=>'<option value="'+v+'" '+((S.resistorResistance||20)===v?"selected":"")+'>'+v+' Ω</option>').join("")+'</select><small>Applies to the resistor(s) on the bench.</small></div>':"";
+ box.innerHTML='<div class="interaction-title">Real-world setup</div>'+resistanceUI+
   '<button class="interaction-action '+(connectionMode?"active":"")+'" id="connectBtn">⌁ '+(connectionMode?"Connecting — click two apparatus":"Connect wires")+'</button>'+
   '<button class="interaction-action '+(pourMode?"active":"")+'" id="pourBtn">◉ '+(pourMode?"Pour mode active":"Choose chemical")+'</button>'+
   '<button class="interaction-action '+(markerMode?"active":"")+'" id="markerBtn">⊙ '+(markerMode?"Click the bench to place marker":"Place fiducial marker")+'</button>'+
-  '<div class="interaction-status">'+(spec.wires?"Connections "+S.connections.length+" / "+spec.connections:"No wire connection required for this experiment.")+'</div>'+
+  '<div class="interaction-status">'+(spec.wires?"Connections "+S.connections.length+" / "+spec.connections:"Wire connections are available for any apparatus pair.")+'</div>'+
   (spec.markers?'<div class="interaction-status">Fiducial markers '+S.markers.length+" / "+spec.markers+'</div>':"")+
   (spec.requirements.length?'<div class="interaction-status">Chemical setup: '+spec.requirements.filter(r=>chemistryFulfilled(spec.profile,r)).length+" / "+spec.requirements.length+" quantities complete</div>":"")+
   renderReactionProfile(spec);
- $("#connectBtn")?.addEventListener("click",()=>{
-  connectionMode=!connectionMode;pourMode=false;selectedChemical=null;connectionFirst=null;markerMode=false;
-  document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("pour-target","connection-first"));
-  renderConnections();toast(connectionMode?"Click the first apparatus, then the second":"Wire mode off");
- });
- $("#pourBtn")?.addEventListener("click",()=>{
-  if(!spec.requirements.length)return toast("No chemical addition is required here");
-  pourMode=true;connectionMode=false;markerMode=false;selectedChemical=selectedChemical||spec.requirements.find(r=>!chemistryFulfilled(spec.profile,r))?.chemical||null;
-  renderChemicals();renderConnections();toast(selectedChemical?"Select the target apparatus for "+selectedChemical:"All chemical quantities are complete");
- });
- $("#markerBtn")?.addEventListener("click",()=>{
-  if(!spec.markers)return toast("Fiducial markers are not needed for this experiment");
-  markerMode=!markerMode;connectionMode=false;pourMode=false;selectedChemical=null;
-  renderConnections();toast(markerMode?"Click anywhere on the bench to place a marker":"Marker mode off");
- });
+ $("#resistanceSelect")?.addEventListener("change",()=>{S.resistorResistance=+$("#resistanceSelect").value;S.setup.filter(x=>/resistor/i.test(x.name)).forEach(x=>x.resistance=S.resistorResistance);renderBench();save();toast("Resistor set to "+S.resistorResistance+" Ω")});
+ $("#connectBtn")?.addEventListener("click",()=>{connectionMode=!connectionMode;pourMode=false;selectedChemical=null;connectionFirst=null;markerMode=false;document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("pour-target","connection-first"));renderConnections();toast(connectionMode?"Wire mode: click the first apparatus, then the second":"Wire mode off")});
+ $("#pourBtn")?.addEventListener("click",()=>{if(!spec.requirements.length)return toast("No chemical addition is required here");const next=spec.requirements.find(r=>!chemistryFulfilled(spec.profile,r));pourMode=true;connectionMode=false;markerMode=false;selectedChemical=selectedChemical||next?.chemical||null;document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));renderChemicals();renderConnections();toast(selectedChemical?"Pour mode: click the "+(chemistryNeed(spec.profile,selectedChemical)?.target||"target apparatus"):"All chemical quantities are complete")});
+ $("#markerBtn")?.addEventListener("click",()=>{if(!spec.markers)return toast("Fiducial markers are not needed for this experiment");markerMode=!markerMode;connectionMode=false;pourMode=false;selectedChemical=null;document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("pour-target","connection-first"));renderConnections();toast(markerMode?"Click anywhere on the bench to place a marker":"Marker mode off")});
 }
-
 function renderBench(){
  ensureInteractionState();
  const p=$("#placedApparatus");
  p.innerHTML=S.setup.map((item,i)=>{
   const liq=item.liquid?.length?item.liquid[item.liquid.length-1]:null;
-  return '<div class="placed-item" data-index="'+i+'" style="left:'+item.x+'%;top:'+item.y+'%"><span class="placed-visual">'+apparatusSvg(item.name)+'</span>'+
+  return '<div class="placed-item" data-index="'+i+'" style="left:'+item.x+'%;top:'+item.y+'%"><span class="placed-visual">'+apparatusSvg(item.name)+'</span>'+(/resistor/i.test(item.name)?'<span class="resistance-badge">'+esc(item.resistance||S.resistorResistance||20)+' Ω</span>':"")+
    (liq?'<span class="liquid-overlay" style="--liquid:'+chemicalColor(liq.chemical)+'"></span>':"")+
    '<b>'+esc(item.name)+'</b><button class="remove-apparatus" data-remove="'+i+'">×</button></div>';
  }).join("");

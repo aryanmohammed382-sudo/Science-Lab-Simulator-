@@ -160,7 +160,7 @@ function performAction(action){
  else if(action==="endpoint"){labState.liquid=50;updatePhysicalApparatus();s.textContent="Endpoint reached. Read the lower meniscus."}
  else if(action==="connect"){labState.wires=!labState.wires;updatePhysicalApparatus();s.textContent=labState.wires?"Circuit connected — the path is complete.":"Wires disconnected."}
  else if(action==="power"){labState.power=!labState.power;updatePhysicalApparatus();$(".electrolysis-lab")?.classList.toggle("powered",labState.power);s.textContent=labState.power?"Switch closed — current can flow.":"Switch open — current stopped."}
- else if(action==="heat"){labState.burner=!labState.burner;updatePhysicalApparatus();if(labState.burner)heatPhysical();s.textContent=labState.burner?"Heater on — flame and temperature are changing.":"Heater off — heating stopped."}
+ else if(action==="heat"){labState.burner=!labState.burner;updatePhysicalApparatus();$(".bunsen-real")?.classList.toggle("on",labState.burner);if(labState.burner)heatPhysical();s.textContent=labState.burner?"Bunsen gas open and flame lit — heating is active.":"Bunsen burner off — heating stopped."}
  else if(action==="measure"){recordRow();s.textContent="Reading recorded from the current apparatus state."}
  else if(action==="pour"){labState.liquid=clamp(labState.liquid+10,5,90);updatePhysicalApparatus();s.textContent="Liquid transferred — the visible level changed."}
  else if(action==="remove"){labState.mass=0;updatePhysicalApparatus();s.textContent="Sample removed from the balance."}

@@ -35,6 +35,57 @@ function chooseSubject(s){subject=s;$("#subjectModal").classList.add("hidden");s
 function renderExperimentList(){const box=$("#experimentList"),q=($("#experimentSearch").value||"").toLowerCase(),arr=E.filter(e=>normalizeSubject(e.subject)===subject&&(!q||[e.name,e.objective].join(" ").toLowerCase().includes(q)));$("#experimentCountLabel").textContent=arr.length+" available";box.innerHTML=arr.map(e=>'<button class="experiment-item '+(current?.id===e.id?"active":"")+'" data-id="'+esc(e.id)+'"><span class="experiment-thumb">'+mini((e.materials||fallback[e.subject]||["Beaker"])[0])+'</span><span><h3>'+esc(e.name)+'</h3><p>'+esc(e.subject)+' · '+(e.level===1?"Beginner":e.level===2?"Intermediate":"Advanced")+'</p><small>'+req(e).length+' apparatus · Practical</small></span></button>').join("")||'<div style="padding:20px;color:#789;font-size:10px">No experiments found.</div>';box.querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click",()=>load(E.find(e=>e.id===b.dataset.id))))}
 function load(e){if(!e)return;current=e;S=newState(e);renderExperimentList();renderAll();save();document.querySelector(".lab-column")?.scrollIntoView({behavior:"smooth",block:"start"})}
 function renderAll(){if(!current)return;$("#activeTitle").textContent=current.name;$("#activeObjective").textContent=current.objective;$("#overviewText").textContent=current.objective+" "+(current.text||"");$("#variablesText").innerHTML="<b>Independent:</b> "+esc(current.controls?.[0]||"Variable A")+"<br><b>Dependent:</b> "+esc(current.columns?.[3]||"Result")+"<br><b>Controlled:</b> Keep other conditions constant.";$("#equationText").textContent=equation(current);$("#outcomesText").innerHTML="<li>Understand "+esc(current.name)+"</li><li>Collect repeated measurements</li><li>Analyse and explain evidence</li>";renderBench();renderDrawer();renderControls();renderProcedure();renderReadings();renderTable();renderNotebook();updateState()}
+
+function renderInteractionGraphics(){
+ const layer=$("#connectionLayer"),markers=$("#fiducials");
+ if(layer)layer.innerHTML=(S.connections||[]).map(c=>{
+  const a=S.setup[c.a],b=S.setup[c.b];if(!a||!b)return "";
+  return '<line x1="'+a.x+'%" y1="'+a.y+'%" x2="'+b.x+'%" y2="'+b.y+'%" class="connection-line"/>';
+ }).join("");
+ if(markers)markers.innerHTML=(S.markers||[]).map(m=>'<div class="fiducial-marker" style="left:'+m.x+'%;top:'+m.y+'%"><span>'+m.id+'</span></div>').join("");
+}
+function selectConnection(index){
+ if(!connectionMode)return false;
+ if(connectionFirst===null){
+  connectionFirst=index;
+  document.querySelectorAll(".placed-item").forEach(x=>x.classList.toggle("connection-first",+x.dataset.index===index));
+  toast("Now click the second apparatus");
+  return true;
+ }
+ if(connectionFirst===index)return true;
+ const exists=S.connections.some(c=>(c.a===connectionFirst&&c.b===index)||(c.a===index&&c.b===connectionFirst));
+ if(!exists)S.connections.push({a:connectionFirst,b:index});
+ connectionFirst=null;connectionMode=false;
+ renderAll();save();toast("Wire connection added");
+ return true;
+}
+function placeMarkerAtEvent(e){
+ if(!markerMode)return false;
+ const r=$("#bench").getBoundingClientRect();
+ const x=Math.max(5,Math.min(95,((e.clientX-r.left)/r.width)*100));
+ const y=Math.max(7,Math.min(90,((e.clientY-r.top)/r.height)*100));
+ S.markers.push({id:S.markers.length+1,x:+x.toFixed(2),y:+y.toFixed(2)});
+ markerMode=false;renderAll();save();toast("Fiducial marker "+S.markers.length+" placed");
+ return true;
+}
+function enablePlacedDrag(el){
+ el.addEventListener("pointerdown",e=>{
+  if(e.target.closest(".remove-apparatus"))return;
+  const i=+el.dataset.index;
+  if(pourMode){e.preventDefault();pourChemical(i);return}
+  if(selectConnection(i))return;
+  if(markerMode)return;
+  e.preventDefault();
+  const bench=$("#bench"),r=bench.getBoundingClientRect(),item=S.setup[i];
+  const move=ev=>{
+   const x=Math.max(6,Math.min(94,((ev.clientX-r.left)/r.width)*100));
+   const y=Math.max(10,Math.min(88,((ev.clientY-r.top)/r.height)*100));
+   item.x=+x.toFixed(2);item.y=+y.toFixed(2);el.style.left=item.x+"%";el.style.top=item.y+"%";renderInteractionGraphics();
+  };
+  const up=ev=>{el.releasePointerCapture?.(ev.pointerId);el.classList.remove("moving");el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",up);save()};
+  el.setPointerCapture?.(e.pointerId);el.classList.add("moving");el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);
+ });
+}
 function renderBench(){const p=$("#placedApparatus");p.innerHTML=S.setup.map((item,i)=>'<div class="placed-item" data-index="'+i+'" style="left:'+item.x+'%;top:'+item.y+'%"><span class="placed-visual">'+apparatusSvg(item.name)+'</span><b>'+esc(item.name)+'</b><button class="remove-apparatus" data-remove="'+i+'">×</button></div>').join("");$("#benchTip").classList.toggle("hidden",S.setup.length>0);p.querySelectorAll(".remove-apparatus").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();S.setup.splice(+b.dataset.remove,1);renderAll();toast("Apparatus removed")}));p.querySelectorAll(".placed-item").forEach(el=>enablePlacedDrag(el))}
 function renderDrawer(){const box=$("#apparatusTray"),q=($("#apparatusSearch").value||"").toLowerCase(),items=req(current).filter(n=>n.toLowerCase().includes(q));box.innerHTML=items.map(n=>{const placed=S.setup.some(x=>x.name===n);return'<button class="apparatus-card '+(placed?"placed":"required")+'" data-name="'+esc(n)+'" '+(placed?"disabled":"")+'><span class="drawer-visual">'+apparatusSvg(n)+'</span><b>'+esc(n)+'</b><small>'+(placed?"PLACED":"REQUIRED")+'</small></button>'}).join("")||'<span style="font-size:9px;color:#aac">No matching apparatus.</span>';box.querySelectorAll(".apparatus-card:not([disabled])").forEach(b=>enableTrayDrag(b))}
 function enableTrayDrag(el){el.addEventListener("pointerdown",e=>{if(e.button!==0)return;e.preventDefault();drag={name:el.dataset.name,moved:false,startX:e.clientX,startY:e.clientY,ghost:null,pointerId:e.pointerId};el.setPointerCapture?.(e.pointerId);document.addEventListener("pointermove",dragMove);document.addEventListener("pointerup",dragEnd,{once:true})})}

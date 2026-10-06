@@ -164,3 +164,66 @@
 @keyframes particleFloat{0%,100%{transform:translateY(3px)}50%{transform:translateY(-5px)}}
 @keyframes bubbles{0%{transform:translateY(15px);opacity:.3}60%{opacity:1}100%{transform:translateY(-55px);opacity:0}}
 @media(max-width:900px){.detail-grid{grid-template-columns:1fr}.observation-panel,.completion-panel{grid-column:auto}.specific-lab{transform:scale(.9);transform-origin:center}}
+
+
+/* === SCIENCE LAB V2 VISUAL SYSTEM === */
+.lab-hud{display:flex;gap:8px;align-items:center;margin-left:auto}
+.xp-pill,.status-pill{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid rgba(91,231,255,.18);border-radius:999px;background:rgba(8,22,34,.8);font-size:11px;letter-spacing:.04em}
+.xp-pill{color:#ffd36b;box-shadow:0 0 18px rgba(255,195,72,.08)}
+.status-pill{color:#73e9be}.status-pill i{width:7px;height:7px;border-radius:50%;background:#55e89c;box-shadow:0 0 9px #55e89c}
+.time-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border:1px solid rgba(96,220,255,.14);border-radius:12px;background:rgba(4,16,27,.72)}
+.time-controls>span{font-size:9px;letter-spacing:.13em;color:#7792a4;margin-right:4px}
+.time-controls button{border:1px solid rgba(120,170,195,.22);background:#0b1a27;color:#b9d3df;border-radius:8px;padding:7px 9px;cursor:pointer;transition:.2s}
+.time-controls button:hover,.time-controls button.active{border-color:#48dfff;background:#103243;color:#e8fbff;box-shadow:0 0 14px rgba(72,223,255,.12)}
+.experiment-status.paused{border-color:#ffc86b;background:rgba(255,177,68,.08);color:#ffdca0}
+.lab-steps span.active{color:#66e6ff!important;text-shadow:0 0 12px rgba(102,230,255,.3)}
+.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.summary-grid>div{padding:12px;border:1px solid rgba(115,180,205,.14);border-radius:10px;background:rgba(8,20,30,.5)}
+.summary-grid small{display:block;color:#7894a5;font-size:9px;letter-spacing:.12em;margin-bottom:6px}
+.summary-grid b{display:block;color:#d9edf5;font-size:12px;line-height:1.4}
+.takeaway-highlight{padding:13px;border-radius:12px;background:linear-gradient(135deg,rgba(62,225,184,.08),rgba(69,176,255,.06));border:1px solid rgba(91,231,255,.14)}
+.takeaway-highlight span{font-size:9px;letter-spacing:.13em;color:#65e7c0}.takeaway-highlight p{margin:7px 0 0;color:#d5e8ef}
+.control-unit{display:block;color:#6f91a4;font-size:9px;margin-top:3px}
+.detail-grid p,.formula-list small{line-height:1.45}
+.detail-grid span{display:flex;justify-content:space-between;gap:10px}
+.detail-grid span small{color:#6e9aae}
+.filtration-scene,.solution-prep-scene,.measurement-scene,.qualitative-scene,.ammonium-scene,.electroplating-scene{position:relative;min-height:330px}
+.filter-funnel{position:absolute;left:27%;top:15%;width:150px;height:170px;border:3px solid #b9cbd4;border-top:0;clip-path:polygon(0 0,100% 0,62% 80%,38% 80%);background:rgba(220,240,245,.05)}
+.filter-paper{position:absolute;left:15%;right:15%;top:10px;height:65px;border-radius:50%;border:2px solid #e1edf0;background:rgba(235,242,239,.18)}
+.filter-residue{position:absolute;left:25%;right:25%;top:25px;height:24px;border-radius:50%;background:rgba(133,111,79,.55)}
+.filter-flask{position:absolute;left:48%;bottom:16%;width:150px;height:120px;border:2px solid rgba(215,235,242,.5);border-top:0;border-radius:0 0 55px 55px}
+.filter-filtrate{position:absolute;left:7px;right:7px;bottom:5px;height:28%;border-radius:0 0 45px 45px;background:rgba(100,170,205,.32)}
+.glass-rod{position:absolute;left:40%;top:15%;width:3px;height:190px;background:#dcebf0;transform:rotate(-28deg);opacity:.65}
+.wash-bottle{position:absolute;right:18%;bottom:18%;width:70px;height:110px;border:2px solid #87a4b1;border-radius:12px 12px 20px 20px;background:rgba(90,150,180,.08)}
+.scene-note{position:absolute;left:12%;bottom:8%;right:12%;text-align:center;font-size:9px;color:#7693a4;letter-spacing:.12em}
+.balance-specific{position:absolute;left:13%;top:27%;width:145px;height:80px;border:2px solid #788e9a;border-radius:8px;background:#101f29;display:grid;place-items:center;color:#6ff0bb;font-family:monospace}
+.balance-specific small{display:block;font-family:inherit;color:#728b99;font-size:8px}
+.prep-beaker{position:absolute;left:38%;bottom:18%;width:100px;height:100px;border:2px solid #9db2bc;border-top:0;border-radius:0 0 18px 18px}
+.volumetric-flask{position:absolute;right:17%;bottom:15%;width:130px;height:150px;border:2px solid #9db2bc;border-top:0;border-radius:0 0 50% 50%;background:rgba(220,240,245,.03)}
+.volumetric-flask .flask-neck{position:absolute;left:45px;top:-75px;width:37px;height:75px;border:2px solid #9db2bc;border-bottom:0}
+.volumetric-flask .specific-liquid{position:absolute;left:6px;right:6px;bottom:5px;height:55%;background:rgba(70,160,210,.32);border-radius:0 0 45% 45%}
+.volumetric-flask span{position:absolute;right:8px;bottom:60%;font-size:8px;color:#7f9ba8}
+.transfer-stream{position:absolute;left:50%;top:36%;width:3px;height:90px;background:#65ddff;opacity:0}
+.transfer-stream.on{opacity:1;animation:dropPulse .8s infinite}
+.sample-dish{position:absolute;right:23%;bottom:24%;width:115px;height:35px;border:2px solid #a9bac1;border-radius:50%;background:rgba(210,225,230,.1)}
+.measurement-calculation{position:absolute;right:15%;top:25%;padding:14px;border:1px solid #607987;border-radius:9px;background:#07141d;color:#86efc4;font-family:monospace}
+.qualitative-tube{position:absolute;left:42%;bottom:18%;width:78px;height:165px;border:2px solid #a8bdc6;border-top:0;border-radius:0 0 20px 20px;overflow:hidden}
+.qual-liquid{position:absolute;left:4px;right:4px;bottom:4px;height:58%;background:rgba(80,160,205,.25);transition:background .7s}
+.qual-particles{position:absolute;inset:45px 8px 12px}.qual-particles i{position:absolute;width:4px;height:4px;border-radius:50%}
+.qual-sediment{position:absolute;left:4px;right:4px;bottom:4px;height:1%;border-radius:0 0 15px 15px}
+.qual-gas{position:absolute;left:0;right:0;bottom:20%;height:50%;opacity:0;background:radial-gradient(circle at 30% 80%,#d8faff 0 3px,transparent 4px),radial-gradient(circle at 65% 65%,#d8faff 0 4px,transparent 5px);animation:bubbles 1s infinite}
+.qual-label{position:absolute;left:19%;top:28%;padding:10px 13px;border:1px solid #668391;border-radius:8px;color:#8becc4;background:#07141d;font-family:monospace}
+.qual-reagent{position:absolute;right:17%;top:25%;padding:14px;border:1px solid #718793;border-radius:8px;color:#8fa8b4}
+.test-tube-ammonium{position:absolute;left:38%;bottom:17%;width:75px;height:155px;border:2px solid #a8bdc6;border-top:0;border-radius:0 0 18px 18px;overflow:hidden}
+.ammonium-liquid{position:absolute;left:4px;right:4px;bottom:4px;height:45%;background:rgba(90,165,205,.3)}
+.ammonium-bubbles{position:absolute;inset:40px 10px 10px;opacity:0;background:radial-gradient(circle,#d8fbff 0 3px,transparent 4px) 0 0/20px 24px;animation:bubbles .9s infinite}
+.warm-bath{position:absolute;right:17%;bottom:16%;width:160px;height:80px;border:2px solid #738b98;border-radius:10px;background:rgba(70,150,190,.18)}
+.gas-read{position:absolute;right:19%;top:27%;padding:12px;border:1px solid #728a97;border-radius:8px;color:#8ceec5;font-family:monospace}
+.electroplating-scene .plate-supply{position:absolute;left:10%;top:24%;padding:15px;border:2px solid #738b98;border-radius:8px;background:#122532;color:#87eaff;font-size:9px}
+.plating-bath{position:absolute;left:37%;bottom:15%;width:300px;height:175px;border:2px solid rgba(200,235,240,.5);border-top:0;border-radius:0 0 25px 25px;overflow:hidden}
+.plating-liquid{position:absolute;inset:30% 4px 4px;background:rgba(40,145,180,.24)}
+.plate{position:absolute;top:7%;height:120px;width:22px;border-radius:4px;background:#9baeb7;color:#8aa1ad;font-size:7px;writing-mode:vertical-rl;padding:3px}
+.anode-plate{left:22%;background:#a86d42}.cathode-plate{right:22%;background:#7e8f98;transition:.5s}
+.copper-ions{position:absolute;inset:35% 18%;background:radial-gradient(circle,#58a6d1 0 3px,transparent 4px) 0 0/30px 24px;opacity:.55}
+.deposit-read{position:absolute;right:16%;top:28%;padding:13px;border:1px solid #6c8491;background:#07141d;color:#7aefbf;font-family:monospace;border-radius:8px}
+@media(max-width:900px){.summary-grid{grid-template-columns:1fr}.lab-hud{display:none}}

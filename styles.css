@@ -19,3 +19,19 @@
 .placed-item.pour-target{outline:3px solid #58a9ce;outline-offset:3px}.placed-item.connection-first{outline:3px solid #d33d3d;outline-offset:3px}.placed-item.moving{z-index:30}
 .liquid-overlay{position:absolute;left:31%;right:31%;bottom:24%;height:24%;background:var(--liquid);opacity:.68;border-radius:0 0 18px 18px;z-index:3;pointer-events:none;box-shadow:inset 0 2px 4px rgba(255,255,255,.45)}
 @media(max-width:900px){.interaction-panel{grid-template-columns:1fr}.chemical-card{min-width:165px}}
+
+/* IGCSE chemistry reaction profile */
+.reaction-profile{margin-top:10px;padding:10px;border:1px solid rgba(90,140,190,.25);border-radius:12px;background:rgba(240,248,255,.72)}
+.reaction-profile-head{display:flex;flex-direction:column;gap:2px;margin-bottom:7px}
+.reaction-profile-head strong{font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.reaction-profile-head small{font-size:8px;color:#6f8498}
+.reaction-row{display:grid;grid-template-columns:18px 1fr;gap:3px 5px;padding:5px 0;border-bottom:1px solid rgba(90,140,190,.14)}
+.reaction-row>span{font-weight:800}
+.reaction-row.done>span{color:#197b53}
+.reaction-row b{font-size:9px}
+.reaction-row small{grid-column:2;font-size:8px;color:#6d8092}
+.reaction-observation,.reaction-equation{margin-top:8px;font-size:8px;line-height:1.45;color:#425a70}
+.reaction-ready{margin-top:8px;padding:6px 8px;border-radius:7px;background:#fff4df;color:#8b641f;font-size:8px;font-weight:700}
+.reaction-ready.ready{background:#e8f7ef;color:#176946}
+.reaction-note{padding:10px;border:1px dashed rgba(90,140,190,.3);border-radius:10px;font-size:9px;color:#718397}
+.chemical-card.complete{opacity:.62}

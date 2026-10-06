@@ -145,6 +145,8 @@ Object.assign(CHEMICALS,{
  "Bromine water":{color:"#e78b25",symbol:"Br2"},
  "Anhydrous copper(II) sulfate":{color:"#f4f4f0",symbol:"CuSO4"},
  "Hydrated copper(II) sulfate":{color:"#3d8ee8",symbol:"CuSO4·5H2O"},
+ "Alkene sample":{color:"#eef8ff",symbol:"C=C"},
+ "Sulfite sample":{color:"#eef8ff",symbol:"SO3²−"},
  "Sodium carbonate solution":{color:"#e7f1ff",symbol:"Na2CO3"},
  "Chloride sample":{color:"#dcecff",symbol:"Cl−"},
  "Bromide sample":{color:"#dcecff",symbol:"Br−"},

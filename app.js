@@ -838,3 +838,38 @@ specificFinish=function(){
 };
 
 load(current);
+
+
+/* === V2 EDUCATIONAL ACHIEVEMENTS === */
+const __progressV2=progress;
+function v2Achievements(){
+  const completed=Number(localStorage.getItem("sls-experiments-completed")||0);
+  const ids=JSON.parse(localStorage.getItem("sls-achievements")||"[]");
+  const earned=new Set(ids);
+  if(completed>=1)earned.add("first");
+  if(completed>=5)earned.add("practical");
+  if(current?.subject==="Chemistry"&&completed>=1)earned.add("chemistry");
+  if(rows.length>=1)earned.add("data");
+  if(current?.subject==="Physics"&&/circuit|ohm|electrical/i.test(current.name))earned.add("circuit");
+  if(current?.subject==="Physics"&&/thermal|heat|calor/i.test(current.name)||current?.subject==="Chemistry"&&/enthalpy|calor/i.test(current.name))earned.add("heat");
+  if(current?.subject==="Physics"&&/measurement|vernier|micrometer|density/i.test(current.name))earned.add("measurement");
+  const next=[...earned];localStorage.setItem("sls-achievements",JSON.stringify(next));
+  return [
+   ["first","🧪","First Experiment","Complete your first practical.",earned.has("first")],
+   ["chemistry","⚗️","Chemistry Explorer","Complete a chemistry practical.",earned.has("chemistry")],
+   ["data","📊","Data Collector","Record your first measurement.",earned.has("data")],
+   ["circuit","⚡","Circuit Builder","Complete an electrical practical.",earned.has("circuit")],
+   ["heat","🔥","Heat Master","Run a thermal or calorimetry practical.",earned.has("heat")],
+   ["measurement","📐","Measurement Master","Complete a measurement-focused practical.",earned.has("measurement")],
+   ["practical","🔬","Practical Expert","Complete five practicals.",earned.has("practical")]
+  ];
+}
+progress=function(){
+  __progressV2();
+  const host=$("#progressView .roadmap");
+  if(!host)return;
+  const old=$("#achievementPanel");if(old)old.remove();
+  const panel=document.createElement("section");panel.id="achievementPanel";panel.className="panel achievement-panel";
+  panel.innerHTML='<label>ACHIEVEMENTS</label><h3>Scientific skills unlocked</h3><div class="achievement-grid">'+v2Achievements().map(a=>'<div class="achievement '+(a[4]?"earned":"locked")+'"><span>'+a[1]+'</span><div><b>'+a[2]+'</b><small>'+a[3]+'</small></div><i>'+(a[4]?"✓":"LOCKED")+'</i></div>').join("")+'</div>';
+  host.parentNode.insertBefore(panel,host);
+};

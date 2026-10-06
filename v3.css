@@ -1,0 +1,38 @@
+
+/* V3 interaction layer */
+.bench{position:relative;min-height:520px;overflow:hidden}
+.bench.drag-over{outline:2px dashed rgba(255,255,255,.55);outline-offset:-10px}
+.bench-drop-hint.hidden{display:none}
+.apparatus-tray{display:block!important;margin-top:14px;padding:16px;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(7,18,30,.86)}
+.apparatus-tray-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:12px}
+.apparatus-tray-head div{display:grid;gap:3px}
+.apparatus-tray-head label{font-size:10px;letter-spacing:.16em;opacity:.7}
+.apparatus-tray-head strong{font-size:14px}
+.apparatus-tray-head small{opacity:.55}
+.setup-clear{border:1px solid rgba(255,255,255,.15);background:transparent;color:inherit;border-radius:8px;padding:7px 10px;cursor:pointer}
+.apparatus-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:8px}
+.apparatus-item{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);color:inherit;border-radius:10px;padding:10px;cursor:grab}
+.apparatus-item:hover{background:rgba(255,255,255,.075);transform:translateY(-1px)}
+.apparatus-item:active{cursor:grabbing}
+.apparatus-item .apparatus-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.08);font-weight:800}
+.apparatus-item span:nth-child(2){display:grid;gap:2px}
+.apparatus-item small{font-size:9px;opacity:.5;letter-spacing:.08em}
+.apparatus-item i{margin-left:auto;opacity:.4}
+.setup-progress{margin-top:10px;font-size:11px;opacity:.65}
+.placed-apparatus{position:absolute;inset:50px 25px 70px;pointer-events:none;z-index:8}
+.placed-apparatus.has-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));align-content:start;gap:10px;pointer-events:auto}
+.placed-item{display:grid;grid-template-columns:34px 1fr 24px;align-items:center;gap:7px;padding:9px;border:1px solid rgba(255,255,255,.17);border-radius:11px;background:rgba(8,19,31,.9);box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.placed-item>span{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.08);font-weight:800}
+.placed-item b{font-size:11px}
+.placed-item button{border:0;background:transparent;color:inherit;font-size:18px;cursor:pointer;opacity:.6}
+.generic-bench{position:absolute;inset:70px 40px 95px;display:grid;place-items:center;align-content:center;gap:10px;border:1px dashed rgba(255,255,255,.14);border-radius:20px;background:linear-gradient(135deg,rgba(255,255,255,.025),rgba(255,255,255,.005))}
+.generic-bench strong{font-size:22px;text-align:center}
+.generic-bench small{opacity:.55;letter-spacing:.1em;font-size:10px}
+.v3range{accent-color:currentColor}
+.setup-note{margin-top:12px;padding:10px;border-radius:9px;background:rgba(255,255,255,.035);display:flex;justify-content:space-between;font-size:11px}
+.setup-note span{opacity:.6}
+.reading-result{border-top:1px solid rgba(255,255,255,.1);margin-top:7px;padding-top:9px}
+.row-delete{border:0;background:transparent;color:inherit;opacity:.65;cursor:pointer}
+.lab-hud{display:flex;gap:8px;align-items:center;margin-left:auto}
+.xp-pill,.status-pill{padding:7px 10px;border:1px solid rgba(255,255,255,.1);border-radius:999px;font-size:11px;background:rgba(255,255,255,.035)}
+.status-pill i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#67e08b;margin-right:6px}

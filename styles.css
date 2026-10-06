@@ -35,3 +35,17 @@
 .reaction-ready.ready{background:#e8f7ef;color:#176946}
 .reaction-note{padding:10px;border:1px dashed rgba(90,140,190,.3);border-radius:10px;font-size:9px;color:#718397}
 .chemical-card.complete{opacity:.62}
+
+/* v13 interactive controls */
+.chemical-picker-row{display:grid;grid-template-columns:150px minmax(220px,1fr) 150px;gap:8px;align-items:end}
+.picker-label{display:block;font-size:9px;font-weight:800;color:#456477;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.interaction-select{width:100%;padding:10px 11px;border:1px solid #bfd4df;border-radius:9px;background:#fff;color:#183b53;font-size:10px;font-weight:700;outline:none}
+.interaction-select:focus{border-color:#4d9cc0;box-shadow:0 0 0 3px rgba(77,156,192,.12)}
+.chemical-stock-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px;margin-top:8px}
+.stock-chip{padding:7px 9px;border:1px solid #d8e7ee;border-radius:8px;background:#f9fcfd}
+.stock-chip b,.stock-chip small{display:block}.stock-chip b{font-size:9px;color:#23465c}.stock-chip small{font-size:8px;color:#718697;margin-top:2px}
+.resistor-picker{margin:0 0 9px;padding:9px;border:1px solid #d5e4eb;border-radius:10px;background:#f7fbfd}
+.resistor-picker small{display:block;margin-top:4px;color:#718697;font-size:8px}
+.resistance-badge{position:absolute;right:5px;top:5px;padding:3px 6px;border-radius:7px;background:#183b53;color:#fff;font-size:8px;font-weight:900;z-index:20;box-shadow:0 2px 5px rgba(0,0,0,.16)}
+.connection-node{fill:#d53f43;stroke:#fff;stroke-width:.6}
+@media(max-width:700px){.chemical-picker-row{grid-template-columns:1fr}.chemical-picker-row .interaction-action{width:100%}}

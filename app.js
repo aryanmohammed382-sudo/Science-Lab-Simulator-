@@ -300,6 +300,489 @@ function reset(){
  renderAll();toast("Experiment reset");
 }
 
+
+/* IGCSE 0620 chemistry accuracy layer: quantities, concentrations and observable results.
+   Quantities below are virtual-practical settings based on Cambridge IGCSE examples and the
+   standard 2026-2028 bench reagents. Cambridge's confidential instructions can vary by exam. */
+Object.assign(CHEMICALS,{
+ "Aqueous sodium hydroxide":{color:"#cfe7ff",symbol:"NaOH"},
+ "Sulfuric acid":{color:"#e4efff",symbol:"H2SO4"},
+ "Methyl orange indicator":{color:"#f4a84a",symbol:"MO"},
+ "Thymolphthalein indicator":{color:"#8aa8ff",symbol:"TP"},
+ "Copper(II) sulfate solution":{color:"#4b8fe8",symbol:"CuSO4"},
+ "Dilute nitric acid":{color:"#eaf4ff",symbol:"HNO3"},
+ "Aqueous silver nitrate":{color:"#e7eef4",symbol:"AgNO3"},
+ "Aqueous barium nitrate":{color:"#e7eef4",symbol:"Ba(NO3)2"},
+ "Aqueous ammonia":{color:"#eef7ff",symbol:"NH3"},
+ "Potassium manganate(VII)":{color:"#7d2bb8",symbol:"KMnO4"},
+ "Acidified potassium manganate(VII)":{color:"#8d2ac4",symbol:"KMnO4"},
+ "Potassium iodide":{color:"#e8f3ff",symbol:"KI"},
+ "Limewater":{color:"#f8fbff",symbol:"Ca(OH)2"},
+ "Calcium carbonate":{color:"#f0f0ea",symbol:"CaCO3"},
+ "Bromine water":{color:"#e78b25",symbol:"Br2"},
+ "Anhydrous copper(II) sulfate":{color:"#f4f4f0",symbol:"CuSO4"},
+ "Hydrated copper(II) sulfate":{color:"#3d8ee8",symbol:"CuSO4·5H2O"},
+ "Sodium carbonate solution":{color:"#e7f1ff",symbol:"Na2CO3"},
+ "Chloride sample":{color:"#dcecff",symbol:"Cl−"},
+ "Bromide sample":{color:"#dcecff",symbol:"Br−"},
+ "Iodide sample":{color:"#dcecff",symbol:"I−"},
+ "Sulfate sample":{color:"#dcecff",symbol:"SO4²−"},
+ "Carbonate sample":{color:"#dcecff",symbol:"CO3²−"},
+ "Ammonium sample":{color:"#dcecff",symbol:"NH4+"}
+});
+
+const IGCSE_CHEMISTRY={
+ "acid-base":{
+  label:"Acid–alkali titration",
+  basis:"Cambridge IGCSE 0620 titration example",
+  requirements:[
+   {chemical:"Aqueous sodium hydroxide",amount:25,unit:"mL",concentration:"0.200 mol/dm³",target:"Conical flask",role:"sample"},
+   {chemical:"Methyl orange indicator",amount:3,unit:"drops",target:"Conical flask",role:"indicator"},
+   {chemical:"Sulfuric acid",amount:20,unit:"mL",concentration:"unknown; endpoint example 20.0 mL",target:"Burette",role:"titrant"}
+  ],
+  observation:"Methyl orange is yellow in the alkaline flask and changes through orange at the end-point. Red means the end-point has been overshot.",
+  reaction:"H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O"
+ },
+ "ph-indicators":{
+  label:"Indicators across the pH scale",
+  basis:"IGCSE practical observation of indicator colour",
+  requirements:[
+   {chemical:"Universal indicator",amount:10,unit:"mL",target:"Spotting tile",role:"indicator sample"}
+  ],
+  observation:"Universal indicator gives a gradual colour scale: strongly acidic solutions are red/orange, neutral is green, and strongly alkaline solutions are blue/purple.",
+  reaction:"No new substance is required; this is an indicator colour observation."
+ },
+ "rates":{
+  label:"Rate of reaction — thiosulfate and acid",
+  basis:"IGCSE rate-of-reaction practical model",
+  requirements:[
+   {chemical:"Sodium thiosulfate solution",amount:50,unit:"mL",concentration:"0.10 mol/dm³",target:"Conical flask",role:"reactant"},
+   {chemical:"Dilute hydrochloric acid",amount:10,unit:"mL",concentration:"1.0 mol/dm³",target:"Conical flask",role:"reactant"}
+  ],
+  observation:"The initially clear mixture becomes cloudy as sulfur forms; the cloudiness increases until the marked endpoint is obscured.",
+  reaction:"Na₂S₂O₃ + 2HCl → 2NaCl + SO₂ + S + H₂O"
+ },
+ "electrolysis":{
+  label:"Electrolysis of aqueous copper(II) sulfate",
+  basis:"Cambridge 0620 electrolysis context",
+  requirements:[
+   {chemical:"Copper(II) sulfate solution",amount:50,unit:"mL",concentration:"0.10 mol/dm³",target:"Beaker",role:"electrolyte"}
+  ],
+  observation:"With inert carbon/graphite electrodes, copper forms as a reddish-brown deposit at the cathode, oxygen bubbles form at the anode, and the blue solution becomes paler as Cu²⁺ ions are removed.",
+  reaction:"Cathode: Cu²⁺ + 2e⁻ → Cu; anode: 4OH⁻ → O₂ + 2H₂O + 4e⁻"
+ },
+ "displacement":{
+  label:"Metal displacement from copper(II) sulfate",
+  basis:"Cambridge IGCSE displacement practical examples",
+  requirements:[
+   {chemical:"Copper(II) sulfate solution",amount:25,unit:"mL",concentration:"0.10 mol/dm³",target:"Beaker",role:"salt solution"}
+  ],
+  observation:"For a reactive metal such as iron or zinc, the blue Cu²⁺ solution becomes paler/colourless and a brown copper deposit forms on the metal. A less reactive metal such as copper gives no displacement.",
+  reaction:"Fe + CuSO₄ → FeSO₄ + Cu"
+ },
+ "flame":{
+  label:"Flame tests",
+  basis:"Cambridge 0620 qualitative analysis",
+  requirements:[
+   {chemical:"Dilute hydrochloric acid",amount:2,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"cleaning acid"}
+  ],
+  observation:"Characteristic flame colours: Li⁺ red, Na⁺ yellow, K⁺ lilac, Ca²⁺ orange-red, Ba²⁺ light green, Cu²⁺ blue-green.",
+  reaction:"No single solution colour change; the diagnostic observation is the flame colour."
+ },
+ "salt-preparation":{
+  label:"Preparation of a soluble salt by neutralisation",
+  basis:"IGCSE salt-preparation method",
+  requirements:[
+   {chemical:"Dilute hydrochloric acid",amount:25,unit:"mL",concentration:"1.0 mol/dm³",target:"Conical flask",role:"acid"},
+   {chemical:"Aqueous sodium hydroxide",amount:25,unit:"mL",concentration:"1.0 mol/dm³",target:"Conical flask",role:"alkali"}
+  ],
+  observation:"Neutralisation itself has no required diagnostic colour change; the product solution should be concentrated and crystallised rather than judged by an indicator.",
+  reaction:"HCl + NaOH → NaCl + H₂O"
+ },
+ "water-of-crystallisation":{
+  label:"Water of crystallisation",
+  basis:"Cambridge 0620 reversible CuSO₄ practical",
+  requirements:[
+   {chemical:"Anhydrous copper(II) sulfate",amount:1,unit:"g",target:"Beaker",role:"solid"},
+   {chemical:"Water",amount:5,unit:"mL",target:"Beaker",role:"rehydration"}
+  ],
+  observation:"Anhydrous copper(II) sulfate is white/grey and becomes blue when water is added, forming hydrated copper(II) sulfate.",
+  reaction:"CuSO₄ + 5H₂O → CuSO₄·5H₂O"
+ },
+ "gravimetric-carbonate":{
+  label:"Carbonate reaction",
+  basis:"IGCSE carbonate test",
+  requirements:[
+   {chemical:"Carbonate sample",amount:2,unit:"mL",target:"Test tube",role:"sample"},
+   {chemical:"Dilute hydrochloric acid",amount:2,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"acid"}
+  ],
+  observation:"Effervescence occurs as carbon dioxide is produced. The gas turns limewater milky.",
+  reaction:"CO₃²⁻ + 2H⁺ → CO₂ + H₂O"
+ },
+ "gas-volume-from-carbonate":{
+  label:"Gas volume from a carbonate",
+  basis:"IGCSE quantitative carbonate–acid experiment",
+  requirements:[
+   {chemical:"Dilute hydrochloric acid",amount:25,unit:"mL",concentration:"1.0 mol/dm³",target:"Conical flask",role:"acid"},
+   {chemical:"Calcium carbonate",amount:1,unit:"g",target:"Conical flask",role:"solid carbonate"}
+  ],
+  observation:"Rapid effervescence produces carbon dioxide; the rate falls as the limiting reactant is consumed.",
+  reaction:"CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂"
+ },
+ "enthalpy-neutralisation":{
+  label:"Enthalpy change of neutralisation",
+  basis:"IGCSE temperature-change practical",
+  requirements:[
+   {chemical:"Dilute hydrochloric acid",amount:25,unit:"mL",concentration:"1.0 mol/dm³",target:"Insulating cup",role:"acid"},
+   {chemical:"Aqueous sodium hydroxide",amount:25,unit:"mL",concentration:"1.0 mol/dm³",target:"Insulating cup",role:"alkali"}
+  ],
+  observation:"The temperature rises because neutralisation is exothermic. No diagnostic colour change is required.",
+  reaction:"H⁺ + OH⁻ → H₂O"
+ },
+ "rate-and-concentration":{
+  label:"Rate and concentration",
+  basis:"IGCSE rate practical",
+  requirements:[
+   {chemical:"Sodium thiosulfate solution",amount:25,unit:"mL",concentration:"variable",target:"Conical flask",role:"reactant"},
+   {chemical:"Dilute hydrochloric acid",amount:10,unit:"mL",concentration:"1.0 mol/dm³",target:"Conical flask",role:"reactant"}
+  ],
+  observation:"The mixture becomes increasingly cloudy as sulfur precipitates. Higher thiosulfate concentration gives a shorter time to the visual endpoint when the acid volume is controlled.",
+  reaction:"Na₂S₂O₃ + 2HCl → 2NaCl + SO₂ + S + H₂O"
+ },
+ "rate-and-temperature":{
+  label:"Rate and temperature",
+  basis:"IGCSE rate practical",
+  requirements:[
+   {chemical:"Sodium thiosulfate solution",amount:25,unit:"mL",concentration:"0.10 mol/dm³",target:"Conical flask",role:"reactant"},
+   {chemical:"Dilute hydrochloric acid",amount:10,unit:"mL",concentration:"1.0 mol/dm³",target:"Conical flask",role:"reactant"}
+  ],
+  observation:"The same sulfur-forming reaction is timed at different controlled temperatures; the visible endpoint is cloudiness.",
+  reaction:"Na₂S₂O₃ + 2HCl → 2NaCl + SO₂ + S + H₂O"
+ },
+ "rate-surface":{
+  label:"Rate and surface area",
+  basis:"IGCSE marble–acid rate practical",
+  requirements:[
+   {chemical:"Dilute hydrochloric acid",amount:25,unit:"mL",concentration:"1.0 mol/dm³",target:"Conical flask",role:"acid"},
+   {chemical:"Calcium carbonate",amount:1,unit:"g",target:"Conical flask",role:"solid carbonate"}
+  ],
+  observation:"Effervescence produces CO₂. Powdered carbonate reacts faster than the same mass as larger chips because it has greater surface area.",
+  reaction:"CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂"
+ },
+ "qualitative-cations":{
+  label:"Qualitative analysis — copper(II) ion example",
+  basis:"Cambridge 0620 qualitative-analysis notes",
+  requirements:[
+   {chemical:"Copper(II) sulfate solution",amount:2,unit:"mL",concentration:"0.10 mol/dm³",target:"Test tube",role:"unknown sample"},
+   {chemical:"Aqueous sodium hydroxide",amount:2,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"test reagent"}
+  ],
+  observation:"Copper(II) ions give a light-blue precipitate with sodium hydroxide. With excess aqueous ammonia, the precipitate dissolves to give a dark-blue solution.",
+  reaction:"Cu²⁺ + 2OH⁻ → Cu(OH)₂(s)"
+ },
+ "qualitative-anions":{
+  label:"Qualitative analysis — chloride ion example",
+  basis:"Cambridge 0620 qualitative-analysis notes",
+  requirements:[
+   {chemical:"Chloride sample",amount:2,unit:"mL",target:"Test tube",role:"unknown sample"},
+   {chemical:"Dilute nitric acid",amount:1,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"acidify"},
+   {chemical:"Aqueous silver nitrate",amount:1,unit:"mL",concentration:"0.05 mol/dm³",target:"Test tube",role:"test reagent"}
+  ],
+  observation:"A chloride sample gives a white precipitate of silver chloride after acidification with nitric acid and addition of silver nitrate.",
+  reaction:"Ag⁺ + Cl⁻ → AgCl(s)"
+ },
+ "halide":{
+  label:"Test for halide ions",
+  basis:"Cambridge 0620 qualitative-analysis notes",
+  requirements:[
+   {chemical:"Chloride sample",amount:2,unit:"mL",target:"Test tube",role:"sample"},
+   {chemical:"Dilute nitric acid",amount:1,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"acidify"},
+   {chemical:"Aqueous silver nitrate",amount:1,unit:"mL",concentration:"0.05 mol/dm³",target:"Test tube",role:"test reagent"}
+  ],
+  observation:"Silver nitrate gives a white precipitate for chloride, cream for bromide and yellow for iodide.",
+  reaction:"Ag⁺ + X⁻ → AgX(s)"
+ },
+ "sulfate":{
+  label:"Test for sulfate ions",
+  basis:"Cambridge 0620 qualitative-analysis notes",
+  requirements:[
+   {chemical:"Sulfate sample",amount:2,unit:"mL",target:"Test tube",role:"sample"},
+   {chemical:"Dilute nitric acid",amount:1,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"acidify"},
+   {chemical:"Aqueous barium nitrate",amount:1,unit:"mL",concentration:"0.10 mol/dm³",target:"Test tube",role:"test reagent"}
+  ],
+  observation:"A white precipitate of barium sulfate forms.",
+  reaction:"Ba²⁺ + SO₄²⁻ → BaSO₄(s)"
+ },
+ "ammonium":{
+  label:"Test for ammonium ions",
+  basis:"Cambridge 0620 qualitative-analysis notes",
+  requirements:[
+   {chemical:"Ammonium sample",amount:2,unit:"mL",target:"Test tube",role:"sample"},
+   {chemical:"Aqueous sodium hydroxide",amount:2,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"test reagent"}
+  ],
+  observation:"On warming, ammonia gas is produced and turns damp red litmus paper blue.",
+  reaction:"NH₄⁺ + OH⁻ → NH₃ + H₂O"
+ },
+ "water-test":{
+  label:"Chemical test for water",
+  basis:"Cambridge IGCSE water-test context",
+  requirements:[
+   {chemical:"Anhydrous copper(II) sulfate",amount:1,unit:"g",target:"Test tube",role:"test solid"},
+   {chemical:"Water",amount:2,unit:"mL",target:"Test tube",role:"sample"}
+  ],
+  observation:"White anhydrous copper(II) sulfate turns blue when water is added.",
+  reaction:"CuSO₄ + 5H₂O → CuSO₄·5H₂O"
+ },
+ "alkene":{
+  label:"Test for an unsaturated hydrocarbon",
+  basis:"Cambridge IGCSE bromine-water test",
+  requirements:[
+   {chemical:"Bromine water",amount:2,unit:"mL",target:"Test tube",role:"test reagent"}
+  ],
+  observation:"Bromine water is orange/brown and decolourises when an alkene is present; a saturated compound leaves it orange/brown.",
+  reaction:"C=C + Br₂ → dibromo compound"
+ },
+ "sulfite":{
+  label:"Test for sulfite",
+  basis:"Cambridge 0620 qualitative-analysis notes",
+  requirements:[
+   {chemical:"Acidified potassium manganate(VII)",amount:2,unit:"mL",concentration:"0.01 mol/dm³ KMnO₄ in 0.5 mol/dm³ H₂SO₄",target:"Test tube",role:"test reagent"}
+  ],
+  observation:"Acidified potassium manganate(VII) changes from purple to colourless when sulfite/SO₂ reduces it.",
+  reaction:"MnO₄⁻ is reduced as the reducing agent is oxidised."
+ }
+};
+
+function chemistryProfile(e){
+ const id=(e?.id||"").toLowerCase(),t=(e?.type||"").toLowerCase(),n=(e?.name||"").toLowerCase();
+ if(id==="acid-base")return IGCSE_CHEMISTRY["acid-base"];
+ if(id==="ph-indicators")return IGCSE_CHEMISTRY["ph-indicators"];
+ if(id==="rates")return IGCSE_CHEMISTRY.rates;
+ if(id==="electrolysis")return IGCSE_CHEMISTRY.electrolysis;
+ if(id==="displacement")return IGCSE_CHEMISTRY.displacement;
+ if(id==="flame-tests")return IGCSE_CHEMISTRY.flame;
+ if(id==="salt-preparation")return IGCSE_CHEMISTRY["salt-preparation"];
+ if(id==="determining-water-of-crystallisation")return IGCSE_CHEMISTRY["water-of-crystallisation"];
+ if(id==="gravimetric-analysis-of-a-carbonate")return IGCSE_CHEMISTRY["gravimetric-carbonate"];
+ if(id==="gas-volume-from-a-carbonate")return IGCSE_CHEMISTRY["gas-volume-from-carbonate"];
+ if(id==="enthalpy-change-of-neutralisation")return IGCSE_CHEMISTRY["enthalpy-neutralisation"];
+ if(id==="rate-and-concentration")return IGCSE_CHEMISTRY["rate-and-concentration"];
+ if(id==="rate-and-temperature")return IGCSE_CHEMISTRY["rate-and-temperature"];
+ if(id==="rate-and-surface-area")return IGCSE_CHEMISTRY["rate-surface"];
+ if(id==="qualitative-analysis-of-cations")return IGCSE_CHEMISTRY["qualitative-cations"];
+ if(id==="qualitative-analysis-of-anions")return IGCSE_CHEMISTRY["qualitative-anions"];
+ if(id==="test-for-halide-ions")return IGCSE_CHEMISTRY.halide;
+ if(id==="test-for-sulfate-ions")return IGCSE_CHEMISTRY.sulfate;
+ if(id==="test-for-ammonium-ions")return IGCSE_CHEMISTRY.ammonium;
+ if(id==="organic-functional-group-tests"||n.includes("alkene addition"))return IGCSE_CHEMISTRY.alkene;
+ if(n.includes("water")&&n.includes("crystall"))return IGCSE_CHEMISTRY["water-of-crystallisation"];
+ if(n.includes("water")&&n.includes("test"))return IGCSE_CHEMISTRY["water-test"];
+ if(n.includes("sulfite"))return IGCSE_CHEMISTRY.sulfite;
+ if(t==="rates")return IGCSE_CHEMISTRY.rates;
+ return null;
+}
+
+function chemistryAmount(chemical){
+ return (S.pours||[]).filter(p=>p.chemical===chemical).reduce((sum,p)=>sum+(p.amount||0),0);
+}
+function chemistryNeed(profile,chemical){
+ return (profile?.requirements||[]).find(r=>r.chemical===chemical);
+}
+function chemistryFulfilled(profile,need){
+ return chemistryAmount(need.chemical)>=need.amount;
+}
+function targetMatches(target,need){
+ const n=(target?.name||"").toLowerCase(),t=(need?.target||"").toLowerCase();
+ if(t==="bench"||t==="spotting tile"&&n.includes("spotting"))return true;
+ return n===t||n.includes(t)||t.includes(n);
+}
+
+function ensureInteractionState(){
+ if(!S.chemicals)S.chemicals={};
+ if(!S.pours)S.pours=[];
+ if(!S.connections)S.connections=[];
+ if(!S.markers)S.markers=[];
+ const profile=chemistryProfile(current);
+ (profile?.requirements||[]).forEach(r=>{
+  if(!S.chemicals[r.chemical])S.chemicals[r.chemical]={volume:250};
+ });
+}
+
+function interactionSpec(e){
+ const profile=chemistryProfile(e);
+ const t=(e?.type||"").toLowerCase(),m=(e?.materials||[]).join(" ").toLowerCase();
+ const wires=/wire|wires|connecting/.test(m)||["ohm","series","parallel","electrolysis"].includes(t);
+ const markers=/lens|refraction|diffraction|interference|projectile|pendulum|free-fall|inclined|wave|calibration|measurement/.test((e?.name||"").toLowerCase());
+ return {
+  chemicals:(profile?.requirements||[]).map(r=>r.chemical),
+  requirements:profile?.requirements||[],
+  profile,
+  wires,
+  connections:wires?(t==="series"||t==="parallel"?3:1):0,
+  markers:markers?2:0
+ };
+}
+
+function interactionOK(){
+ ensureInteractionState();
+ const spec=interactionSpec(current);
+ return {
+  chemOK:spec.requirements.every(r=>chemistryFulfilled(spec.profile,r)),
+  wireOK:!spec.wires||S.connections.length>=spec.connections,
+  markerOK:!spec.markers||S.markers.length>=spec.markers,
+  spec
+ };
+}
+
+function setupOK(){
+ ensureInteractionState();
+ const have=S.setup.map(x=>String(x.name).toLowerCase());
+ const apparatusOK=req(current).every(r=>have.some(h=>h===r.toLowerCase()||h.includes(r.toLowerCase())||r.toLowerCase().includes(h)));
+ const io=interactionOK();
+ return apparatusOK&&io.chemOK&&io.wireOK&&io.markerOK;
+}
+
+function renderChemicals(){
+ ensureInteractionState();
+ const box=$("#chemicalTray"),status=$("#chemicalStatus"),spec=interactionSpec(current);
+ if(!box)return;
+ const reqs=spec.requirements;
+ if(!reqs.length){
+  box.innerHTML='<div class="reaction-note">No chemical reaction setup is required for this experiment.</div>';
+  if(status)status.textContent="No reagent setup required.";
+  return;
+ }
+ box.innerHTML=reqs.map(r=>{
+  const done=Math.min(chemistryAmount(r.chemical),r.amount);
+  const remaining=Math.max(0,r.amount-done);
+  const label=r.unit==="drops"?r.amount+" drops":r.amount+" mL";
+  const currentLabel=r.unit==="drops"?done.toFixed(0)+" drops":done.toFixed(1)+" mL";
+  const v=S.chemicals[r.chemical]?.volume??250;
+  return '<button class="chemical-card '+(selectedChemical===r.chemical?"selected":"")+(remaining<=0?" complete":"")+'" data-chemical="'+esc(r.chemical)+'">'+
+   '<span class="chemical-bottle" style="--chemical:'+chemicalColor(r.chemical)+'"><b>'+esc(CHEMICALS[r.chemical]?.symbol||"")+'</b></span>'+
+   '<span><strong>'+esc(r.chemical)+'</strong><small>'+currentLabel+' / '+label+' required'+(r.concentration?" · "+esc(r.concentration):"")+'</small><small>Source: '+v.toFixed(1)+' mL</small></span></button>';
+ }).join("");
+ box.querySelectorAll(".chemical-card").forEach(b=>b.addEventListener("click",()=>{
+  const need=chemistryNeed(spec.profile,b.dataset.chemical);
+  if(!need||chemistryFulfilled(spec.profile,need))return toast(b.dataset.chemical+" requirement is already satisfied");
+  selectedChemical=b.dataset.chemical;pourMode=true;connectionMode=false;connectionFirst=null;markerMode=false;
+  document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));
+  renderChemicals();renderConnections();
+  const amount=need.unit==="drops"?need.amount+" drops":need.amount+" mL";
+  toast("Selected "+selectedChemical+" — add exactly "+amount);
+ }));
+ if(status)status.textContent=selectedChemical?"Selected: "+selectedChemical+" — click the specified target.":"Select a reagent to add its required quantity.";
+}
+
+function pourChemical(targetIndex){
+ ensureInteractionState();
+ if(!selectedChemical)return toast("Choose the required chemical first");
+ const spec=interactionSpec(current),need=chemistryNeed(spec.profile,selectedChemical),target=S.setup[targetIndex];
+ if(!need)return toast("That chemical is not part of this IGCSE setup");
+ if(!target)return toast("Select a valid apparatus");
+ if(!targetMatches(target,need))return toast("Add "+selectedChemical+" to the "+need.target);
+ if(chemistryFulfilled(spec.profile,need))return toast(selectedChemical+" is already at the required quantity");
+ const amount=need.amount,ml=need.unit==="drops"?amount*0.05:amount;
+ const source=S.chemicals[selectedChemical]||{volume:250};
+ if(source.volume<ml)return toast("Not enough "+selectedChemical+" remains in the reagent bottle");
+ source.volume=+(source.volume-ml).toFixed(2);S.chemicals[selectedChemical]=source;
+ target.liquid=target.liquid||[];
+ target.liquid.push({chemical:selectedChemical,amount,unit:need.unit});
+ S.pours.push({chemical:selectedChemical,target:target.name,amount,unit:need.unit,concentration:need.concentration||""});
+ toast(amount+" "+need.unit+" of "+selectedChemical+" added to "+target.name);
+ selectedChemical=null;pourMode=false;
+ renderAll();save();
+}
+
+function renderReactionProfile(spec){
+ const p=spec.profile;if(!p)return "";
+ const rows=p.requirements.map(r=>{
+  const done=Math.min(chemistryAmount(r.chemical),r.amount);
+  const target=esc(r.target),amount=r.unit==="drops"?r.amount+" drops":r.amount+" mL";
+  return '<div class="reaction-row '+(done>=r.amount?"done":"")+'"><span>'+(done>=r.amount?"✓":"○")+'</span><b>'+esc(r.chemical)+'</b><small>'+done.toFixed(r.unit==="drops"?0:1)+' / '+amount+(r.concentration?" · "+esc(r.concentration):"")+' · '+target+'</small></div>';
+ }).join("");
+ const ready=p.requirements.every(r=>chemistryFulfilled(p,r));
+ return '<div class="reaction-profile"><div class="reaction-profile-head"><strong>IGCSE reaction profile</strong><small>'+esc(p.basis)+'</small></div>'+rows+
+  '<div class="reaction-observation"><b>Expected observation:</b> '+esc(p.observation)+'</div>'+
+  '<div class="reaction-equation"><b>Equation / principle:</b> '+esc(p.reaction)+'</div>'+
+  '<div class="reaction-ready '+(ready?"ready":"")+'">'+(ready?"Setup quantities complete — observe the expected result.":"Complete the specified quantities before starting.")+'</div></div>';
+}
+
+function renderConnections(){
+ ensureInteractionState();
+ const box=$("#connectionPanel");if(!box)return;
+ const spec=interactionSpec(current);
+ box.innerHTML='<div class="interaction-title">Real-world setup</div>'+
+  '<button class="interaction-action '+(connectionMode?"active":"")+'" id="connectBtn">⌁ '+(connectionMode?"Connecting — click two apparatus":"Connect wires")+'</button>'+
+  '<button class="interaction-action '+(pourMode?"active":"")+'" id="pourBtn">◉ '+(pourMode?"Pour mode active":"Choose chemical")+'</button>'+
+  '<button class="interaction-action '+(markerMode?"active":"")+'" id="markerBtn">⊙ '+(markerMode?"Click the bench to place marker":"Place fiducial marker")+'</button>'+
+  '<div class="interaction-status">'+(spec.wires?"Connections "+S.connections.length+" / "+spec.connections:"No wire connection required for this experiment.")+'</div>'+
+  (spec.markers?'<div class="interaction-status">Fiducial markers '+S.markers.length+" / "+spec.markers+'</div>':"")+
+  (spec.requirements.length?'<div class="interaction-status">Chemical setup: '+spec.requirements.filter(r=>chemistryFulfilled(spec.profile,r)).length+" / "+spec.requirements.length+" quantities complete</div>":"")+
+  renderReactionProfile(spec);
+ $("#connectBtn")?.addEventListener("click",()=>{
+  connectionMode=!connectionMode;pourMode=false;selectedChemical=null;connectionFirst=null;markerMode=false;
+  document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("pour-target","connection-first"));
+  renderConnections();toast(connectionMode?"Click the first apparatus, then the second":"Wire mode off");
+ });
+ $("#pourBtn")?.addEventListener("click",()=>{
+  if(!spec.requirements.length)return toast("No chemical addition is required here");
+  pourMode=true;connectionMode=false;markerMode=false;selectedChemical=selectedChemical||spec.requirements.find(r=>!chemistryFulfilled(spec.profile,r))?.chemical||null;
+  renderChemicals();renderConnections();toast(selectedChemical?"Select the target apparatus for "+selectedChemical:"All chemical quantities are complete");
+ });
+ $("#markerBtn")?.addEventListener("click",()=>{
+  if(!spec.markers)return toast("Fiducial markers are not needed for this experiment");
+  markerMode=!markerMode;connectionMode=false;pourMode=false;selectedChemical=null;
+  renderConnections();toast(markerMode?"Click anywhere on the bench to place a marker":"Marker mode off");
+ });
+}
+
+function renderBench(){
+ ensureInteractionState();
+ const p=$("#placedApparatus");
+ p.innerHTML=S.setup.map((item,i)=>{
+  const liq=item.liquid?.length?item.liquid[item.liquid.length-1]:null;
+  return '<div class="placed-item" data-index="'+i+'" style="left:'+item.x+'%;top:'+item.y+'%"><span class="placed-visual">'+apparatusSvg(item.name)+'</span>'+
+   (liq?'<span class="liquid-overlay" style="--liquid:'+chemicalColor(liq.chemical)+'"></span>':"")+
+   '<b>'+esc(item.name)+'</b><button class="remove-apparatus" data-remove="'+i+'">×</button></div>';
+ }).join("");
+ $("#benchTip").classList.toggle("hidden",S.setup.length>0);
+ p.querySelectorAll(".remove-apparatus").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();S.setup.splice(+b.dataset.remove,1);renderAll();toast("Apparatus removed")}));
+ p.querySelectorAll(".placed-item").forEach(el=>enablePlacedDrag(el));
+ renderInteractionGraphics();
+}
+
+function renderProcedure(){
+ const io=interactionSpec(current),extra=[];
+ if(io.requirements.length)extra.push("Follow the reagent quantities shown in the IGCSE reaction profile and add them to the specified apparatus.");
+ if(io.wires)extra.push("Connect the required apparatus before switching on the supply.");
+ if(io.markers)extra.push("Place "+io.markers+" fiducial markers at useful fixed measurement points.");
+ const items=["Read the objective: "+current.objective,"Place every required apparatus on the bench using the drawer.",...extra,"Set "+(current.controls?.[0]||"the first variable")+" and "+(current.controls?.[1]||"the second variable")+" using the controls.","Start the experiment and observe the live response.","Record at least three measurements, changing one variable at a time.","Compare the evidence with the expected relationship: "+equation(current)];
+ $("#procedureTab").innerHTML='<h3 class="procedure-title">Step-by-Step Guide</h3>'+items.map((t,i)=>'<div class="step"><span class="step-num">'+(i+1)+'</span><p>'+esc(t)+'</p></div>').join("")+
+ '<div class="apparatus-check"><h4>Required Apparatus</h4>'+req(current).map(n=>{const done=S.setup.some(x=>x.name===n);return '<div class="check-row '+(done?"done":"")+'"><span>'+(done?"✓":"")+'</span>'+esc(n)+'</div>'}).join("")+
+ '</div><div class="apparatus-check"><h4>Experiment-specific setup</h4>'+
+ (io.requirements?io.requirements.map(r=>'<div class="check-row '+(chemistryFulfilled(io.profile,r)?"done":"")+'"><span>'+(chemistryFulfilled(io.profile,r)?"✓":"")+'</span>'+esc(r.chemical)+': '+(r.unit==="drops"?r.amount+" drops":r.amount+" mL")+(r.concentration?" · "+esc(r.concentration):"")+'</div>').join(""):"")+
+ (io.wires?'<div class="check-row '+(S.connections.length>=io.connections?"done":"")+'"><span>'+(S.connections.length>=io.connections?"✓":"")+'</span>Electrical connections: '+S.connections.length+" / "+io.connections+'</div>':"")+
+ (io.markers?'<div class="check-row '+(S.markers.length>=io.markers?"done":"")+'"><span>'+(S.markers.length>=io.markers?"✓":"")+'</span>Fiducial markers: '+S.markers.length+" / "+io.markers+'</div>':"")+
+ '</div>'+(io.profile?'<div class="apparatus-check"><h4>Expected chemical observation</h4><p class="procedure-note">'+esc(io.profile.observation)+'</p></div>':"")+
+ '<p class="procedure-note">'+esc(current.safety||"Follow normal laboratory safety procedures.")+'</p>';
+}
+
+function renderAll(){
+ if(!current)return;
+ ensureInteractionState();
+ $("#activeTitle").textContent=current.name;$("#activeObjective").textContent=current.objective;
+ $("#overviewText").textContent=current.objective+" "+(current.text||"");
+ $("#variablesText").innerHTML="<b>Independent:</b> "+esc(current.controls?.[0]||"Variable A")+"<br><b>Dependent:</b> "+esc(current.columns?.[3]||"Result")+"<br><b>Controlled:</b> Keep other conditions constant.";
+ $("#equationText").textContent=equation(current);
+ $("#outcomesText").innerHTML="<li>Understand "+esc(current.name)+"</li><li>Collect evidence</li><li>Analyse observations and data</li>";
+ renderBench();renderDrawer();renderControls();renderChemicals();renderConnections();renderProcedure();renderReadings();renderTable();renderNotebook();updateState();
+}
+
+function reset(){
+ S=newState(current);ensureInteractionState();selectedChemical=null;pourMode=false;connectionMode=false;connectionFirst=null;markerMode=false;
+ renderAll();toast("Experiment reset");
+}
+
 const originalBenchClick=document.addEventListener.bind(document);
 document.addEventListener("click",e=>{
  if(e.target.closest(".placed-item")||e.target.closest(".apparatus-card")||e.target.closest(".chemical-card"))return;

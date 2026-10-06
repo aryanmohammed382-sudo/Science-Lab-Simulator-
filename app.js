@@ -151,7 +151,14 @@ Object.assign(CHEMICALS,{
  "Iodide sample":{color:"#dcecff",symbol:"I−"},
  "Sulfate sample":{color:"#dcecff",symbol:"SO4²−"},
  "Carbonate sample":{color:"#dcecff",symbol:"CO3²−"},
- "Ammonium sample":{color:"#dcecff",symbol:"NH4+"}
+ "Ammonium sample":{color:"#dcecff",symbol:"NH4+"},
+ "Nitrate sample":{color:"#dcecff",symbol:"NO3−"},
+ "Metal salt sample":{color:"#dcecff",symbol:"Salt"},
+ "Ethanol sample":{color:"#eef8ff",symbol:"C2H5OH"},
+ "Ethanoic acid sample":{color:"#eef8ff",symbol:"CH3COOH"},
+ "Magnesium ribbon":{color:"#b7bec6",symbol:"Mg"},
+ "Aluminium foil":{color:"#d9dde2",symbol:"Al"},
+ "Hydrated copper(II) sulfate":{color:"#3d8ee8",symbol:"CuSO4·5H2O"}
 });
 
 const IGCSE_CHEMISTRY={
@@ -200,7 +207,7 @@ const IGCSE_CHEMISTRY={
   requirements:[
    {chemical:"Copper(II) sulfate solution",amount:25,unit:"mL",concentration:"0.10 mol/dm³",target:"Beaker",role:"salt solution"}
   ],
-  observation:"For a reactive metal such as iron or zinc, the blue Cu²⁺ solution becomes paler/colourless and a brown copper deposit forms on the metal. A less reactive metal such as copper gives no displacement.",
+  observation:"With iron, the blue Cu²⁺ solution changes toward green as Fe²⁺ forms and a brown copper deposit appears. With zinc, the blue solution becomes colourless and brown copper is deposited. Copper itself gives no displacement.",
   reaction:"Fe + CuSO₄ → FeSO₄ + Cu"
  },
  "flame":{
@@ -223,14 +230,13 @@ const IGCSE_CHEMISTRY={
   reaction:"HCl + NaOH → NaCl + H₂O"
  },
  "water-of-crystallisation":{
-  label:"Water of crystallisation",
-  basis:"Cambridge 0620 reversible CuSO₄ practical",
+  label:"Determining water of crystallisation",
+  basis:"Cambridge IGCSE 0620: heat a hydrated salt to constant mass",
   requirements:[
-   {chemical:"Anhydrous copper(II) sulfate",amount:1,unit:"g",target:"Beaker",role:"solid"},
-   {chemical:"Water",amount:5,unit:"mL",target:"Beaker",role:"rehydration"}
+   {chemical:"Hydrated copper(II) sulfate",amount:2,unit:"g",target:"Evaporating basin",role:"hydrated salt"}
   ],
-  observation:"Anhydrous copper(II) sulfate is white/grey and becomes blue when water is added, forming hydrated copper(II) sulfate.",
-  reaction:"CuSO₄ + 5H₂O → CuSO₄·5H₂O"
+  observation:"Blue hydrated copper(II) sulfate loses water on heating and becomes white/grey anhydrous copper(II) sulfate. Repeated heating and weighing should give two consecutive equal masses (constant mass).",
+  reaction:"CuSO₄·5H₂O(s) ⇌ CuSO₄(s) + 5H₂O(g)"
  },
  "gravimetric-carbonate":{
   label:"Carbonate reaction",
@@ -293,25 +299,26 @@ const IGCSE_CHEMISTRY={
   reaction:"CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂"
  },
  "qualitative-cations":{
-  label:"Qualitative analysis — copper(II) ion example",
+  label:"Qualitative analysis — aqueous cations",
   basis:"Cambridge 0620 qualitative-analysis notes",
   requirements:[
-   {chemical:"Copper(II) sulfate solution",amount:2,unit:"mL",concentration:"0.10 mol/dm³",target:"Test tube",role:"unknown sample"},
-   {chemical:"Aqueous sodium hydroxide",amount:2,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"test reagent"}
+   {chemical:"Copper(II) sulfate solution",amount:2,unit:"mL",concentration:"sample concentration",target:"Test tube",role:"cation sample"},
+   {chemical:"Aqueous sodium hydroxide",amount:2,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"test reagent"},
+   {chemical:"Aqueous ammonia",amount:2,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"separate test portion"}
   ],
-  observation:"Copper(II) ions give a light-blue precipitate with sodium hydroxide. With excess aqueous ammonia, the precipitate dissolves to give a dark-blue solution.",
+  observation:"For Cu²⁺, sodium hydroxide gives a light-blue precipitate insoluble in excess. Aqueous ammonia gives a light-blue precipitate that dissolves in excess to form a dark-blue solution. Other IGCSE cations have the characteristic results listed in the Cambridge qualitative-analysis notes.",
   reaction:"Cu²⁺ + 2OH⁻ → Cu(OH)₂(s)"
  },
  "qualitative-anions":{
-  label:"Qualitative analysis — chloride ion example",
+  label:"Qualitative analysis — aqueous anions",
   basis:"Cambridge 0620 qualitative-analysis notes",
   requirements:[
-   {chemical:"Chloride sample",amount:2,unit:"mL",target:"Test tube",role:"unknown sample"},
+   {chemical:"Chloride sample",amount:2,unit:"mL",target:"Test tube",role:"example unknown"},
    {chemical:"Dilute nitric acid",amount:1,unit:"mL",concentration:"1.0 mol/dm³",target:"Test tube",role:"acidify"},
-   {chemical:"Aqueous silver nitrate",amount:1,unit:"mL",concentration:"0.05 mol/dm³",target:"Test tube",role:"test reagent"}
+   {chemical:"Aqueous silver nitrate",amount:1,unit:"mL",concentration:"0.05 mol/dm³",target:"Test tube",role:"halide test reagent"}
   ],
-  observation:"A chloride sample gives a white precipitate of silver chloride after acidification with nitric acid and addition of silver nitrate.",
-  reaction:"Ag⁺ + Cl⁻ → AgCl(s)"
+  observation:"IGCSE anion tests are distinct tests on separate portions: chloride gives a white silver halide precipitate, bromide cream, iodide yellow; nitrate gives ammonia after sodium hydroxide and aluminium foil on warming; sulfate gives a white barium sulfate precipitate; sulfite decolourises acidified manganate(VII); carbonate gives effervescence and carbon dioxide.",
+  reaction:"Ag⁺ + Cl⁻ → AgCl(s); Ba²⁺ + SO₄²⁻ → BaSO₄(s)"
  },
  "halide":{
   label:"Test for halide ions",
@@ -364,6 +371,16 @@ const IGCSE_CHEMISTRY={
   observation:"Bromine water is orange/brown and decolourises when an alkene is present; a saturated compound leaves it orange/brown.",
   reaction:"C=C + Br₂ → dibromo compound"
  },
+ "alcohol-oxidation":{
+  label:"Alcohol oxidation",
+  basis:"Cambridge IGCSE 0620 organic chemistry",
+  requirements:[
+   {chemical:"Ethanol sample",amount:2,unit:"mL",target:"Test tube",role:"alcohol sample"},
+   {chemical:"Acidified potassium manganate(VII)",amount:2,unit:"mL",concentration:"0.01 mol/dm³ KMnO₄ in 0.5 mol/dm³ H₂SO₄",target:"Test tube",role:"oxidising agent"}
+  ],
+  observation:"On warming an ethanol sample with acidified potassium manganate(VII), the purple oxidising solution is decolourised as ethanol is oxidised; with sufficient oxidation, ethanoic acid is formed.",
+  reaction:"CH₃CH₂OH + 2[O] → CH₃COOH + H₂O"
+ },
  "sulfite":{
   label:"Test for sulfite",
   basis:"Cambridge 0620 qualitative-analysis notes",
@@ -396,7 +413,9 @@ function chemistryProfile(e){
  if(id==="test-for-halide-ions")return IGCSE_CHEMISTRY.halide;
  if(id==="test-for-sulfate-ions")return IGCSE_CHEMISTRY.sulfate;
  if(id==="test-for-ammonium-ions")return IGCSE_CHEMISTRY.ammonium;
- if(id==="organic-functional-group-tests"||n.includes("alkene addition"))return IGCSE_CHEMISTRY.alkene;
+ if(id==="organic-functional-group-tests")return IGCSE_CHEMISTRY["alcohol-oxidation"];
+ if(id==="alcohol-oxidation")return IGCSE_CHEMISTRY["alcohol-oxidation"];
+ if(id==="alkene-addition-reaction-model"||n.includes("alkene addition"))return IGCSE_CHEMISTRY.alkene;
  if(n.includes("water")&&n.includes("crystall"))return IGCSE_CHEMISTRY["water-of-crystallisation"];
  if(n.includes("water")&&n.includes("test"))return IGCSE_CHEMISTRY["water-test"];
  if(n.includes("sulfite"))return IGCSE_CHEMISTRY.sulfite;
@@ -426,7 +445,7 @@ function ensureInteractionState(){
  if(!S.markers)S.markers=[];
  const profile=chemistryProfile(current);
  (profile?.requirements||[]).forEach(r=>{
-  if(!S.chemicals[r.chemical])S.chemicals[r.chemical]={volume:250};
+  if(!S.chemicals[r.chemical])S.chemicals[r.chemical]={quantity:/^(g|mg)$/.test(r.unit)?100:250,unit:r.unit};
  });
 }
 
@@ -479,10 +498,10 @@ function renderChemicals(){
   const remaining=Math.max(0,r.amount-done);
   const label=r.unit==="drops"?r.amount+" drops":r.amount+" mL";
   const currentLabel=r.unit==="drops"?done.toFixed(0)+" drops":done.toFixed(1)+" mL";
-  const v=S.chemicals[r.chemical]?.volume??250;
+  const stock=S.chemicals[r.chemical]||{}; const v=stock.quantity!=null?stock.quantity:(stock.volume??(/^(g|mg)$/.test(r.unit)?100:250));
   return '<button class="chemical-card '+(selectedChemical===r.chemical?"selected":"")+(remaining<=0?" complete":"")+'" data-chemical="'+esc(r.chemical)+'">'+
    '<span class="chemical-bottle" style="--chemical:'+chemicalColor(r.chemical)+'"><b>'+esc(CHEMICALS[r.chemical]?.symbol||"")+'</b></span>'+
-   '<span><strong>'+esc(r.chemical)+'</strong><small>'+currentLabel+' / '+label+' required'+(r.concentration?" · "+esc(r.concentration):"")+'</small><small>Source: '+v.toFixed(1)+' mL</small></span></button>';
+   '<span><strong>'+esc(r.chemical)+'</strong><small>'+currentLabel+' / '+label+' required'+(r.concentration?" · "+esc(r.concentration):"")+'</small><small>Source: '+v.toFixed(1)+' '+esc(r.unit)+'</small></span></button>';
  }).join("");
  box.querySelectorAll(".chemical-card").forEach(b=>b.addEventListener("click",()=>{
   const need=chemistryNeed(spec.profile,b.dataset.chemical);
@@ -504,10 +523,13 @@ function pourChemical(targetIndex){
  if(!target)return toast("Select a valid apparatus");
  if(!targetMatches(target,need))return toast("Add "+selectedChemical+" to the "+need.target);
  if(chemistryFulfilled(spec.profile,need))return toast(selectedChemical+" is already at the required quantity");
- const amount=need.amount,ml=need.unit==="drops"?amount*0.05:amount;
- const source=S.chemicals[selectedChemical]||{volume:250};
- if(source.volume<ml)return toast("Not enough "+selectedChemical+" remains in the reagent bottle");
- source.volume=+(source.volume-ml).toFixed(2);S.chemicals[selectedChemical]=source;
+ const amount=need.amount;
+ const isMass=/^(g|mg)$/.test(need.unit);
+ const requiredStock=isMass?100:250;
+ const source=S.chemicals[selectedChemical]||{quantity:requiredStock,unit:need.unit};
+ const available=source.quantity!=null?source.quantity:(source.volume!=null?source.volume:requiredStock);
+ if(available<amount)return toast("Not enough "+selectedChemical+" remains in the reagent stock");
+ source.quantity=+(available-amount).toFixed(2);source.unit=need.unit;S.chemicals[selectedChemical]=source;
  target.liquid=target.liquid||[];
  target.liquid.push({chemical:selectedChemical,amount,unit:need.unit});
  S.pours.push({chemical:selectedChemical,target:target.name,amount,unit:need.unit,concentration:need.concentration||""});
@@ -524,7 +546,7 @@ function renderReactionProfile(spec){
   return '<div class="reaction-row '+(done>=r.amount?"done":"")+'"><span>'+(done>=r.amount?"✓":"○")+'</span><b>'+esc(r.chemical)+'</b><small>'+done.toFixed(r.unit==="drops"?0:1)+' / '+amount+(r.concentration?" · "+esc(r.concentration):"")+' · '+target+'</small></div>';
  }).join("");
  const ready=p.requirements.every(r=>chemistryFulfilled(p,r));
- return '<div class="reaction-profile"><div class="reaction-profile-head"><strong>IGCSE reaction profile</strong><small>'+esc(p.basis)+'</small></div>'+rows+
+ return '<div class="reaction-profile"><div class="reaction-profile-head"><strong>IGCSE-aligned reaction profile</strong><small>'+esc(p.basis)+'</small><small>Quantities shown are virtual-practical settings unless the profile cites a Cambridge example; exam Confidential Instructions may vary.</small></div>'+rows+
   '<div class="reaction-observation"><b>Expected observation:</b> '+esc(p.observation)+'</div>'+
   '<div class="reaction-equation"><b>Equation / principle:</b> '+esc(p.reaction)+'</div>'+
   '<div class="reaction-ready '+(ready?"ready":"")+'">'+(ready?"Setup quantities complete — observe the expected result.":"Complete the specified quantities before starting.")+'</div></div>';

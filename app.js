@@ -54,5 +54,256 @@ function reset(){S=newState(current);renderAll();toast("Experiment reset")}
 function finish(){if(!setupOK())return toast("Complete the apparatus setup first");if(S.rows.length<3)return toast("Record at least 3 measurements first");S.completed=true;updateState();const raw=JSON.parse(localStorage.getItem("sls-redesign-notes")||"[]");raw.push({name:current.name,date:new Date().toLocaleString(),note:"Completed with "+S.rows.length+" recorded measurements."});localStorage.setItem("sls-redesign-notes",JSON.stringify(raw.slice(-30)));renderNotebook();toast("Experiment complete");save()}
 function bind(){$("#experimentSearch").addEventListener("input",renderExperimentList);$("#apparatusSearch").addEventListener("input",renderDrawer);$("#startBtn").addEventListener("click",start);$("#recordBtn").addEventListener("click",record);$("#resetBtn").addEventListener("click",reset);$("#finishBtn").addEventListener("click",finish);$("#instructionBtn").addEventListener("click",()=>document.querySelector(".procedure-panel").scrollIntoView({behavior:"smooth",block:"start"}));$("#experimentNav").addEventListener("click",()=>document.querySelector(".workspace-grid").scrollIntoView({behavior:"smooth"}));$("#learnNav").addEventListener("click",()=>document.querySelector(".info-grid").scrollIntoView({behavior:"smooth"}));$$(".tab").forEach(t=>t.addEventListener("click",()=>{$$(".tab").forEach(x=>x.classList.toggle("active",x===t));["procedure","notes","notebook"].forEach(id=>$("#"+id+"Tab").classList.toggle("hidden",id!==t.dataset.tab))}));$("#notesBox").addEventListener("input",()=>localStorage.setItem("sls-redesign-note-draft",$("#notesBox").value))}
 function init(){subjectCards();bind();subject=null;current=null;S=null;$("#subjectModal").classList.remove("hidden");const draft=localStorage.getItem("sls-redesign-note-draft");if(draft)$("#notesBox").value=draft}
+
+const CHEMICALS={
+ "Water":{color:"#8fd7ff",symbol:"H2O"},
+ "Dilute hydrochloric acid":{color:"#dcecff",symbol:"HCl"},
+ "Dilute sodium hydroxide":{color:"#cfe7ff",symbol:"NaOH"},
+ "Universal indicator":{color:"#7f8cff",symbol:"UI"},
+ "Phenolphthalein":{color:"#f5a2d2",symbol:"PP"},
+ "Sodium thiosulfate solution":{color:"#d8e9ef",symbol:"Na2S2O3"},
+ "Hydrogen peroxide":{color:"#d8f5ff",symbol:"H2O2"},
+ "Iodine solution":{color:"#8b5a2b",symbol:"I2"},
+ "Benedict's solution":{color:"#4f9fd1",symbol:"Benedict"},
+ "Biuret reagent":{color:"#7459c8",symbol:"Biuret"},
+ "Sodium hydrogencarbonate solution":{color:"#d7f1ff",symbol:"NaHCO3"},
+ "Sucrose solution":{color:"#dcecff",symbol:"Sucrose"},
+ "Salt solution":{color:"#dcecff",symbol:"Salt"},
+ "Acid sample":{color:"#ffd6df",symbol:"Acid"},
+ "Base sample":{color:"#d8e7ff",symbol:"Base"},
+ "Solvent":{color:"#d7f1ff",symbol:"Solvent"},
+ "Ink sample":{color:"#394f9b",symbol:"Ink"},
+ "Electrolyte solution":{color:"#b8e9f4",symbol:"Electrolyte"},
+ "Metal salt solution":{color:"#7ec5d7",symbol:"Salt"}
+};
+let selectedChemical=null,pourMode=false,connectionMode=false,connectionFirst=null,markerMode=false;
+
+function interactionSpec(e){
+ const t=(e?.type||"").toLowerCase(), n=(e?.name||"").toLowerCase(), m=(e?.materials||[]).join(" ").toLowerCase();
+ let chemicals=[];
+ const maps={
+  titration:["Dilute hydrochloric acid","Dilute sodium hydroxide","Phenolphthalein"],
+  ph:["Universal indicator","Water"],
+  rates:["Dilute hydrochloric acid","Sodium thiosulfate solution"],
+  electrolysis:["Electrolyte solution","Water"],
+  displacement:["Metal salt solution","Water"],
+  flame:["Dilute hydrochloric acid"],
+  salt:["Dilute hydrochloric acid","Dilute sodium hydroxide"],
+  food:["Iodine solution","Benedict's solution","Biuret reagent"],
+  osmosis:["Sucrose solution","Water"],
+  enzyme:["Hydrogen peroxide","Water"],
+  photosynthesis:["Sodium hydrogencarbonate solution","Water"],
+  respiration:["Water"],
+  transpiration:["Water"],
+  chromatography:["Solvent","Ink sample"]
+ };
+ if(maps[t]) chemicals=maps[t];
+ else if(n.includes("chromatography")) chemicals=maps.chromatography;
+ else if(/carbonate|neutralisation|acid|alkali/.test(n)) chemicals=["Dilute hydrochloric acid","Dilute sodium hydroxide"];
+ else if(e?.subject==="Chemistry") chemicals=["Water","Acid sample","Base sample"];
+ const wires=/wire|wires|connecting/.test(m)||["ohm","series","parallel","electrolysis"].includes(t);
+ const markers=/lens|refraction|diffraction|interference|projectile|pendulum|free-fall|inclined|wave|calibration|measurement/.test(n);
+ return {chemicals:[...new Set(chemicals)],wires,connections:wires?(t==="series"||t==="parallel"?3:1):0,markers:markers?2:0};
+}
+function ensureInteractionState(){
+ if(!S.chemicals)S.chemicals={};
+ if(!S.pours)S.pours=[];
+ if(!S.connections)S.connections=[];
+ if(!S.markers)S.markers=[];
+}
+function interactionOK(){
+ ensureInteractionState();
+ const spec=interactionSpec(current);
+ return {
+  chemOK:spec.chemicals.every(c=>(S.chemicals[c]?.volume||0)>0),
+  wireOK:!spec.wires||S.connections.length>=spec.connections,
+  markerOK:!spec.markers||S.markers.length>=spec.markers,
+  spec
+ };
+}
+function setupOK(){
+ ensureInteractionState();
+ const have=S.setup.map(x=>String(x.name).toLowerCase());
+ const apparatusOK=req(current).every(r=>have.some(h=>h===r.toLowerCase()||h.includes(r.toLowerCase())||r.toLowerCase().includes(h)));
+ const io=interactionOK();
+ return apparatusOK&&io.chemOK&&io.wireOK&&io.markerOK;
+}
+function chemicalColor(name){return CHEMICALS[name]?.color||"#bfe8f4"}
+function isContainer(name){return /beaker|flask|test tube|spotting|basin|dish|cylinder|burette|pipette|tube/i.test(name)}
+
+function renderChemicals(){
+ ensureInteractionState();
+ const box=$("#chemicalTray"),status=$("#chemicalStatus"),spec=interactionSpec(current);
+ if(!box)return;
+ const list=spec.chemicals.length?spec.chemicals:Object.keys(CHEMICALS).slice(0,4);
+ box.innerHTML=list.map(c=>{
+  const v=S.chemicals[c]?.volume??100;
+  return '<button class="chemical-card '+(selectedChemical===c?"selected":"")+'" data-chemical="'+esc(c)+'"><span class="chemical-bottle" style="--chemical:'+chemicalColor(c)+'"><b>'+esc(CHEMICALS[c]?.symbol||"")+'</b></span><span><strong>'+esc(c)+'</strong><small>'+v+' mL available</small></span></button>';
+ }).join("");
+ box.querySelectorAll(".chemical-card").forEach(b=>b.addEventListener("click",()=>{
+  selectedChemical=b.dataset.chemical;
+  pourMode=true;connectionMode=false;connectionFirst=null;
+  document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));
+  renderChemicals();renderConnections();
+  toast("Selected "+selectedChemical+" — click a container to pour");
+ }));
+ if(status)status.textContent=selectedChemical?"Pouring: "+selectedChemical:"Choose a chemical, then click a container to pour 10 mL.";
+}
+
+function renderConnections(){
+ ensureInteractionState();
+ const box=$("#connectionPanel");if(!box)return;
+ const spec=interactionSpec(current);
+ box.innerHTML='<div class="interaction-title">Real-world setup</div>'+
+  '<button class="interaction-action '+(connectionMode?"active":"")+'" id="connectBtn">⌁ '+(connectionMode?"Connecting — click two apparatus":"Connect wires")+'</button>'+
+  '<button class="interaction-action '+(pourMode?"active":"")+'" id="pourBtn">◉ '+(pourMode?"Pour mode active":"Choose chemical")+'</button>'+
+  '<button class="interaction-action '+(markerMode?"active":"")+'" id="markerBtn">⊙ '+(markerMode?"Click the bench to place marker":"Place fiducial marker")+'</button>'+
+  '<div class="interaction-status">'+(spec.wires?"Connections "+S.connections.length+" / "+spec.connections:"No wire connection required for this experiment.")+'</div>'+
+  (spec.markers?'<div class="interaction-status">Fiducial markers '+S.markers.length+" / "+spec.markers+'</div>':"")+
+  (spec.chemicals.length?'<div class="interaction-status">Chemical additions: '+S.pours.length+'</div>':"");
+ $("#connectBtn")?.addEventListener("click",()=>{
+  connectionMode=!connectionMode;pourMode=false;selectedChemical=null;connectionFirst=null;markerMode=false;
+  document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("pour-target","connection-first"));
+  renderConnections();toast(connectionMode?"Click the first apparatus, then the second":"Wire mode off");
+ });
+ $("#pourBtn")?.addEventListener("click",()=>{
+  if(!spec.chemicals.length)return toast("No chemical addition is required here");
+  pourMode=true;connectionMode=false;markerMode=false;selectedChemical=selectedChemical||spec.chemicals[0];
+  renderChemicals();renderConnections();toast("Choose a chemical, then click a container");
+ });
+ $("#markerBtn")?.addEventListener("click",()=>{
+  if(!spec.markers)return toast("Fiducial markers are not needed for this experiment");
+  markerMode=!markerMode;connectionMode=false;pourMode=false;selectedChemical=null;
+  renderConnections();toast(markerMode?"Click anywhere on the bench to place a marker":"Marker mode off");
+ });
+}
+
+function pourChemical(targetIndex){
+ ensureInteractionState();
+ if(!selectedChemical)return toast("Choose a chemical first");
+ const target=S.setup[targetIndex];
+ if(!target||!isContainer(target.name))return toast("Pour into a beaker, flask, tube, basin or similar container");
+ const available=S.chemicals[selectedChemical]?.volume??100;
+ if(available<10)return toast("That bottle is empty");
+ S.chemicals[selectedChemical]={volume:available-10};
+ target.liquid=target.liquid||[];
+ target.liquid.push({chemical:selectedChemical,amount:10});
+ S.pours.push({chemical:selectedChemical,target:target.name,amount:10});
+ toast("10 mL of "+selectedChemical+" poured into "+target.name);
+ selectedChemical=null;pourMode=false;
+ renderAll();save();
+}
+
+function selectConnection(index){
+ if(!connectionMode)return false;
+ if(connectionFirst===null){
+  connectionFirst=index;
+  document.querySelectorAll(".placed-item").forEach(x=>x.classList.toggle("connection-first",+x.dataset.index===index));
+  toast("Now click the second apparatus");
+  return true;
+ }
+ if(connectionFirst===index)return true;
+ const exists=S.connections.some(c=>(c.a===connectionFirst&&c.b===index)||(c.a===index&&c.b===connectionFirst));
+ if(!exists)S.connections.push({a:connectionFirst,b:index});
+ connectionFirst=null;connectionMode=false;
+ renderAll();save();toast("Wire connection added");
+ return true;
+}
+
+function placeMarkerAtEvent(e){
+ if(!markerMode)return false;
+ const r=$("#bench").getBoundingClientRect();
+ const x=Math.max(5,Math.min(95,((e.clientX-r.left)/r.width)*100));
+ const y=Math.max(7,Math.min(90,((e.clientY-r.top)/r.height)*100));
+ S.markers.push({id:S.markers.length+1,x:+x.toFixed(2),y:+y.toFixed(2)});
+ markerMode=false;renderAll();save();toast("Fiducial marker "+S.markers.length+" placed");
+ return true;
+}
+
+function renderInteractionGraphics(){
+ const layer=$("#connectionLayer"),markers=$("#fiducials");
+ if(layer)layer.innerHTML=S.connections.map(c=>{
+  const a=S.setup[c.a],b=S.setup[c.b];if(!a||!b)return "";
+  return '<line x1="'+a.x+'%" y1="'+a.y+'%" x2="'+b.x+'%" y2="'+b.y+'%" class="connection-line"/>';
+ }).join("");
+ if(markers)markers.innerHTML=S.markers.map(m=>'<div class="fiducial-marker" style="left:'+m.x+'%;top:'+m.y+'%"><span>'+m.id+'</span></div>').join("");
+}
+
+function renderBench(){
+ ensureInteractionState();
+ const p=$("#placedApparatus");
+ p.innerHTML=S.setup.map((item,i)=>{
+  const liq=item.liquid?.length?item.liquid[item.liquid.length-1]:null;
+  return '<div class="placed-item" data-index="'+i+'" style="left:'+item.x+'%;top:'+item.y+'%"><span class="placed-visual">'+apparatusSvg(item.name)+'</span>'+
+   (liq?'<span class="liquid-overlay" style="--liquid:'+chemicalColor(liq.chemical)+'"></span>':"")+
+   '<b>'+esc(item.name)+'</b><button class="remove-apparatus" data-remove="'+i+'">×</button></div>';
+ }).join("");
+ $("#benchTip").classList.toggle("hidden",S.setup.length>0);
+ p.querySelectorAll(".remove-apparatus").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();S.setup.splice(+b.dataset.remove,1);renderAll();toast("Apparatus removed")}));
+ p.querySelectorAll(".placed-item").forEach(el=>enablePlacedDrag(el));
+ renderInteractionGraphics();
+}
+
+function enablePlacedDrag(el){
+ el.addEventListener("pointerdown",e=>{
+  if(e.target.closest(".remove-apparatus"))return;
+  const i=+el.dataset.index;
+  if(pourMode){e.preventDefault();pourChemical(i);return}
+  if(selectConnection(i))return;
+  if(markerMode)return;
+  e.preventDefault();
+  const bench=$("#bench"),r=bench.getBoundingClientRect(),item=S.setup[i];
+  const move=ev=>{
+   const x=Math.max(6,Math.min(94,((ev.clientX-r.left)/r.width)*100));
+   const y=Math.max(10,Math.min(88,((ev.clientY-r.top)/r.height)*100));
+   item.x=+x.toFixed(2);item.y=+y.toFixed(2);el.style.left=item.x+"%";el.style.top=item.y+"%";renderInteractionGraphics();
+  };
+  const up=ev=>{el.releasePointerCapture?.(ev.pointerId);el.classList.remove("moving");el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",up);save()};
+  el.setPointerCapture?.(e.pointerId);el.classList.add("moving");el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);
+ });
+}
+
+function renderAll(){
+ if(!current)return;
+ ensureInteractionState();
+ $("#activeTitle").textContent=current.name;$("#activeObjective").textContent=current.objective;
+ $("#overviewText").textContent=current.objective+" "+(current.text||"");
+ $("#variablesText").innerHTML="<b>Independent:</b> "+esc(current.controls?.[0]||"Variable A")+"<br><b>Dependent:</b> "+esc(current.columns?.[3]||"Result")+"<br><b>Controlled:</b> Keep other conditions constant.";
+ $("#equationText").textContent=equation(current);
+ $("#outcomesText").innerHTML="<li>Understand "+esc(current.name)+"</li><li>Collect repeated measurements</li><li>Analyse and explain evidence</li>";
+ renderBench();renderDrawer();renderControls();renderChemicals();renderConnections();renderProcedure();renderReadings();renderTable();renderNotebook();updateState();
+}
+
+function renderProcedure(){
+ const io=interactionSpec(current),extra=[];
+ if(io.chemicals.length)extra.push("Choose the correct chemicals and pour measured amounts into the appropriate containers.");
+ if(io.wires)extra.push("Connect the required apparatus before switching on the supply.");
+ if(io.markers)extra.push("Place "+io.markers+" fiducial markers at useful fixed measurement points.");
+ const items=["Read the objective: "+current.objective,"Place every required apparatus on the bench using the drawer.",...extra,"Set "+(current.controls?.[0]||"the first variable")+" and "+(current.controls?.[1]||"the second variable")+" using the controls.","Start the experiment and observe the live response.","Record at least three measurements, changing one variable at a time.","Compare the evidence with the expected relationship: "+equation(current)];
+ $("#procedureTab").innerHTML='<h3 class="procedure-title">Step-by-Step Guide</h3>'+items.map((t,i)=>'<div class="step"><span class="step-num">'+(i+1)+'</span><p>'+esc(t)+'</p></div>').join("")+
+ '<div class="apparatus-check"><h4>Required Apparatus</h4>'+req(current).map(n=>{const done=S.setup.some(x=>x.name===n);return '<div class="check-row '+(done?"done":"")+'"><span>'+(done?"✓":"")+'</span>'+esc(n)+'</div>'}).join("")+
+ '</div><div class="apparatus-check"><h4>Experiment-specific setup</h4>'+
+ (io.chemicals.length?io.chemicals.map(n=>'<div class="check-row '+((S.chemicals[n]?.volume||0)>0?"done":"")+'"><span>'+((S.chemicals[n]?.volume||0)>0?"✓":"")+'</span>'+esc(n)+'</div>').join(""):"")+
+ (io.wires?'<div class="check-row '+(S.connections.length>=io.connections?"done":"")+'"><span>'+(S.connections.length>=io.connections?"✓":"")+'</span>Electrical connections: '+S.connections.length+" / "+io.connections+'</div>':"")+
+ (io.markers?'<div class="check-row '+(S.markers.length>=io.markers?"done":"")+'"><span>'+(S.markers.length>=io.markers?"✓":"")+'</span>Fiducial markers: '+S.markers.length+" / "+io.markers+'</div>':"")+
+ '</div><p class="procedure-note">'+esc(current.safety||"Follow normal laboratory safety procedures.")+'</p>';
+}
+
+function updateState(){
+ const ok=setupOK(),x=$("#runState");
+ x.textContent=S.completed?"COMPLETE":S.running?"RUNNING":ok?"READY":"SETUP REQUIRED";
+ x.className="run-state "+(S.completed||ok?"ready":S.running?"running":"");
+ $("#startBtn").disabled=!ok||S.running;$("#recordBtn").disabled=!S.running||!ok;
+}
+function reset(){
+ S=newState(current);ensureInteractionState();selectedChemical=null;pourMode=false;connectionMode=false;connectionFirst=null;markerMode=false;
+ renderAll();toast("Experiment reset");
+}
+
+const originalBenchClick=document.addEventListener.bind(document);
+document.addEventListener("click",e=>{
+ if(e.target.closest(".placed-item")||e.target.closest(".apparatus-card")||e.target.closest(".chemical-card"))return;
+ if(markerMode&&e.target.closest("#bench"))placeMarkerAtEvent(e);
+});
 init();
 })();

@@ -14,6 +14,14 @@ const E=window.EXPERIMENTS||[];let current=E[0],rows=[],filter="All";const $=s=>
   const a=actionMap[t]||{title:"Interactive laboratory bench",steps:["Select the apparatus setting.","Perform the laboratory action.","Observe the reading.","Record the result."],buttons:[["setup","Set up apparatus"],["action","Perform action"],["measure","Measure"]]};
   dock.innerHTML='<div class="action-title"><span>'+a.title+'</span><small>DO IT YOURSELF</small></div><div class="procedure">'+a.steps.map((s,i)=>'<span><b>'+(i+1)+'</b>'+s+'</span>').join('')+'</div><div class="action-buttons">'+a.buttons.map(x=>'<button class="action-btn" data-action="'+x[0]+'">'+x[1]+'</button>').join('')+'</div><div class="action-status" id="actionStatus">Apparatus ready. Start the procedure.</div>';
   $(".action-btn").forEach(b=>b.onclick=()=>performAction(b.dataset.action));
+  const bob=document.querySelector(".pendulum .bob");
+  if(bob){
+    let dragging=false,startX=0;
+    bob.style.cursor="grab";
+    bob.onpointerdown=e=>{dragging=true;startX=e.clientX;bob.setPointerCapture(e.pointerId);bob.style.cursor="grabbing";};
+    bob.onpointermove=e=>{if(!dragging)return;const dx=Math.max(-85,Math.min(85,e.clientX-startX));bob.style.transform="translateX("+dx+"px)";};
+    bob.onpointerup=e=>{dragging=false;bob.releasePointerCapture(e.pointerId);bob.style.cursor="grab";const s=$("#actionStatus");if(s)s.textContent="Pendulum positioned. Press Release pendulum to let it swing.";};
+  }
 }
 function performAction(action){
   const status=$("#actionStatus"); if(!status)return;

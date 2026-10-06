@@ -873,3 +873,68 @@ progress=function(){
   panel.innerHTML='<label>ACHIEVEMENTS</label><h3>Scientific skills unlocked</h3><div class="achievement-grid">'+v2Achievements().map(a=>'<div class="achievement '+(a[4]?"earned":"locked")+'"><span>'+a[1]+'</span><div><b>'+a[2]+'</b><small>'+a[3]+'</small></div><i>'+(a[4]?"✓":"LOCKED")+'</i></div>').join("")+'</div>';
   host.parentNode.insertBefore(panel,host);
 };
+
+
+/* ============================================================
+   VISIBLE APPARATUS WORKSPACE
+   The equipment drawer is deliberately student-facing: every
+   practical exposes its named apparatus as draggable objects.
+   ============================================================ */
+const apparatusIcons={
+ "retort stand":"⚗","clamp stand":"⚗","stand":"⚗","burette":"🧪","conical flask":"⚗","flask":"⚗",
+ "beaker":"🥛","test tube":"🧪","test tubes":"🧪","pipette":"💧","dropper":"💧","balance":"⚖",
+ "electronic balance":"⚖","stopwatch":"⏱","ruler":"📏","meter rule":"📏","metre ruler":"📏",
+ "thermometer":"🌡","thermometer":"🌡","ammeter":"A","voltmeter":"V","power supply":"⚡",
+ "dc power supply":"⚡","switch":"⏻","resistor":"▰","wire":"⌁","connecting wires":"⌁",
+ "ray box":"☼","lens":"◯","screen":"▯","optical bench":"▱","microscope":"🔬","slide":"▤",
+ "petri dish":"◉","specimen":"◉","gas syringe":"▥","pressure sensor":"◉","spring":"〰",
+ "mass hanger":"⬛","slotted masses":"⬛","newton meter":"↗","quadrats":"□","quadrat":"□",
+ "water sample":"💧","field probe":"⌁","turbidity tube":"▥","tripod":"△","gauze":"▤",
+ "bunsen burner":"🔥","heater":"♨","crucible":"▱","lid":"▱","funnel":"▽","filter funnel":"▽",
+ "filter paper":"◌","glass rod":"│","wash bottle":"💧","volumetric flask":"⚗","copper anode":"▮",
+ "cathode object":"▮","electrodes":"▮","electrolyte bath":"▰","default":"●"
+};
+function apparatusIcon(name){
+  const n=name.toLowerCase();
+  const key=Object.keys(apparatusIcons).find(k=>n.includes(k));
+  return apparatusIcons[key||"default"];
+}
+function apparatusKey(name){return name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
+function renderApparatusWorkspace(){
+  const tray=$("#apparatusTray"),bench=$("#benchDropHint"),placed=$("#placedApparatus");
+  if(!tray||!placed)return;
+  const p=profileFor(current),items=[...new Set((p.apparatus||[]).filter(Boolean))];
+  tray.innerHTML=
+    '<div class="apparatus-tray-head"><div><label>APPARATUS DRAWER</label><strong>Build your setup</strong><small>Drag equipment onto the bench · or click to place</small></div><button id="clearSetup" class="setup-clear">Clear setup</button></div>'+
+    '<div class="apparatus-items">'+items.map((name,i)=>'<button class="apparatus-item" draggable="true" data-apparatus="'+i+'"><span class="apparatus-icon">'+apparatusIcon(name)+'</span><span><b>'+name+'</b><small>DRAG TO BENCH</small></span><i>↗</i></button>').join("")+'</div>'+
+    '<div class="setup-progress" id="setupProgress"></div>';
+  const setup=[];
+  const renderSetup=()=>{
+    placed.innerHTML=setup.map((name,i)=>'<div class="placed-item" style="--i:'+i+'" title="Placed apparatus"><span>'+apparatusIcon(name)+'</span><b>'+name+'</b><button data-remove="'+i+'" aria-label="Remove '+name+'">×</button></div>').join("");
+    $("#setupProgress").textContent=setup.length+" / "+items.length+" apparatus placed";
+    $("#benchDropHint").classList.toggle("hidden",setup.length>0);
+    placed.classList.toggle("has-items",setup.length>0);
+    placed.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{setup.splice(+b.dataset.remove,1);renderSetup()});
+  };
+  const place=name=>{
+    if(!setup.includes(name)){setup.push(name);renderSetup();toast(name+" placed on the bench")}
+    else toast(name+" is already on the bench");
+  };
+  tray.querySelectorAll(".apparatus-item").forEach(btn=>{
+    const name=items[+btn.dataset.apparatus];
+    btn.onclick=()=>place(name);
+    btn.ondragstart=e=>{e.dataTransfer.effectAllowed="copy";e.dataTransfer.setData("text/plain",name);btn.classList.add("dragging")};
+    btn.ondragend=()=>btn.classList.remove("dragging");
+  });
+  bench.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect="copy";bench.classList.add("drag-over")};
+  bench.ondragleave=()=>bench.classList.remove("drag-over");
+  bench.ondrop=e=>{e.preventDefault();bench.classList.remove("drag-over");const name=e.dataTransfer.getData("text/plain");if(name)place(name)};
+  $("#clearSetup").onclick=()=>{setup.length=0;renderSetup();toast("Bench cleared")};
+  renderSetup();
+}
+const __loadWorkspaceBase=load;
+load=function(e){
+  __loadWorkspaceBase(e);
+  renderApparatusWorkspace();
+};
+load(current);

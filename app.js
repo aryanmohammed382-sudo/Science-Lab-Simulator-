@@ -926,10 +926,9 @@ function renderApparatusWorkspace(){
     btn.ondragstart=e=>{e.dataTransfer.effectAllowed="copy";e.dataTransfer.setData("text/plain",name);btn.classList.add("dragging")};
     btn.ondragend=()=>btn.classList.remove("dragging");
   });
-  bench.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect="copy";bench.classList.add("drag-over")};
-  bench.ondragleave=()=>bench.classList.remove("drag-over");
-  bench.ondrop=e=>{e.preventDefault();bench.classList.remove("drag-over");const name=e.dataTransfer.getData("text/plain");if(name)place(name)};
-  $("#clearSetup").onclick=()=>{setup.length=0;renderSetup();toast("Bench cleared")};
+  const benchSurface=$("#apparatus")?.closest(".bench")||$(".bench");
+  if(benchSurface){benchSurface.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect="copy";bench.classList.add("drag-over")};benchSurface.ondragleave=e=>{if(e.target===benchSurface)bench.classList.remove("drag-over")};benchSurface.ondrop=e=>{e.preventDefault();bench.classList.remove("drag-over");const name=e.dataTransfer.getData("text/plain");if(name)place(name)}};
+    $("#clearSetup").onclick=()=>{setup.length=0;renderSetup();toast("Bench cleared")};
   renderSetup();
 }
 const __loadWorkspaceBase=load;

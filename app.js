@@ -490,3 +490,43 @@ load=function(e){
   updateSpecificUI();updateSpecificVisual();
 };
 load(current);
+
+
+/* --- Reaction-specific colour and timing refinements --- */
+const visualUpdateBase=updateSpecificVisual;
+updateSpecificVisual=function(){
+  visualUpdateBase();
+  const n=current.name.toLowerCase(),t=clamp(labState.reactionProgress||0,0,1);
+  if($("#precipParticles")&&/halide|sulfate|carbonate|precipitation|ksp/i.test(n)){
+    let c="#f3f3f3";
+    if(/iodide|iodine/i.test(n))c="#f2cf3a";
+    else if(/bromide/i.test(n))c="#ead9c2";
+    else if(/chloride|halide/i.test(n))c="#eeeeee";
+    else if(/copper/i.test(n))c="#b87333";
+    $$("#precipParticles i").forEach(x=>x.style.background=c);
+    if($("#precipSediment"))$("#precipSediment").style.background=c;
+  }
+  if($("#specificFlask")&&/manganate|permanganate/i.test(n)){
+    $("#specificFlask").style.background="rgba(220,90,180,"+(0.18+0.35*t)+")";
+  }
+  if($("#specificFlask")&&/iodine|thiosulfate/i.test(n)){
+    $("#specificFlask").style.background="rgba(180,130,55,"+(0.15+0.25*(1-t))+")";
+  }
+  if($("#specificFoodLiquid")){
+    let c="#a98b5d";
+    if(/starch/i.test(n))c=t>.55?"#2439b8":"#bda77a";
+    else if(/reducing sugar|benedict/i.test(n))c=t>.55?"#c66b25":"#6f9a9b";
+    else if(/protein|biuret/i.test(n))c=t>.55?"#7145a8":"#8e9aa0";
+    else if(/lipid/i.test(n))c=t>.55?"#efe8c8":"#a98b5d";
+    $("#specificFoodLiquid").style.background=c;
+  }
+  if($("#specificFieldLiquid")&&/turbidity|eutrophication|nitrate|phosphate/i.test(n)){
+    $("#specificFieldLiquid").style.background=/turbidity/i.test(n)?"rgba(142,113,75,.55)":/eutrophication/i.test(n)?"rgba(74,165,92,.42)":"rgba(70,160,205,.35)";
+  }
+};
+const timerSpecificFix=setInterval(()=>{
+  if(typeof labState!=="undefined" && labState.running && !labState.paused && !labState.timerId){
+    labState.timer=(labState.timer||0)+.1;
+  }
+},100);
+/* Keep the scientific reaction clock independent from the stopwatch timer. */

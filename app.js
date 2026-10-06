@@ -405,3 +405,88 @@ if(!window.__scienceSpecificTick){
  },100);
 }
 load(current);
+
+
+/* --- Scientific controls and measurement binding --- */
+function unitForVariable(v,subject){
+  const s=v.toLowerCase();
+  if(/temperature/.test(s))return"°C";
+  if(/time|period|duration/.test(s))return"s";
+  if(/mass/.test(s))return"g";
+  if(/volume/.test(s))return"mL";
+  if(/pressure/.test(s))return"Pa";
+  if(/voltage|potential difference/.test(s))return"V";
+  if(/current/.test(s))return"A";
+  if(/resistance/.test(s))return"Ω";
+  if(/length|distance|height|diameter|extension|wavelength|depth/.test(s))return"cm";
+  if(/force/.test(s))return"N";
+  if(/energy|work/.test(s))return"J";
+  if(/power/.test(s))return"W";
+  if(/concentration/.test(s))return"mol dm⁻³";
+  if(/amount/.test(s))return"mol";
+  if(/angle/.test(s))return"°";
+  if(/frequency/.test(s))return"Hz";
+  if(/speed|velocity/.test(s))return"m s⁻¹";
+  if(/rate/.test(s))return"units s⁻¹";
+  if(/ph/.test(s))return"";
+  if(/percentage|efficiency|humidity|abundance|richness|fraction/.test(s))return"%";
+  if(/co₂/.test(s))return"ppm";
+  if(/heart rate/.test(s))return"beats min⁻¹";
+  if(/density/.test(s))return"g cm⁻³";
+  return subject==="Environmental"?"index / count":"";
+}
+function renderScientificControls(e,p){
+  const box=$("#controls");if(!box)return;
+  const vars=p.variables.slice(0,3);
+  if(!vars.length)return;
+  const defaults=vars.map((v,i)=>{const s=v.toLowerCase();if(/temperature/.test(s))return 25;if(/ph/.test(s))return 7;if(/concentration/.test(s))return 0.5;if(/frequency/.test(s))return 10;if(/time|period/.test(s))return 10;if(/angle/.test(s))return 30;if(/mass/.test(s))return 50;if(/length|distance|height/.test(s))return 20;if(/voltage/.test(s))return 6;if(/resistance/.test(s))return 20;if(/current/.test(s))return 0.3;if(/pressure/.test(s))return 100;return i?50:20});
+  box.innerHTML='<div class="scientific-control-note"><span>LIVE VARIABLES</span><small>Change a variable, then observe how the apparatus responds.</small></div>'+vars.map((v,i)=>{
+    const u=unitForVariable(v,e.subject),d=defaults[i],min=/ph/i.test(v)?1:/temperature/i.test(v)?5:0,max=/ph/i.test(v)?14:/temperature/i.test(v)?90:/angle/i.test(v)?85:/time/i.test(v)?120:100;
+    return '<div class="control"><label><span>'+v+'</span><output id="out'+i+'"></output></label><input class="range scientific-range" id="r'+i+'" type="range" min="'+min+'" max="'+max+'" value="'+d+'" step="'+((max-min)>80?1:.1)+'"><small class="control-unit">'+u+'</small></div>';
+  }).join("");
+  $$(".range").forEach(x=>x.oninput=()=>{update();updateSpecificVisual();updateSpecificUI()});
+  update();
+}
+function scientificRecord(){
+  const p=SCIENCE_PROFILES[current.id]||profileFor(current), vals=controlValues();
+  const a=vals[0]||0,b=vals[1]||0;
+  let result;
+  const n=current.name.toLowerCase();
+  if(/ohm/i.test(n))result=a/(b||1);
+  else if(/pendulum|determining g/i.test(n)){const L=Math.max(.01,a/100),T=2*Math.PI*Math.sqrt(L/9.81);result=T}
+  else if(/density/i.test(n))result=a/(b||1);
+  else if(/hooke|spring/i.test(n))result=a/(b||1);
+  else if(/pressure.*liquid/i.test(n))result=1000*9.81*(a/100);
+  else if(/wave|sound|resonance/i.test(n))result=a*(b/100);
+  else if(/specific heat|calorimetry/i.test(n))result=(a*4200*(b-20))/1000;
+  else if(/titration|moles|standard solution/i.test(n))result=a*(b/1000);
+  else if(/rate/i.test(n))result=(a||1)/(b||1);
+  else if(/ph/i.test(n))result=a;
+  else if(/osmosis|water potential/i.test(n))result=b-a;
+  else if(/enzyme/i.test(n))result=100*Math.exp(-Math.pow(((a||37)-37)/18,2))*(b||1)/100;
+  else if(/photosynthesis/i.test(n))result=(b||1)/(a||1);
+  else if(/respiration/i.test(n))result=(b||1)*Math.exp(-Math.pow(((a||28)-28)/18,2));
+  else if(/transpiration|potometer/i.test(n))result=(a||1)*(b||1)/100;
+  else if(/biodiversity|simpson/i.test(n))result=1-Math.pow((b||1)/(a||1),2);
+  else if(/greenhouse|climate/i.test(n))result=3*Math.log(Math.max(1,a||400)/280)/Math.log(2);
+  else if(/soil/i.test(n))result=Math.max(0,100-a-b);
+  else if(/carbon|resource|yield|efficiency/i.test(n))result=(a||1)/(b||1);
+  else result=(a+b)/2;
+  const formatted=Number.isFinite(result)?result.toFixed(3):String(result);
+  rows.push([String((rows.length+1)),a.toFixed(2),b.toFixed(2),formatted]);
+  table();toast("Measurement linked to the current apparatus state");
+  labState.running=true;labState.reactionProgress=clamp((labState.reactionProgress||0)+.18,0,1);
+  updateSpecificUI();updateSpecificVisual();
+}
+$("#record").onclick=scientificRecord;
+const scientificLoad=load;
+load=function(e){
+  scientificLoad(e);
+  const p=SCIENCE_PROFILES[e.id]||profileFor(e);
+  renderScientificControls(e,p);
+  $("#controls").classList.add("scientific-controls");
+  $("#completionPanel")&&($("#completionPanel").hidden=true);
+  $("#whyPanel")&&($("#whyPanel").hidden=true);
+  updateSpecificUI();updateSpecificVisual();
+};
+load(current);

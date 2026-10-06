@@ -156,10 +156,10 @@ function performAction(action){
  else if(action==="release"){labState.running=true;$(".pendulum-lab")?.classList.add("swinging");startLabTimer();s.textContent="Released — watch the bob swing and time the oscillations.";toast("Pendulum released")}
  else if(action==="timer"){labState.timerId?stopLabTimer():startLabTimer();s.textContent=labState.timerId?"Stopwatch running.":"Stopwatch stopped."}
  else if(action==="fill"){labState.liquid=35;updatePhysicalApparatus();s.textContent="Burette filled — liquid level and scale are visible."}
- else if(action==="pour"){labState.liquid=clamp(labState.liquid+6,5,90);updatePhysicalApparatus();$(".titration-lab")?.classList.toggle("pouring",true);s.textContent="Stopcock open — titrant is visibly entering the flask."}
+ else if(action==="pour"){labState.stopcock=!labState.stopcock;$(".titration-lab")?.classList.toggle("pouring",labState.stopcock);if(labState.stopcock)labState.liquid=clamp(labState.liquid+6,5,90);updatePhysicalApparatus();s.textContent=labState.stopcock?"Stopcock open — titrant is visibly entering the flask.":"Stopcock closed — flow stopped."}
  else if(action==="endpoint"){labState.liquid=50;updatePhysicalApparatus();s.textContent="Endpoint reached. Read the lower meniscus."}
  else if(action==="connect"){labState.wires=!labState.wires;updatePhysicalApparatus();s.textContent=labState.wires?"Circuit connected — the path is complete.":"Wires disconnected."}
- else if(action==="power"){labState.power=!labState.power;updatePhysicalApparatus();s.textContent=labState.power?"Switch closed — current can flow.":"Switch open — current stopped."}
+ else if(action==="power"){labState.power=!labState.power;updatePhysicalApparatus();$(".electrolysis-lab")?.classList.toggle("powered",labState.power);s.textContent=labState.power?"Switch closed — current can flow.":"Switch open — current stopped."}
  else if(action==="heat"){labState.burner=!labState.burner;updatePhysicalApparatus();if(labState.burner)heatPhysical();s.textContent=labState.burner?"Heater on — flame and temperature are changing.":"Heater off — heating stopped."}
  else if(action==="measure"){recordRow();s.textContent="Reading recorded from the current apparatus state."}
  else if(action==="pour"){labState.liquid=clamp(labState.liquid+10,5,90);updatePhysicalApparatus();s.textContent="Liquid transferred — the visible level changed."}
@@ -172,6 +172,26 @@ function performAction(action){
  s.classList.add("done");setTimeout(()=>s.classList.remove("done"),800);
 }
 const originalLoad=load;
-load=function(e){originalLoad(e);Object.assign(labState,{running:false,paused:false,power:false,wires:false,burner:false,liquid:35,temp:20,mass:0,angle:12,timer:0});draw();labActions();updatePhysicalApparatus();};
+load=function(e){originalLoad(e);Object.assign(labState,{running:false,paused:false,power:false,wires:false,burner:false,stopcock:false,liquid:35,temp:20,mass:0,angle:12,timer:0});draw();labActions();updatePhysicalApparatus();};
+
+
+table=function(){
+ const safe=rows.length;
+ $("#tbody").innerHTML=rows.map((r,i)=>"<tr><td>"+(i+1)+"</td>"+r.map(v=>"<td>"+v+"</td>").join("")+'<td><button class="row-delete" data-row="'+i+'">Delete</button></td></tr>').join("");
+ $(".row-delete").forEach(b=>b.onclick=()=>{rows.splice(+b.dataset.row,1);table()});
+ $("#progress").style.width=Math.min(safe/3*100,100)+"%";
+ $("#progressText").textContent=Math.min(safe,3)+" / 3 readings";
+ $("#missionState").textContent=safe>=3?"READY TO FINISH":"IN PROGRESS";
+ const nums=rows.map(r=>[Number(r[0]),Number(r[1])]).filter(x=>Number.isFinite(x[0])&&Number.isFinite(x[1]));
+ const wrap=$("#graphWrap"),g=$("#graph");
+ if(wrap&&g&&nums.length>=2){
+   const minX=Math.min(...nums.map(x=>x[0])),maxX=Math.max(...nums.map(x=>x[0])),minY=Math.min(...nums.map(x=>x[1])),maxY=Math.max(...nums.map(x=>x[1]));
+   const sx=x=>30+(x-minX)/(maxX-minX||1)*440, sy=y=>190-(y-minY)/(maxY-minY||1)*150;
+   const pts=nums.map(x=>sx(x[0])+","+sy(x[1])).join(" ");
+   g.innerHTML='<svg viewBox="0 0 500 220" role="img" aria-label="Graph of recorded measurements"><line x1="30" y1="190" x2="470" y2="190" class="graph-grid"/><line x1="30" y1="40" x2="30" y2="190" class="graph-grid"/><polyline points="'+pts+'" class="graph-line"/>'+nums.map(x=>'<circle cx="'+sx(x[0])+'" cy="'+sy(x[1])+'" r="5" class="graph-point"/>').join("")+'</svg>';
+   wrap.hidden=false;
+ }else if(wrap){wrap.hidden=true}
+};
+$("#clearRows").onclick=()=>{rows=[];table();toast("Measurements cleared")};
 
 $("#experimentCount").textContent=String(E.length).padStart(2,"0");load(E[0]);library();notebook();progress();

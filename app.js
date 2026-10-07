@@ -1194,6 +1194,18 @@ mappedApparatus=function(e){
 };
 
 
+Object.assign(AUDITED_APPARATUS_BY_ID,{
+ "food-tests":["Test tubes","Test-tube rack","Dropping pipette","Water bath","Spotting tile"],
+ "microscope":["Microscope","Prepared slide","Coverslip","Lens paper"],
+ "osmosis":["Cork borer","Measuring cylinder","Balance","Test tubes","Stopwatch"],
+ "enzyme":["Test tubes","Water bath","Thermometer","Stopwatch","Dropping pipette"],
+ "photosynthesis":["Aquatic plant chamber","Beaker","Lamp","Stopwatch","Ruler"],
+ "respiration":["Respirometer","Thermometer","Water bath","Stopwatch"],
+ "transpiration":["Potometer","Stopwatch","Lamp","Scale"],
+ "ecology-quadrat":["Quadrat frame","Tape measure","Field notebook"],
+ "carbon-footprint-comparison":["Balance","Energy meter","Field notebook","Data logger"]
+});
+
 /* ===== Apparatus visual + interaction audit layer ===== */
 const __apparatusSvgV2=apparatusSvg;
 function auditedExtraSvg(name){

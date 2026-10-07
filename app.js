@@ -1158,5 +1158,35 @@ reset=function(){
  save();
 };
 
+
+/* ===== Apparatus audit: explicit equipment for the foundational experiments ===== */
+const AUDITED_APPARATUS_BY_ID={
+ "ohms-law":["DC power supply","Fixed resistor","Ammeter","Voltmeter","Connecting wires","Switch"],
+ "series-circuits":["DC power supply","Fixed resistor","Fixed resistor 2","Ammeter","Voltmeter","Connecting wires","Switch"],
+ "parallel-circuits":["DC power supply","Fixed resistor","Fixed resistor 2","Ammeter","Voltmeter","Connecting wires","Switch"],
+ "resistivity":["DC power supply","Resistance wire","Ammeter","Voltmeter","Micrometer screw gauge","Metre rule","Connecting wires"],
+ "power":["DC power supply","Fixed resistor","Ammeter","Voltmeter","Connecting wires","Switch"],
+ "density":["Balance","Measuring cylinder","Displacement can","Solid sample"],
+ "hookes-law":["Spring","Clamp stand","Mass hanger","Slotted masses","Metre rule"],
+ "pendulum":["Clamp stand","String","Pendulum bob","Stopwatch","Metre rule"],
+ "moments":["Metre rule","Pivot","Slotted masses","Clamp stand","Force meter"],
+ "friction":["Force meter","Wooden block","Slotted masses","Surface board"],
+ "lenses":["Convex lens","Lens holder","Object","Screen","Metre rule"],
+ "refraction":["Ray box","Glass block","Protractor","Ruler","Paper screen"],
+ "thermal-calorimetry":["Metal block","Electrical heater","Thermometer","Balance","Power supply","Stopwatch"],
+ "gas-law":["Gas syringe","Pressure sensor","Air sample chamber","Temperature sensor"],
+ "water-quality":["Sample bottles","pH meter","Turbidity tube","Dissolved oxygen meter","Thermometer","Measuring cylinder"],
+ "soil-composition":["Soil sieve","Measuring cylinder","Balance","Beaker","Stirring rod","Stopwatch"],
+ "greenhouse":["Insulated chamber A","Insulated chamber B","Temperature sensors","Heat lamp","Data logger"],
+ "weather":["Barometer","Thermometer","Hygrometer","Anemometer","Rain gauge"],
+ "renewable-resource-management":["Solar panel","Energy meter","Thermometer","Stopwatch","Balance"]
+};
+const __mappedApparatusV2=mappedApparatus;
+mappedApparatus=function(e){
+ if(e&&AUDITED_APPARATUS_BY_ID[e.id])return AUDITED_APPARATUS_BY_ID[e.id];
+ const a=__mappedApparatusV2(e);
+ return [...new Set(a)].filter(x=>x&& !/^(standard|chemical reagents|measuring equipment|measuring instruments|data sheet|field data sheet)$/i.test(String(x).trim())).slice(0,8);
+};
+
 init();
 })();

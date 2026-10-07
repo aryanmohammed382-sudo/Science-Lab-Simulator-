@@ -8,7 +8,7 @@ const fallback={Physics:["DC power supply","Ammeter","Voltmeter","Connecting wir
 const ranges=n=>{n=n.toLowerCase();if(n.includes("ph"))return[1,14,.1,7];if(n.includes("angle"))return[0,85,1,30];if(n.includes("temperature"))return[5,90,1,25];if(n.includes("voltage"))return[0,12,.1,6];if(n.includes("resistance"))return[1,100,1,20];if(n.includes("mass"))return[1,500,1,50];if(/length|distance|height|diameter|volume/.test(n))return[1,100,.1,20];if(n.includes("time"))return[1,120,1,10];return[0,100,.1,20]};
 const CHEMISTRY_APPARATUS={"acid-base":["Burette","Volumetric pipette","Conical flask","Retort stand","Burette clamp","White tile","Wash bottle"],"ph-indicators":["Spotting tile","Dropping pipette","Test-tube rack","Test tube"],"separation":["Filter funnel","Filter paper","Beaker","Evaporating basin","Balance","Glass rod"],"chromatography":["Chromatography paper","Capillary tube","Beaker","Pencil","Ruler"],"rates":["Conical flask","Measuring cylinder","Stopwatch","Thermometer","White tile"],"electrolysis":["Beaker","Graphite electrodes","DC power supply","Connecting wires","Switch"],"displacement":["Test tubes","Test-tube rack","Metal strips","Measuring cylinder"],"flame-tests":["Nichrome wire","Bunsen burner","Test tube","Test-tube rack"],"salt-preparation":["Conical flask","Evaporating basin","Filter funnel","Filter paper","Crystallising dish","Glass rod","Bunsen burner","Tripod"],"determining-water-of-crystallisation":["Evaporating basin","Balance","Bunsen burner","Tripod","Tongs","Desiccator"],"qualitative-analysis-of-cations":["Test tubes","Test-tube rack","Dropping pipette","Glass rod"],"qualitative-analysis-of-anions":["Test tubes","Test-tube rack","Dropping pipette","Glass rod"],"test-for-halide-ions":["Test tubes","Test-tube rack","Dropping pipette","Glass rod"],"test-for-sulfate-ions":["Test tubes","Test-tube rack","Dropping pipette","Glass rod"],"test-for-ammonium-ions":["Test tube","Test-tube rack","Dropping pipette","Bunsen burner","Damp red litmus paper"],"alkene-addition-reaction-model":["Test tube","Test-tube rack","Dropping pipette"],"alcohol-oxidation":["Test tube","Test-tube rack","Dropping pipette","Water bath","Thermometer"],"organic-functional-group-tests":["Test tubes","Test-tube rack","Dropping pipette","Water bath","Bunsen burner"],"gas-volume-from-a-carbonate":["Conical flask","Gas syringe","Delivery tube","Rubber bung","Balance"],"gas-volume-and-molar-volume":["Conical flask","Gas syringe","Delivery tube","Rubber bung","Balance","Measuring cylinder"],"relative-formula-mass-by-mass-data":["Balance","Crucible","Tongs","Bunsen burner","Tripod"],"moles-and-avogadro-constant":["Balance","Volumetric flask","Measuring cylinder","Beaker","Glass rod"],"preparation-of-a-standard-solution":["Balance","Beaker","Glass rod","Funnel","Volumetric flask","Wash bottle"],"acid-alkali-titration-with-concordant-results":["Burette","Volumetric pipette","Conical flask","Retort stand","Burette clamp","White tile"],"back-titration":["Balance","Burette","Volumetric pipette","Conical flask","Measuring cylinder","Retort stand","Burette clamp"],"redox-titration-with-potassium-manganate-vii":["Burette","Volumetric pipette","Conical flask","Retort stand","Burette clamp","White tile"],"iodine-thiosulfate-titration":["Burette","Volumetric pipette","Conical flask","Retort stand","Burette clamp","White tile"],"gravimetric-analysis-of-a-carbonate":["Balance","Beaker","Filter funnel","Filter paper","Evaporating basin","Bunsen burner"],"enthalpy-change-of-neutralisation":["Polystyrene cup","Thermometer","Measuring cylinder","Stirring rod","Stopwatch"],"enthalpy-change-of-combustion":["Spirit burner","Copper calorimeter","Thermometer","Balance","Tripod"],"enthalpy-change-by-calorimetry":["Polystyrene cup","Thermometer","Measuring cylinder","Stirring rod","Balance"],"hess-s-law-investigation":["Polystyrene cup","Thermometer","Measuring cylinder","Stirring rod","Balance"],"bond-enthalpy-model":["Molecular model kit","Balance","Thermometer","Stopwatch"],"rate-and-concentration":["Conical flask","Measuring cylinder","Stopwatch","White tile"],"rate-and-temperature":["Conical flask","Water bath","Thermometer","Stopwatch","Measuring cylinder"],"rate-and-surface-area":["Conical flask","Balance","Stopwatch","Measuring cylinder"],"rate-and-catalyst":["Conical flask","Stopwatch","Measuring cylinder","Gas syringe"],"activation-energy-from-arrhenius-data":["Water bath","Thermometer","Stopwatch","Conical flask"],"equilibrium-and-concentration":["Test tubes","Test-tube rack","Dropping pipette","Measuring cylinder"],"equilibrium-and-temperature":["Test tubes","Test-tube rack","Water bath","Thermometer"],"equilibrium-and-pressure":["Gas syringe","Pressure sensor","Temperature sensor"],"ph-measurement-with-a-ph-meter":["pH meter","Beaker","Wash bottle","Stirring rod"],"buffer-solution-investigation":["pH meter","Burette","Volumetric pipette","Conical flask","Beaker"],"solubility-and-temperature":["Test tube","Water bath","Thermometer","Balance","Measuring cylinder"],"ksp-precipitation-model":["Test tubes","Test-tube rack","Dropping pipette","Measuring cylinder"],"electrochemical-cell-voltage":["Beaker","Voltmeter","Connecting wires","Metal electrodes","Salt bridge"],"electrochemical-series":["Beaker","Voltmeter","Connecting wires","Metal electrodes","Salt bridge"],"electrolysis-and-faraday-s-law":["Beaker","Graphite electrodes","DC power supply","Ammeter","Stopwatch","Connecting wires","Balance"],"electroplating":["Beaker","DC power supply","Ammeter","Metal electrodes","Connecting wires"],"conductivity-of-ionic-solutions":["Beaker","Conductivity probe","DC power supply","Ammeter","Connecting wires"]};
 const req=e=>{if(!e)return [];if(normalizeSubject(e.subject)==="Chemistry"&&CHEMISTRY_APPARATUS[e.id])return CHEMISTRY_APPARATUS[e.id];if(normalizeSubject(e.subject)==="Chemistry")return ["Beaker","Conical flask","Measuring cylinder","Balance"];return [...new Set((e.materials?.length?e.materials:fallback[e?.subject]||fallback.Physics).filter(Boolean))].slice(0,8)};
-const newState=e=>({setup:[],values:(e.controls||["Variable A","Variable B"]).slice(0,2).map((n,i)=>ranges(n)[3]),rows:[],running:false,completed:false,chemicals:{},pours:[],connections:[],markers:[],resistorResistance:20});
+const newState=e=>({setup:[],values:(e.controls||["Variable A","Variable B"]).slice(0,2).map((n,i)=>ranges(n)[3]),rows:[],running:false,completed:false,chemicals:{},pours:[],connections:[],markers:[],resistorResistance:20,apparatusOps:{},selectedApparatus:null,fieldSamples:[],environment:{light:500,temp:25,soilPH:7,turbidity:0}});
 function toast(t){const x=$("#toast");if(!x)return;x.textContent=t;x.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.remove("show"),1900)}
 function save(){localStorage.setItem("sls-redesign-state",JSON.stringify({subject,current:current?.id,S}))}
 function formula(e){const a=+S.values[0]||0,b=+S.values[1]||0;switch(e.type){case"ohm":return a/(b||1);case"series":return a/(b+20);case"parallel":return a/(b||1);case"resistivity":return .0175*a/(Math.PI*Math.pow(b/2000,2));case"power":return a*a/(b||1);case"density":return a/(b||1);case"hooke":return a/(b||1);case"pendulum":return 2*Math.PI*Math.sqrt(Math.max(.01,a/100));case"moments":case"friction":return a*b;case"lens":return a===b?Infinity:a*b/(a-b);case"refraction":return Math.asin(Math.sin(a*Math.PI/180)/(b||1))*180/Math.PI;case"thermal":return a*50;case"gas":return a?b*100/a:0;default:return(a+b)/2}}
@@ -30,7 +30,22 @@ if(n.includes("stopwatch"))return w('<circle cx="90" cy="75" r="48" class="metal
 if(n.includes("lens"))return w('<ellipse cx="90" cy="70" rx="28" ry="53" class="lens"/><line x1="90" y1="17" x2="90" y2="123" class="lens-axis"/>');
 if(n.includes("quadrat"))return w('<rect x="34" y="22" width="112" height="96" class="quadrat"/><line x1="71" y1="22" x2="71" y2="118" class="quadrat-line"/><line x1="109" y1="22" x2="109" y2="118" class="quadrat-line"/><line x1="34" y1="54" x2="146" y2="54" class="quadrat-line"/><line x1="34" y1="86" x2="146" y2="86" class="quadrat-line"/>');
 return w('<path d="M52 28 H128 L118 108 Q90 123 62 108 Z" class="glass"/><path d="M58 76 Q90 67 122 76 L117 104 Q90 114 63 104 Z" class="liquid"/>')}
-function specialApparatusSvg(name){const n=String(name).toLowerCase(),w=b=>'<svg class="apparatus-svg" viewBox="0 0 180 140" aria-label="'+esc(name)+'">'+b+'</svg>';if(n.includes("burette"))return w('<path d="M78 12 H102 V103 L90 121 L78 103 Z" class="glass"/><rect x="83" y="30" width="14" height="54" class="liquid"/><line x1="106" y1="25" x2="126" y2="25" class="scale-svg"/><line x1="106" y1="44" x2="122" y2="44" class="scale-svg"/><circle cx="90" cy="104" r="6" class="knob"/>');if(n.includes("volumetric pipette")||n==="pipette")return w('<path d="M84 17 Q90 8 96 17 V47 Q90 59 84 47 Z M84 47 V116 Q90 128 96 116 V47" class="glass"/><ellipse cx="90" cy="48" rx="15" ry="10" class="glass-rim"/>');if(n.includes("measuring cylinder"))return w('<path d="M65 14 H115 L109 119 Q90 128 71 119 Z" class="glass"/><path d="M71 73 Q90 66 109 73 L106 114 Q90 121 74 114 Z" class="liquid"/><line x1="112" y1="35" x2="127" y2="35" class="scale-svg"/><line x1="112" y1="55" x2="124" y2="55" class="scale-svg"/><line x1="112" y1="75" x2="127" y2="75" class="scale-svg"/>');if(n.includes("filter funnel")||n==="funnel")return w('<path d="M34 22 H146 L101 76 V120 H79 V76 Z" class="glass"/>');if(n.includes("spotting tile"))return w('<rect x="25" y="32" width="130" height="76" rx="9" class="tile"/><circle cx="50" cy="55" r="7" class="well"/><circle cx="75" cy="55" r="7" class="well"/><circle cx="100" cy="55" r="7" class="well"/><circle cx="125" cy="55" r="7" class="well"/><circle cx="50" cy="82" r="7" class="well"/><circle cx="75" cy="82" r="7" class="well"/><circle cx="100" cy="82" r="7" class="well"/><circle cx="125" cy="82" r="7" class="well"/>');if(n.includes("nichrome wire"))return w('<path d="M43 106 L70 77 L87 47 L107 25" class="wire-svg"/><circle cx="43" cy="106" r="9" class="handle"/><circle cx="108" cy="24" r="5" class="wire-tip"/>');if(n.includes("bunsen burner"))return w('<rect x="61" y="94" width="58" height="22" rx="4" class="metal"/><rect x="78" y="45" width="24" height="50" class="metal"/><path d="M90 45 C76 30 87 13 90 10 C93 13 104 30 90 45" class="flame-svg"/>');if(n.includes("gas syringe"))return w('<rect x="42" y="48" width="90" height="40" rx="6" class="glass"/><rect x="57" y="55" width="48" height="26" class="liquid"/><rect x="105" y="43" width="10" height="50" class="plunger"/>');if(n.includes("pH meter"))return w('<rect x="44" y="45" width="92" height="56" rx="8" class="metal"/><rect x="58" y="56" width="60" height="22" class="screen"/><text x="88" y="72" text-anchor="middle" class="digital">pH 7.00</text>');if(n.includes("graphite electrode")||n.includes("metal electrode")||n==="electrodes")return w('<rect x="58" y="28" width="18" height="86" rx="5" class="electrode"/><rect x="104" y="28" width="18" height="86" rx="5" class="electrode"/>');if(n.includes("water bath"))return w('<rect x="28" y="38" width="124" height="70" rx="9" class="metal"/><path d="M35 64 Q90 54 145 64 V99 Q90 110 35 99 Z" class="liquid"/>');return null}const baseApparatusSvg=apparatusSvg;apparatusSvg=function(name){return specialApparatusSvg(name)||baseApparatusSvg(name)};
+function specialApparatusSvg(name){const n=String(name).toLowerCase(),w=b=>'<svg class="apparatus-svg" viewBox="0 0 180 140" aria-label="'+esc(name)+'">'+b+'</svg>';if(n.includes("burette"))return w('<path d="M78 12 H102 V103 L90 121 L78 103 Z" class="glass"/><rect x="83" y="30" width="14" height="54" class="liquid"/><line x1="106" y1="25" x2="126" y2="25" class="scale-svg"/><line x1="106" y1="44" x2="122" y2="44" class="scale-svg"/><circle cx="90" cy="104" r="6" class="knob"/>');if(n.includes("volumetric pipette")||n==="pipette")return w('<path d="M84 17 Q90 8 96 17 V47 Q90 59 84 47 Z M84 47 V116 Q90 128 96 116 V47" class="glass"/><ellipse cx="90" cy="48" rx="15" ry="10" class="glass-rim"/>');if(n.includes("measuring cylinder"))return w('<path d="M65 14 H115 L109 119 Q90 128 71 119 Z" class="glass"/><path d="M71 73 Q90 66 109 73 L106 114 Q90 121 74 114 Z" class="liquid"/><line x1="112" y1="35" x2="127" y2="35" class="scale-svg"/><line x1="112" y1="55" x2="124" y2="55" class="scale-svg"/><line x1="112" y1="75" x2="127" y2="75" class="scale-svg"/>');if(n.includes("filter funnel")||n==="funnel")return w('<path d="M34 22 H146 L101 76 V120 H79 V76 Z" class="glass"/>');if(n.includes("spotting tile"))return w('<rect x="25" y="32" width="130" height="76" rx="9" class="tile"/><circle cx="50" cy="55" r="7" class="well"/><circle cx="75" cy="55" r="7" class="well"/><circle cx="100" cy="55" r="7" class="well"/><circle cx="125" cy="55" r="7" class="well"/><circle cx="50" cy="82" r="7" class="well"/><circle cx="75" cy="82" r="7" class="well"/><circle cx="100" cy="82" r="7" class="well"/><circle cx="125" cy="82" r="7" class="well"/>');if(n.includes("nichrome wire"))return w('<path d="M43 106 L70 77 L87 47 L107 25" class="wire-svg"/><circle cx="43" cy="106" r="9" class="handle"/><circle cx="108" cy="24" r="5" class="wire-tip"/>');if(n.includes("bunsen burner"))return w('<rect x="61" y="94" width="58" height="22" rx="4" class="metal"/><rect x="78" y="45" width="24" height="50" class="metal"/><path d="M90 45 C76 30 87 13 90 10 C93 13 104 30 90 45" class="flame-svg"/>');if(n.includes("gas syringe"))return w('<rect x="42" y="48" width="90" height="40" rx="6" class="glass"/><rect x="57" y="55" width="48" height="26" class="liquid"/><rect x="105" y="43" width="10" height="50" class="plunger"/>');
+if(n.includes("chromatography paper"))return w('<rect x="58" y="12" width="64" height="116" class="paper-svg"/><line x1="58" y1="92" x2="122" y2="92" class="baseline-svg"/><circle cx="76" cy="92" r="5" class="spot-svg"/><circle cx="92" cy="92" r="5" class="spot-svg"/><circle cx="108" cy="92" r="5" class="spot-svg"/><path d="M76 88 C78 64 80 42 82 20" class="chromatogram-svg"/><path d="M92 88 C94 58 97 38 100 20" class="chromatogram-svg"/><path d="M108 88 C110 70 114 44 118 20" class="chromatogram-svg"/>');
+if(n.includes("capillary tube"))return w('<rect x="84" y="16" width="12" height="108" rx="6" class="glass"/><line x1="87" y1="34" x2="93" y2="34" class="scale-svg"/>');
+if(n==="pencil"||n.includes("pencil"))return w('<path d="M42 105 L118 29 L135 46 L59 122 Z" class="pencil-svg"/><path d="M118 29 L132 15 L146 30 L135 46 Z" class="pencil-svg"/><path d="M42 105 L30 118 L59 122 Z" class="pencil-tip-svg"/>');
+if(n.includes("test tube rack"))return w('<rect x="24" y="80" width="132" height="24" rx="5" class="rack-svg"/><circle cx="48" cy="70" r="15" class="rack-hole"/><circle cx="82" cy="70" r="15" class="rack-hole"/><circle cx="116" cy="70" r="15" class="rack-hole"/><line x1="33" y1="58" x2="33" y2="105" class="rack-leg"/><line x1="147" y1="58" x2="147" y2="105" class="rack-leg"/>');
+if(n.includes("retort stand"))return w('<rect x="27" y="111" width="126" height="10" rx="3" class="metal"/><rect x="77" y="20" width="8" height="91" class="metal"/><rect x="82" y="35" width="55" height="7" class="metal"/><circle cx="84" cy="38" r="7" class="knob"/>');
+if(n.includes("burette clamp"))return w('<rect x="42" y="62" width="96" height="12" rx="5" class="metal"/><rect x="84" y="20" width="12" height="96" class="metal"/><circle cx="48" cy="68" r="10" class="knob"/><circle cx="132" cy="68" r="10" class="knob"/>');
+if(n.includes("pipette filler"))return w('<ellipse cx="90" cy="65" rx="38" ry="28" class="rubber-svg"/><path d="M55 65 H38 M125 65 H142" class="glass-line-svg"/><circle cx="90" cy="37" r="7" class="valve-svg"/>');
+if(n.includes("wash bottle"))return w('<path d="M61 44 Q60 22 75 18 H106 Q120 23 119 44 L110 116 H70 Z" class="plastic-svg"/><path d="M96 20 Q126 8 144 24 L139 32 Q119 25 99 31 Z" class="glass-line-svg"/><path d="M78 70 Q90 64 104 70 L102 105 Q90 112 78 105 Z" class="liquid"/>');
+if(n.includes("tripod")||n.includes("gauze"))return w('<path d="M46 38 H134 L119 70 H61 Z" class="gauze-svg"/><line x1="58" y1="70" x2="45" y2="119" class="metal"/><line x1="90" y1="70" x2="90" y2="119" class="metal"/><line x1="122" y1="70" x2="135" y2="119" class="metal"/>');
+if(n.includes("petri dish"))return w('<ellipse cx="90" cy="70" rx="65" ry="28" class="glass"/><ellipse cx="90" cy="65" rx="58" ry="22" class="glass-rim"/>');
+if(n.includes("microscope slide")||n.includes("slide"))return w('<rect x="24" y="52" width="132" height="36" rx="4" class="glass"/><rect x="55" y="58" width="70" height="24" rx="3" class="specimen-svg"/>');
+if(n.includes("cover slip"))return w('<rect x="45" y="43" width="90" height="54" rx="2" class="glass"/>');
+if(n.includes("transect tape")||n.includes("measuring tape"))return w('<path d="M38 43 Q90 15 142 43 Q155 52 142 66 Q90 95 38 66 Q25 55 38 43 Z" class="tape-svg"/><line x1="48" y1="53" x2="132" y2="53" class="baseline-svg"/>');
+if(n.includes("quadrat"))return w('<rect x="30" y="20" width="120" height="100" class="quadrat"/><line x1="70" y1="20" x2="70" y2="120" class="quadrat-line"/><line x1="110" y1="20" x2="110" y2="120" class="quadrat-line"/><line x1="30" y1="53" x2="150" y2="53" class="quadrat-line"/><line x1="30" y1="86" x2="150" y2="86" class="quadrat-line"/>');
+if(n.includes("pH meter"))return w('<rect x="44" y="45" width="92" height="56" rx="8" class="metal"/><rect x="58" y="56" width="60" height="22" class="screen"/><text x="88" y="72" text-anchor="middle" class="digital">pH 7.00</text>');if(n.includes("graphite electrode")||n.includes("metal electrode")||n==="electrodes")return w('<rect x="58" y="28" width="18" height="86" rx="5" class="electrode"/><rect x="104" y="28" width="18" height="86" rx="5" class="electrode"/>');if(n.includes("water bath"))return w('<rect x="28" y="38" width="124" height="70" rx="9" class="metal"/><path d="M35 64 Q90 54 145 64 V99 Q90 110 35 99 Z" class="liquid"/>');return null}const baseApparatusSvg=apparatusSvg;apparatusSvg=function(name){return specialApparatusSvg(name)||baseApparatusSvg(name)};
 function mini(name){return apparatusSvg(name).replace('class="apparatus-svg"','class="apparatus-svg mini-svg"')}
 function setupOK(){const have=S.setup.map(x=>String(x.name).toLowerCase());return req(current).every(r=>have.some(h=>h===r.toLowerCase()||h.includes(r.toLowerCase())||r.toLowerCase().includes(h)))}
 function subjectCards(){const groups=["Physics","Chemistry","Biology","Environmental"];const html=groups.map(s=>{const i=subjectInfo[s],n=E.filter(e=>normalizeSubject(e.subject)===s).length;return'<button class="subject-card '+i.class+(subject===s?" active":"")+'" data-subject="'+s+'"><span class="subject-icon">'+i.icon+'</span><b>'+i.label+'</b><small>'+n+' experiments</small></button>'}).join("");$("#subjectGrid").innerHTML=html;$("#modalSubjects").innerHTML=groups.map(s=>{const i=subjectInfo[s],n=E.filter(e=>normalizeSubject(e.subject)===s).length;return'<button class="modal-subject '+i.class+'" data-subject="'+s+'">'+i.icon+' '+i.label+'<small>'+n+' experiments</small></button>'}).join("");$$("[data-subject]").forEach(b=>b.addEventListener("click",()=>chooseSubject(b.dataset.subject)))}
@@ -603,12 +618,152 @@ function renderReactionProfile(spec){
   '<div class="reaction-ready '+(ready?"ready":"")+'">'+(ready?"Setup quantities complete — observe the expected result.":"Complete the specified quantities before starting.")+'</div></div>';
 }
 
+
+function opKind(name){
+ const n=String(name||"").toLowerCase();
+ if(n.includes("burette"))return"burette";
+ if(n.includes("dropping pipette")||n.includes("teat pipette")||n.includes("dropper")||n.includes("pasteur pipette"))return"dropper";
+ if(n.includes("volumetric pipette")||n==="pipette"||n.includes("pipette "))return"pipette";
+ if(n.includes("syringe"))return"syringe";
+ if(n.includes("measuring cylinder"))return"cylinder";
+ if(n.includes("thermometer"))return"thermometer";
+ if(n.includes("balance"))return"balance";
+ if(n.includes("microscope"))return"microscope";
+ if(n.includes("quadrat"))return"quadrat";
+ if(n.includes("transect"))return"transect";
+ if(n.includes("ruler")||n.includes("meter rule")||n.includes("measuring tape"))return"length";
+ if(n.includes("stopwatch")||n.includes("stop-clock"))return"stopwatch";
+ if(/power supply|battery|dc supply/.test(n))return"power";
+ if(n.includes("ammeter"))return"ammeter";
+ if(n.includes("voltmeter"))return"voltmeter";
+ if(n.includes("resistor"))return"resistor";
+ if(n.includes("water bath"))return"waterbath";
+ if(n.includes("pH meter"))return"phmeter";
+ return"container";
+}
+function ensureOps(){
+ if(!S.apparatusOps)S.apparatusOps={};
+ S.setup.forEach((item,i)=>{
+  if(!S.apparatusOps[i])S.apparatusOps[i]={opening:100,duration:1,temp:25,magnification:40,pH:7,voltage:6,running:false,tare:0,mass:0,samples:0,distance:0};
+ });
+ if(S.selectedApparatus!=null&&(!S.setup[S.selectedApparatus]))S.selectedApparatus=null;
+}
+function liquidTotal(item,unit){
+ return (item?.liquid||[]).filter(x=>x.unit===unit).reduce((s,x)=>s+Number(x.amount||0),0);
+}
+function removeLiquid(item,amount,unit,chemical){
+ let left=amount;
+ for(let i=item.liquid.length-1;i>=0&&left>1e-9;i--){
+  const x=item.liquid[i];
+  if(x.unit!==unit|| (chemical&&x.chemical!==chemical))continue;
+  const take=Math.min(left,Number(x.amount)||0);
+  x.amount=+(x.amount-take).toFixed(4);left-=take;
+  if(x.amount<=1e-9)item.liquid.splice(i,1);
+ }
+ return amount-left;
+}
+function addLiquid(item,chemical,amount,unit){
+ item.liquid=item.liquid||[];
+ item.liquid.push({chemical,amount:+amount.toFixed(4),unit});
+}
+function transferApparatus(sourceIndex,targetIndex,amount,unit="mL",chemical=null){
+ const source=S.setup[sourceIndex],target=S.setup[targetIndex];
+ if(!source||!target)return toast("Select a valid source and target");
+ if(sourceIndex===targetIndex)return toast("Source and target must be different");
+ const available=liquidTotal(source,unit);
+ if(available<=0)return toast("The "+source.name+" is empty");
+ const used=Math.min(Math.max(0,amount),available);
+ const chosen=chemical||source.liquid.find(x=>x.unit===unit)?.chemical;
+ if(!chosen)return toast("No transferable liquid is present");
+ const actual=removeLiquid(source,used,unit,chosen);
+ if(!actual)return toast("No matching liquid is available");
+ if(unit==="mL"&&liquidTotal(target,"mL")+actual>apparatusCapacity(target.name)+0.0001){
+  addLiquid(source,chosen,actual,unit);return toast("That would exceed the "+target.name+" capacity");
+ }
+ addLiquid(target,chosen,actual,unit);
+ S.pours.push({chemical:chosen,target:target.name,source:source.name,amount:actual,unit,transfer:true});
+ renderAll();save();toast(formatQuantity(actual,unit)+" of "+chosen+" transferred from "+source.name+" to "+target.name);
+}
+function dispenseFrom(index,amount,unit="mL"){
+ const item=S.setup[index],kind=opKind(item?.name);
+ if(!item)return;
+ if(kind==="burette"){
+  const opening=Number(S.apparatusOps[index]?.opening||0);
+  const duration=Number(S.apparatusOps[index]?.duration||1);
+  amount=Math.min(amount||1,duration*1.0*(opening/100));
+ }
+ if(kind==="dropper")amount=Math.min(amount||0.05,0.05);
+ if(kind==="pipette")amount=Math.min(amount||25,25);
+ if(kind==="syringe")amount=Math.min(amount||1,10);
+ const targets=S.setup.map((x,i)=>({x,i})).filter(o=>o.i!==index);
+ const targetIndex=targets.find(o=>o.i===S.apparatusOps[index]?.targetIndex)?.i;
+ if(targetIndex==null)return toast("Choose a target apparatus first");
+ const sourceChemical=item.liquid?.find(x=>x.unit===unit)?.chemical;
+ if(!sourceChemical)return toast("Fill the "+item.name+" before dispensing");
+ transferApparatus(index,targetIndex,amount,unit,sourceChemical);
+}
+function selectApparatus(index){
+ ensureOps();S.selectedApparatus=index;renderConnections();document.querySelectorAll(".placed-item").forEach(x=>x.classList.toggle("apparatus-selected",+x.dataset.index===index));toast("Selected "+S.setup[index].name);
+}
+function operationPanel(){
+ ensureOps();
+ const i=S.selectedApparatus,item=i!=null?S.setup[i]:null;
+ if(!item)return '<div class="operation-empty"><b>Apparatus controls</b><span>Click a placed apparatus to operate it. Controls are specific to the equipment.</span></div>';
+ const k=opKind(item.name),o=S.apparatusOps[i],targets=S.setup.map((x,j)=>j!==i?'<option value="'+j+'" '+(o.targetIndex===j?"selected":"")+'>'+esc(x.name)+'</option>':"").join("");
+ const liquid=(item.liquid||[]).filter(x=>x.unit==="mL").reduce((s,x)=>s+x.amount,0);
+ let body='<div class="operation-head"><b>'+esc(item.name)+'</b><button id="clearSelectedApparatus">Clear selection</button></div><div class="operation-grid">';
+ body+='<label>Target<select id="opTarget"><option value="">Choose target…</option>'+targets+'</select></label>';
+ if(k==="burette")body+='<label>Tap opening <output id="opOpeningOut">'+o.opening+'%</output><input id="opOpening" type="range" min="0" max="100" step="1" value="'+o.opening+'"></label><label>Open time <select id="opDuration"><option>0.1</option><option>0.2</option><option>0.5</option><option selected>1</option><option>2</option><option>5</option></select> s</label><button id="opDrop">1 drop</button><button id="opDispense">Dispense at current opening</button><small>Flow is proportional to tap opening: 100% ≈ 1.00 mL/s in this virtual model. Burette capacity: 50 mL.</small>';
+ else if(k==="dropper")body+='<button id="opDrop">1 drop</button><button id="opDispense">Dispense 0.05 mL</button><small>One virtual drop = 0.05 mL for quantity accounting.</small>';
+ else if(k==="pipette")body+='<button id="opDispense">Transfer 25 mL (calibrated pipette)</button><button id="opTransfer">Transfer custom amount</button><small>Cambridge IGCSE uses a 25 cm³ volumetric pipette.</small>';
+ else if(k==="syringe")body+='<label>Transfer amount <input id="opAmount" type="number" min="0.1" max="10" step="0.1" value="1"></label><button id="opTransfer">Transfer measured amount</button>';
+ else if(k==="cylinder")body+='<label>Transfer amount <input id="opAmount" type="number" min="0.1" max="100" step="0.1" value="10"></label><button id="opTransfer">Transfer measured amount</button>';
+ else if(k==="thermometer"||k==="waterbath")body+='<label>Temperature <output id="opTempOut">'+o.temp.toFixed(0)+' °C</output><input id="opTemp" type="range" min="0" max="100" step="1" value="'+o.temp+'"></label><small>Temperature changes feed into the experiment state instead of being decorative.</small>';
+ else if(k==="microscope")body+='<label>Magnification <select id="opMag"><option '+(o.magnification===40?"selected":"")+' value="40">×40</option><option '+(o.magnification===100?"selected":"")+' value="100">×100</option><option '+(o.magnification===400?"selected":"")+' value="400">×400</option></select></label><button id="opObserve">Observe specimen</button>';
+ else if(k==="quadrat")body+='<button id="opSample">Place / sample quadrat</button><label>Samples <output>'+o.samples+'</output></label><small>Each sample is recorded as an actual field observation.</small>';
+ else if(k==="transect")body+='<label>Distance <input id="opDistance" type="number" min="0" max="100" step="0.1" value="'+o.distance+'"> m</label><button id="opSample">Record transect point</button>';
+ else if(k==="length")body+='<label>Measured length <input id="opDistance" type="number" min="0" max="1000" step="1" value="'+o.distance+'"> mm</label><button id="opSample">Record measurement</button>';
+ else if(k==="power")body+='<label>Supply voltage <output id="opVoltageOut">'+o.voltage.toFixed(1)+' V</output><input id="opVoltage" type="range" min="0" max="12" step="0.1" value="'+o.voltage+'"></label><small>Connected-circuit readings use this supply voltage.</small>';
+ else if(k==="resistor")body+='<label>Resistance <select id="opResistance">'+[1,2,5,10,20,50,100,220,330,470,1000].map(v=>'<option value="'+v+'" '+(Number(item.resistance||20)===v?"selected":"")+'>'+v+' Ω</option>').join("")+'</select></label>';
+ else if(k==="ammeter"||k==="voltmeter")body+='<div class="live-reading" id="liveElectricalReading">'+(k==="ammeter"?electricalReading("I",i):electricalReading("V",i))+'</div><small>Reading is calculated from the current connected circuit.</small>';
+ else if(k==="phmeter")body+='<label>pH <output id="opPhOut">'+o.pH.toFixed(2)+'</output><input id="opPh" type="range" min="0" max="14" step="0.01" value="'+o.pH+'"></label>';
+ else body+='<label>Transfer amount <input id="opAmount" type="number" min="0.1" max="100" step="0.1" value="10"></label><button id="opTransfer">Transfer measured amount</button>';
+ body+='</div><div class="operation-state">Current liquid: '+liquid.toFixed(2)+' mL / '+apparatusCapacity(item.name)+' mL</div></div>';
+ return body;
+}
+function electricalReading(mode,index){
+ const source=S.setup.findIndex(x=>/power supply|battery|dc supply/i.test(x.name));
+ const resistor=S.setup.find(x=>/resistor/i.test(x.name));
+ const V=source>=0?(S.apparatusOps[source]?.voltage||6):0;
+ const R=Number(resistor?.resistance||S.resistorResistance||20);
+ const connected=S.connections?.length>0;
+ const I=connected&&R>0?V/R:0;
+ return mode==="I"?"Current: "+I.toFixed(3)+" A":"Potential difference: "+V.toFixed(2)+" V";
+}
+function bindOperationPanel(){
+ const i=S.selectedApparatus;if(i==null)return;const o=S.apparatusOps[i],item=S.setup[i],k=opKind(item.name);
+ $("#clearSelectedApparatus")?.addEventListener("click",()=>{S.selectedApparatus=null;renderConnections()});
+ $("#opTarget")?.addEventListener("change",e=>{o.targetIndex=e.target.value===""?null:+e.target.value;save()});
+ $("#opOpening")?.addEventListener("input",e=>{o.opening=+e.target.value;$("#opOpeningOut").textContent=o.opening+"%";save()});
+ $("#opDuration")?.addEventListener("change",e=>{o.duration=+e.target.value;save()});
+ $("#opDrop")?.addEventListener("click",()=>{o.targetIndex=o.targetIndex??null; if(k==="burette")dispenseFrom(i,0.05,"mL");else if(k==="dropper")dispenseFrom(i,0.05,"mL");else toast("Drop control is only available on a dispensing apparatus")});
+ $("#opDispense")?.addEventListener("click",()=>dispenseFrom(i,k==="burette"?1:k==="pipette"?25:k==="dropper"?0.05:1,"mL"));
+ $("#opTransfer")?.addEventListener("click",()=>{const a=+($("#opAmount")?.value||0);dispenseFrom(i,a,"mL")});
+ $("#opTemp")?.addEventListener("input",e=>{o.temp=+e.target.value;$("#opTempOut").textContent=o.temp.toFixed(0)+" °C";S.values[0]=o.temp;save()});
+ $("#opMag")?.addEventListener("change",e=>{o.magnification=+e.target.value;S.values[0]=o.magnification;save();toast("Microscope set to ×"+o.magnification)});
+ $("#opSample")?.addEventListener("click",()=>{o.samples=(o.samples||0)+1;S.fieldSamples.push({apparatus:item.name,distance:o.distance||0,sample:o.samples});save();renderConnections();toast("Field observation "+o.samples+" recorded")});
+ $("#opDistance")?.addEventListener("input",e=>{o.distance=+e.target.value;save()});
+ $("#opVoltage")?.addEventListener("input",e=>{o.voltage=+e.target.value;$("#opVoltageOut").textContent=o.voltage.toFixed(1)+" V";S.values[0]=o.voltage;renderConnections();save()});
+ $("#opResistance")?.addEventListener("change",e=>{item.resistance=+e.target.value;S.resistorResistance=item.resistance;renderBench();renderConnections();save();toast("Resistor set to "+item.resistance+" Ω")});
+ $("#opPh")?.addEventListener("input",e=>{o.pH=+e.target.value;$("#opPhOut").textContent=o.pH.toFixed(2);S.values[0]=o.pH;save()});
+ $("#opObserve")?.addEventListener("click",()=>toast("Specimen observed at ×"+o.magnification));
+}
 function renderConnections(){
  ensureInteractionState();
  const box=$("#connectionPanel");if(!box)return;
  const spec=interactionSpec(current),resistorItems=S.setup.filter(x=>/resistor/i.test(x.name)),resistanceOptions=[1,2,5,10,20,50,100,220,330,470,1000];
  const resistanceUI=resistorItems.length?'<div class="resistor-picker"><label class="picker-label">Resistor resistance</label><select id="resistanceSelect" class="interaction-select">'+resistanceOptions.map(v=>'<option value="'+v+'" '+((S.resistorResistance||20)===v?"selected":"")+'>'+v+' Ω</option>').join("")+'</select><small>Applies to the resistor(s) on the bench.</small></div>':"";
- box.innerHTML='<div class="interaction-title">Real-world setup</div>'+resistanceUI+
+ box.innerHTML=operationPanel()+'<div class="interaction-title">Real-world setup</div>'+resistanceUI+
   '<button class="interaction-action '+(connectionMode?"active":"")+'" id="connectBtn">⌁ '+(connectionMode?"Connecting — click two apparatus":"Connect wires")+'</button>'+
   '<button class="interaction-action '+(pourMode?"active":"")+'" id="pourBtn">◉ '+(pourMode?"Pour mode active":"Choose chemical")+'</button>'+
   '<button class="interaction-action '+(markerMode?"active":"")+'" id="markerBtn">⊙ '+(markerMode?"Click the bench to place marker":"Place fiducial marker")+'</button>'+
@@ -619,6 +774,7 @@ function renderConnections(){
  $("#resistanceSelect")?.addEventListener("change",()=>{S.resistorResistance=+$("#resistanceSelect").value;S.setup.filter(x=>/resistor/i.test(x.name)).forEach(x=>x.resistance=S.resistorResistance);renderBench();save();toast("Resistor set to "+S.resistorResistance+" Ω")});
  $("#connectBtn")?.addEventListener("click",()=>{connectionMode=!connectionMode;pourMode=false;selectedChemical=null;connectionFirst=null;markerMode=false;document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("pour-target","connection-first"));renderConnections();toast(connectionMode?"Wire mode: click the first apparatus, then the second":"Wire mode off")});
  $("#pourBtn")?.addEventListener("click",()=>{if(!spec.requirements.length)return toast("No chemical addition is required here");const next=spec.requirements.find(r=>!chemistryFulfilled(spec.profile,r));pourMode=true;connectionMode=false;markerMode=false;selectedChemical=selectedChemical||next?.chemical||null;document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));renderChemicals();renderConnections();toast(selectedChemical?"Pour mode: click the "+(chemistryNeed(spec.profile,selectedChemical)?.target||"target apparatus"):"All chemical quantities are complete")});
+ bindOperationPanel();
  $("#markerBtn")?.addEventListener("click",()=>{if(!spec.markers)return toast("Fiducial markers are not needed for this experiment");markerMode=!markerMode;connectionMode=false;pourMode=false;selectedChemical=null;document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("pour-target","connection-first"));renderConnections();toast(markerMode?"Click anywhere on the bench to place a marker":"Marker mode off")});
 }
 function renderBench(){
@@ -632,7 +788,7 @@ function renderBench(){
  }).join("");
  $("#benchTip").classList.toggle("hidden",S.setup.length>0);
  p.querySelectorAll(".remove-apparatus").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();S.setup.splice(+b.dataset.remove,1);renderAll();toast("Apparatus removed")}));
- p.querySelectorAll(".placed-item").forEach(el=>enablePlacedDrag(el));
+ p.querySelectorAll(".placed-item").forEach(el=>{enablePlacedDrag(el);el.addEventListener("click",e=>{if(e.target.closest(".remove-apparatus")||pourMode||connectionMode||markerMode)return;selectApparatus(+el.dataset.index)});});
  renderInteractionGraphics();
 }
 
@@ -654,7 +810,7 @@ function renderProcedure(){
 
 function renderAll(){
  if(!current)return;
- ensureInteractionState();
+ ensureInteractionState();ensureOps();
  $("#activeTitle").textContent=current.name;$("#activeObjective").textContent=current.objective;
  $("#overviewText").textContent=current.objective+" "+(current.text||"");
  $("#variablesText").innerHTML="<b>Independent:</b> "+esc(current.controls?.[0]||"Variable A")+"<br><b>Dependent:</b> "+esc(current.columns?.[3]||"Result")+"<br><b>Controlled:</b> Keep other conditions constant.";
@@ -664,7 +820,7 @@ function renderAll(){
 }
 
 function reset(){
- S=newState(current);ensureInteractionState();selectedChemical=null;pourMode=false;connectionMode=false;connectionFirst=null;markerMode=false;
+ S=newState(current);ensureInteractionState();ensureOps();selectedChemical=null;pourMode=false;connectionMode=false;connectionFirst=null;markerMode=false;
  renderAll();toast("Experiment reset");
 }
 

@@ -1036,6 +1036,44 @@ document.addEventListener("click",e=>{
  if(markerMode&&e.target.closest("#bench"))placeMarkerAtEvent(e);
 });
 
+
+/* ===== Manual blank-bench mode + real stirring interaction ===== */
+function stirApparatus(index,targetIndex){
+ ensureOps();
+ const tool=S.setup[index],target=S.setup[targetIndex];
+ if(!tool||!target)return toast("Choose a stirrer and a target vessel");
+ if(index===targetIndex)return toast("Choose a different target vessel");
+ if(!/stirrer|stirring rod|glass rod/i.test(tool.name))return toast("That apparatus cannot stir");
+ const o=S.apparatusOps[index]||{};
+ o.targetIndex=targetIndex;
+ o.stirring=!o.stirring;
+ o.startedAt=o.stirring?Date.now():null;
+ S.apparatusOps[index]=o;
+ target.mixed=!!o.stirring;
+ save();
+ renderBench();
+ renderApparatusContext(index);
+ toast((o.stirring?"Stirring ":"Stopped stirring ")+target.name);
+}
+const __opKindManualV2=opKind;
+opKind=function(name){
+ const n=String(name||"").toLowerCase();
+ if(n.includes("magnetic stirrer")||n.includes("stirrer"))return"stirrer";
+ if(n.includes("stirring rod")||n.includes("glass rod"))return"stirrod";
+ return __opKindManualV2(name);
+};
+const __renderBenchManualV2=renderBench;
+renderBench=function(){
+ __renderBenchManualV2();
+ $$(".placed-item").forEach(el=>{
+  const idx=+el.dataset.index,o=S.apparatusOps?.[idx]||{};
+  el.classList.toggle("stirring-active",!!o.stirring);
+  if(o.stirring&&!el.querySelector(".stirring-indicator")){
+   const dot=document.createElement("span");dot.className="stirring-indicator";dot.textContent="↻ STIRRING";el.appendChild(dot);
+  }
+ });
+};
+
 /* ===== Interface V2: 3D bench, auto-setup and contextual apparatus operations ===== */
 const INTERFACE_V2_LAYOUTS=[
  [14,28],[35,26],[56,27],[77,27],[24,62],[46,62],[68,62],[86,60]
@@ -1105,6 +1143,8 @@ function renderApparatusContext(index){
   body+='<div class="context-row"><label>Temperature <output id="v2TempOut">'+(o.temp??25)+' °C</output><input id="v2Temp" type="range" min="0" max="100" step="1" value="'+(o.temp??25)+'"></label><button id="v2ApplyTemp">Apply temperature</button></div>';
  }else if(kind==="microscope"){
   body+='<div class="context-row"><label>Magnification<select id="v2Mag"><option value="40" '+(o.magnification===40?"selected":"")+'>×40</option><option value="100" '+(o.magnification===100?"selected":"")+'>×100</option><option value="400" '+(o.magnification===400?"selected":"")+'>×400</option></select></label><button id="v2Observe">Observe specimen</button></div>';
+ }else if(kind==="stirrer"||kind==="stirrod"){
+  body+='<div class="context-row"><label>Target vessel<select id="v2Target"><option value="">Choose target…</option>'+targetOptions+'</select></label><button id="v2Stir">'+(o.stirring?"Stop stirring":"Start stirring")+(kind==="stirrer"?" · motor":" · manually")'</button></div>';
  }else if(kind==="force"){
   body+='<div class="context-row"><label>Force (N)<input id="v2Force" type="number" min="0" max="100" step="0.01" value="'+(o.force||0)+'"></label><button id="v2ForceRecord">Record force</button></div>';
  }else if(kind==="light"){
@@ -1181,6 +1221,40 @@ reset=function(){
  save();
 };
 
+
+
+/* ===== Never auto-populate the experiment bench ===== */
+const __loadManualBlank=load;
+load=function(e){
+ __loadManualBlank(e);
+ S.setup=[];
+ S.apparatusOps={};
+ S.selectedApparatus=null;
+ S.connections=[];
+ S.markers=[];
+ S.pours=[];
+ S.chemicals={};
+ selectedChemical=null;
+ pourMode=false;
+ connectionMode=false;
+ connectionFirst=null;
+ markerMode=false;
+ document.body.classList.add("experiment-active");
+ renderAll();
+ save();
+};
+reset=function(){
+ if(!current)return;
+ S=newState(current);
+ selectedChemical=null;
+ pourMode=false;
+ connectionMode=false;
+ connectionFirst=null;
+ markerMode=false;
+ renderAll();
+ save();
+ toast("Blank bench reset — place the apparatus yourself");
+};
 
 /* ===== Apparatus audit: explicit equipment for the foundational experiments ===== */
 const AUDITED_APPARATUS_BY_ID={

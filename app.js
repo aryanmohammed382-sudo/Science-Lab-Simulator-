@@ -743,53 +743,71 @@ function setupOK(){
 function renderChemicals(){
  ensureInteractionState();
  const box=$("#chemicalTray"),status=$("#chemicalStatus"),spec=interactionSpec(current);
- if(!box)return;
- const reqs=spec.requirements;
+ if(!box||!current)return;
+ const reqs=spec.requirements||[];
+ if(!reqs.length){
+  box.innerHTML='<div class="chemical-empty"><b>No reagent addition required</b><small>This experiment uses apparatus, samples or measurements rather than a reagent transfer.</small></div>';
+  if(status)status.textContent="No reagent setup required.";
+  return;
+ }
  const activeNeed=selectedChemical?chemistryNeed(spec.profile,selectedChemical):reqs.find(r=>!chemistryFulfilled(spec.profile,r));
  const activeRemaining=activeNeed?Math.max(0,activeNeed.amount-chemistryAmount(activeNeed.chemical)):0;
- const quantityChoices=activeNeed?(activeNeed.unit==="drops"?[1,2,3,5]:activeNeed.unit==="g"?[0.1,0.5,1,2,5,10]:[1,2,5,10,20,25,50]).filter(v=>v<=activeRemaining).map(v=>'<option value="'+v+'">'+v+' '+(activeNeed.unit==="drops"?"drops":activeNeed.unit)+'</option>').join(""):"";
- if(!reqs.length){box.innerHTML='<div class="reaction-note">No chemical addition is required for this experiment.</div>';if(status)status.textContent="No reagent setup required.";return}
- const options=reqs.map(r=>{const done=Math.min(chemistryAmount(r.chemical),r.amount);const label=r.unit==="drops"?r.amount+" drops":r.amount+" "+r.unit;return '<option value="'+esc(r.chemical)+'" '+(selectedChemical===r.chemical?"selected":"")+' '+(done>=r.amount?"disabled":"")+'>'+esc(r.chemical)+' — '+done.toFixed(r.unit==="drops"?0:1)+' / '+label+(r.concentration?" · "+esc(r.concentration):"")+'</option>'}).join("");
- box.innerHTML='<div class="chemical-picker-row"><label class="picker-label">Chemical / indicator</label><select id="chemicalSelect" class="interaction-select"><option value="">Choose a chemical…</option>'+options+'</select><label class="picker-field"><span class="picker-label">Pour quantity</span><select id="quantitySelect" class="interaction-select">'+quantityChoices+'</select></label><button id="chemicalPourBtn" class="interaction-action '+(pourMode?"active":"")+'">◉ '+(pourMode?"Pour mode active":"Select & pour")+'</button></div>'+
- '<div class="chemical-stock-grid">'+reqs.map(r=>{const stock=S.chemicals[r.chemical]||{};const available=stock.quantity!=null?stock.quantity:(stock.volume??(/^(g|mg)$/.test(r.unit)?100:250));return '<div class="stock-chip"><b>'+esc(r.chemical)+'</b><small>Need '+(r.unit==="drops"?r.amount+" drops":r.amount+" "+r.unit)+' · Remaining stock '+available.toFixed(1)+' '+esc(r.unit)+'</small></div>'}).join("")+'</div>';
+ const quantityChoices=activeNeed?(activeNeed.unit==="drops"?[1,2,3,5]:activeNeed.unit==="g"?[0.1,0.5,1,2,5,10]:[1,2,5,10,20,25,50]).filter(v=>v<=activeRemaining||v===activeRemaining).map(v=>'<option value="'+v+'">'+v+' '+(activeNeed.unit==="drops"?"drops":activeNeed.unit)+'</option>').join(""):"";
+ const targetOptions=S.setup.map((x,i)=>'<option value="'+i+'">'+esc(x.name)+'</option>').join("");
+ const options=reqs.map(r=>{
+  const done=Math.min(chemistryAmount(r.chemical),r.amount);
+  const label=r.unit==="drops"?r.amount+" drops":r.amount+" "+r.unit;
+  return '<option value="'+esc(r.chemical)+'" '+(selectedChemical===r.chemical?"selected":"")+' '+(done>=r.amount?"disabled":"")+'>'+esc(r.chemical)+' — '+done.toFixed(r.unit==="drops"?0:1)+' / '+label+(r.concentration?" · "+esc(r.concentration):"")+'</option>';
+ }).join("");
+ box.innerHTML=
+ '<div class="chemical-selected-card"><span class="chemical-bottle-icon">🧪</span><div><b>Set a chemical</b><small>Choose the reagent, amount and target apparatus.</small></div></div>'+
+ '<label class="picker-label">Chemical / indicator</label><select id="chemicalSelect" class="interaction-select"><option value="">Choose a chemical…</option>'+options+'</select>'+
+ '<label class="picker-label">Quantity</label><select id="quantitySelect" class="interaction-select">'+(quantityChoices||'<option value="">Complete / choose chemical</option>')+'</select>'+
+ '<label class="picker-label">Target apparatus</label><select id="chemicalTargetSelect" class="interaction-select"><option value="">Choose target…</option>'+targetOptions+'</select>'+
+ '<button id="chemicalPourBtn" class="interaction-action '+(pourMode?"active":"")+'">💧 '+(pourMode?"Click apparatus to add":"Add / pour into target")+'</button>'+
+ '<button id="chemicalPourModeBtn" class="chemical-mode-btn '+(pourMode?"active":"")+'">Direct placement mode</button>'+
+ '<div class="chemical-stock-title">Required reagents</div>'+
+ '<div class="chemical-stock-grid">'+reqs.map(r=>{
+   const stock=S.chemicals[r.chemical]||{};
+   const available=stock.quantity!=null?stock.quantity:(stock.volume??(/^(g|mg)$/.test(r.unit)?100:250));
+   const done=Math.min(chemistryAmount(r.chemical),r.amount);
+   return '<div class="stock-chip '+(done>=r.amount?"complete":"")+'"><b>'+esc(r.chemical)+'</b><small>Need '+(r.unit==="drops"?r.amount+" drops":r.amount+" "+r.unit)+' · Done '+done.toFixed(r.unit==="drops"?0:1)+' · Stock '+available.toFixed(1)+' '+esc(r.unit)+'</small></div>';
+ }).join("")+'</div>'+
+ '<div class="chemical-status-box">'+(selectedChemical?"Selected: <b>"+esc(selectedChemical)+"</b>":"Select a reagent to begin.")+'</div>';
+
  $("#chemicalSelect")?.addEventListener("change",()=>{
   selectedChemical=$("#chemicalSelect").value||null;
   const selectedNeed=selectedChemical?chemistryNeed(spec.profile,selectedChemical):null;
-  pourQuantity=selectedNeed?Math.min(10,Math.max(0.1,selectedNeed.amount-chemistryAmount(selectedNeed.chemical))):10;
-  if(selectedChemical){pourMode=true;connectionMode=false;connectionFirst=null;markerMode=false;document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));renderConnections();const need=chemistryNeed(spec.profile,selectedChemical);toast("Selected "+selectedChemical+" — click the "+need.target+" to add "+(need.unit==="drops"?need.amount+" drops":need.amount+" "+need.unit))}
-  else{pourMode=false;document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("pour-target"));renderConnections()}
+  pourQuantity=selectedNeed?Math.min(10,Math.max(selectedNeed.unit==="drops"?1:0.1,selectedNeed.amount-chemistryAmount(selectedNeed.chemical))):10;
+  const qs=$("#quantitySelect");
+  if(qs&&selectedNeed){
+   const vals=selectedNeed.unit==="drops"?[1,2,3,5]:selectedNeed.unit==="g"?[0.1,0.5,1,2,5,10]:[1,2,5,10,20,25,50];
+   const left=Math.max(0,selectedNeed.amount-chemistryAmount(selectedNeed.chemical));
+   qs.innerHTML=vals.filter(v=>v<=left).map(v=>'<option value="'+v+'">'+v+' '+(selectedNeed.unit==="drops"?"drops":selectedNeed.unit)+'</option>').join("")||'<option value="">Complete</option>';
+   if(qs.options.length)qs.value=String(Math.min(pourQuantity,+qs.options[qs.options.length-1].value));
+  }
+  renderChemicals();
  });
- $("#quantitySelect")?.addEventListener("change",()=>{pourQuantity=+$("#quantitySelect").value});
+ $("#quantitySelect")?.addEventListener("change",()=>{pourQuantity=+$("#quantitySelect").value||pourQuantity});
+ $("#chemicalTargetSelect")?.addEventListener("change",e=>{
+   const idx=Number(e.target.value);
+   if(Number.isInteger(idx)){S.selectedApparatus=idx;renderConnections();renderBench();save();}
+ });
  $("#chemicalPourBtn")?.addEventListener("click",()=>{
-  const need=chemistryNeed(spec.profile,selectedChemical)||spec.requirements.find(r=>!chemistryFulfilled(spec.profile,r));
-  if(!need)return toast("All required chemical quantities are complete");
-  selectedChemical=need.chemical;pourMode=true;connectionMode=false;markerMode=false;document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));renderChemicals();renderConnections();toast("Pour mode: click the "+need.target);
+   const need=chemistryNeed(spec.profile,selectedChemical);
+   const target=Number($("#chemicalTargetSelect")?.value);
+   if(!need)return toast("Choose one of the required reagents first");
+   if(Number.isInteger(target)){pourChemical(target);}
+   else {pourMode=true;connectionMode=false;connectionFirst=null;markerMode=false;document.querySelectorAll(".placed-item").forEach(x=>x.classList.add("pour-target"));renderConnections();toast("Select the target apparatus on the bench")}
  });
- if(status)status.textContent=selectedChemical?"Selected: "+selectedChemical+" — click its target apparatus.":"Choose a reagent or indicator from the dropdown.";
-}
-function pourChemical(targetIndex){
- ensureInteractionState();
- if(!selectedChemical)return toast("Choose the required chemical first");
- const spec=interactionSpec(current),need=chemistryNeed(spec.profile,selectedChemical),target=S.setup[targetIndex];
- if(!need)return toast("That chemical is not part of this IGCSE setup");
- if(!target)return toast("Select a valid apparatus");
- if(!targetMatches(target,need))return toast("Add "+selectedChemical+" to the "+need.target);
- if(chemistryFulfilled(spec.profile,need))return toast(selectedChemical+" is already at the required quantity");
- const left=Math.max(0,need.amount-chemistryAmount(need.chemical));
- const amount=Math.min(Math.max(0.001,pourQuantity||10),left);
- const isMass=need.unit==="g"||need.unit==="mg";
- const requiredStock=isMass?100:250;
- const source=S.chemicals[selectedChemical]||{quantity:requiredStock,unit:need.unit};
- const available=source.quantity!=null?source.quantity:(source.volume!=null?source.volume:requiredStock);
- if(available<amount)return toast("Not enough "+selectedChemical+" remains in the reagent stock");
- source.quantity=+(available-amount).toFixed(2);source.unit=need.unit;S.chemicals[selectedChemical]=source;
- target.liquid=target.liquid||[];
- target.liquid.push({chemical:selectedChemical,amount,unit:need.unit});
- S.pours.push({chemical:selectedChemical,target:target.name,amount,unit:need.unit,concentration:need.concentration||""});
- const visual=targetLiquidState(target);
- toast(formatQuantity(amount,need.unit)+" of "+selectedChemical+" added to "+target.name+" — "+formatQuantity(visual.total,"mL")+" visible");
- selectedChemical=null;pourMode=false;
- renderAll();save();
+ $("#chemicalPourModeBtn")?.addEventListener("click",()=>{
+   pourMode=!pourMode;
+   if(pourMode){connectionMode=false;connectionFirst=null;markerMode=false}
+   document.querySelectorAll(".placed-item").forEach(x=>x.classList.toggle("pour-target",pourMode));
+   renderChemicals();
+ });
+ if(status)status.textContent=selectedChemical?"Selected "+selectedChemical:"Choose a chemical for this experiment.";
+ renderConnections();
 }
 
 function renderReactionProfile(spec){

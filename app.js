@@ -125,6 +125,54 @@ const CHEMICALS={
  "Metal salt solution":{color:"#7ec5d7",symbol:"Salt"}
 };
 let selectedChemical=null,pourMode=false,connectionMode=false,connectionFirst=null,markerMode=false,pourQuantity=10;
+const APPARATUS_CAPACITY_ML={
+ "test tube":20,"test tubes":20,"beaker":100,"conical flask":100,"flask":100,
+ "evaporating basin":75,"crucible":30,"volumetric flask":100,"measuring cylinder":100,
+ "burette":50,"volumetric pipette":25,"pipette":25,"spotting tile":5,"gas syringe":100
+};
+function apparatusCapacity(name){
+ const n=String(name||"").toLowerCase();
+ const key=Object.keys(APPARATUS_CAPACITY_ML).find(k=>n.includes(k));
+ return key?APPARATUS_CAPACITY_ML[key]:100;
+}
+function formatQuantity(amount,unit){
+ const a=Number(amount)||0;
+ return unit==="drops"?a.toFixed(0)+" drops":a.toFixed(unit==="g"||unit==="mg"?2:1)+" "+unit;
+}
+function chemicalColor(chemical){
+ const c=String(chemical||"").toLowerCase();
+ if(c.includes("copper(ii) sulfate")||c.includes("copper sulfate"))return "#4b8fe8";
+ if(c.includes("potassium manganate")||c.includes("permanganate"))return "#8d2ac4";
+ if(c.includes("bromine"))return "#e78b25";
+ if(c.includes("iodine"))return "#6b4326";
+ if(c.includes("methyl orange"))return "#f4a84a";
+ if(c.includes("universal indicator"))return "#5b67d8";
+ if(c.includes("thymolphthalein"))return "#8aa8ff";
+ if(c.includes("hydrated copper"))return "#3d8ee8";
+ if(c.includes("metal salt"))return "#7ec5d7";
+ if(c.includes("water"))return "#8fd7ff";
+ return CHEMICALS[chemical]?.color||"#cfe7ff";
+}
+function targetLiquidState(target){
+ const liquids=target?.liquid||[];
+ const total=liquids.filter(x=>x.unit==="mL").reduce((s,x)=>s+Number(x.amount||0),0);
+ const cap=apparatusCapacity(target?.name);
+ const byChemical={};
+ liquids.forEach(x=>{byChemical[x.chemical]=(byChemical[x.chemical]||0)+Number(x.amount||0)});
+ let color=liquids.length?chemicalColor(liquids[liquids.length-1].chemical):"#8fd7ff";
+ const names=Object.keys(byChemical).map(x=>x.toLowerCase());
+ if(names.some(x=>x.includes("methyl orange"))&&names.some(x=>x.includes("sodium hydroxide")))color="#f4d34f";
+ if(names.some(x=>x.includes("methyl orange"))&&names.some(x=>x.includes("sulfuric acid"))){
+   const acidKey=Object.keys(byChemical).find(x=>x.toLowerCase().includes("sulfuric acid"));
+   const acid=acidKey?byChemical[acidKey]:0;
+   color=acid<20?"#f4a84a":acid===20?"#f28c3c":"#e65a4d";
+ }
+ if(names.some(x=>x.includes("copper(ii) sulfate"))&&names.some(x=>x.includes("sodium hydroxide")))color="#9ac9f4";
+ if(names.some(x=>x.includes("copper(ii) sulfate"))&&names.some(x=>x.includes("aqueous ammonia")))color="#244fce";
+ const height=Math.max(3,Math.min(48,(total/cap)*100));
+ return {total,cap,color,height,percent:Math.min(100,(total/cap)*100)};
+}
+
 
 /* IGCSE 0620 chemistry accuracy layer: quantities, concentrations and observable results.
    Quantities below are virtual-practical settings based on Cambridge IGCSE examples and the
@@ -535,7 +583,8 @@ function pourChemical(targetIndex){
  target.liquid=target.liquid||[];
  target.liquid.push({chemical:selectedChemical,amount,unit:need.unit});
  S.pours.push({chemical:selectedChemical,target:target.name,amount,unit:need.unit,concentration:need.concentration||""});
- toast(amount+" "+need.unit+" of "+selectedChemical+" added to "+target.name);
+ const visual=targetLiquidState(target);
+ toast(formatQuantity(amount,need.unit)+" of "+selectedChemical+" added to "+target.name+" — "+formatQuantity(visual.total,"mL")+" visible");
  selectedChemical=null;pourMode=false;
  renderAll();save();
 }
@@ -578,7 +627,7 @@ function renderBench(){
  p.innerHTML=S.setup.map((item,i)=>{
   const liq=item.liquid?.length?item.liquid[item.liquid.length-1]:null;
   return '<div class="placed-item" data-index="'+i+'" style="left:'+item.x+'%;top:'+item.y+'%"><span class="placed-visual">'+apparatusSvg(item.name)+'</span>'+(/resistor/i.test(item.name)?'<span class="resistance-badge">'+esc(item.resistance||S.resistorResistance||20)+' Ω</span>':"")+
-   (liq?'<span class="liquid-overlay" style="--liquid:'+chemicalColor(liq.chemical)+'"></span>':"")+
+   (item.liquid?.length?(()=>{const v=targetLiquidState(item);return '<span class="liquid-overlay" style="--liquid:'+v.color+';height:'+v.height+'%;"></span><span class="volume-badge">'+esc(formatQuantity(v.total,"mL"))+' / '+esc(v.cap.toFixed(0))+' mL</span>'})():"")+
    '<b>'+esc(item.name)+'</b><button class="remove-apparatus" data-remove="'+i+'">×</button></div>';
  }).join("");
  $("#benchTip").classList.toggle("hidden",S.setup.length>0);

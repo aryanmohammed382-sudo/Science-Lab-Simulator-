@@ -707,7 +707,7 @@ function ensureInteractionState(){
 }
 
 function interactionSpec(e){
- const profile=chemistryProfile(e);
+ const profile=normalizeSubject(e?.subject)==="Chemistry"?chemistryProfile(e):null;
  const t=(e?.type||"").toLowerCase(),m=(e?.materials||[]).join(" ").toLowerCase();
  const wires=/wire|wires|connecting/.test(m)||["ohm","series","parallel","electrolysis"].includes(t);
  const markers=/lens|refraction|diffraction|interference|projectile|pendulum|free-fall|inclined|wave|calibration|measurement/.test((e?.name||"").toLowerCase());

@@ -1188,5 +1188,44 @@ mappedApparatus=function(e){
  return [...new Set(a)].filter(x=>x&& !/^(standard|chemical reagents|measuring equipment|measuring instruments|data sheet|field data sheet)$/i.test(String(x).trim())).slice(0,8);
 };
 
+
+/* ===== Apparatus visual + interaction audit layer ===== */
+const __apparatusSvgV2=apparatusSvg;
+function auditedExtraSvg(name){
+ const n=String(name||"").toLowerCase(),w=b=>'<svg class="apparatus-svg" viewBox="0 0 180 140" aria-label="'+esc(name)+'">'+b+'</svg>';
+ if(n.includes("switch"))return w('<rect x="35" y="58" width="110" height="25" rx="8" class="metal"/><circle cx="55" cy="70" r="8" class="port"/><circle cx="125" cy="70" r="8" class="port"/><path d="M55 70 L91 45" class="wire-svg"/><circle cx="91" cy="45" r="5" class="knob"/>');
+ if(n.includes("resistance wire"))return w('<path d="M20 70 H45 L55 45 L65 95 L75 45 L85 95 L95 45 L105 95 L115 70 H160" class="resistor-svg"/><circle cx="20" cy="70" r="6" class="port"/><circle cx="160" cy="70" r="6" class="port"/>');
+ if(n.includes("displacement can"))return w('<path d="M45 35 H135 V110 Q90 126 45 110 Z" class="glass"/><path d="M45 48 H125" class="glass-line-svg"/><path d="M135 55 H155 V80 H135" class="glass-line-svg"/>');
+ if(n.includes("wooden block")||n==="block")return w('<rect x="40" y="45" width="100" height="60" rx="5" class="ruler"/><line x1="55" y1="60" x2="125" y2="60" class="scale-svg"/>');
+ if(n.includes("surface board"))return w('<rect x="25" y="48" width="130" height="52" rx="5" class="metal"/><path d="M32 58 H148 M32 72 H148 M32 86 H148" class="scale-svg"/>');
+ if(n.includes("lens holder"))return w('<rect x="78" y="30" width="24" height="75" class="metal"/><path d="M45 104 H135" class="metal"/><circle cx="90" cy="38" r="18" class="knob"/>');
+ if(n.includes("paper screen")||n==="screen")return w('<rect x="42" y="22" width="96" height="96" class="paper-svg"/><line x1="90" y1="22" x2="90" y2="118" class="scale-svg"/>');
+ if(n.includes("heater")||n.includes("heat source"))return w('<rect x="43" y="75" width="94" height="32" rx="6" class="metal"/><path d="M55 75 Q65 45 75 75 Q85 45 95 75 Q105 45 115 75" class="wire-coil"/><circle cx="125" cy="91" r="7" class="knob"/>');
+ if(n.includes("lamp")||n.includes("light source"))return w('<path d="M75 24 H105 L118 66 Q118 82 90 86 Q62 82 62 66 Z" class="metal"/><circle cx="90" cy="58" r="16" class="screen"/><path d="M90 86 V118 M65 118 H115" class="metal"/>');
+ if(n.includes("solar panel"))return w('<rect x="35" y="32" width="110" height="76" class="glass"/><path d="M62 32 V108 M90 32 V108 M118 32 V108 M35 57 H145 M35 82 H145" class="scale-svg"/>');
+ if(n.includes("energy meter"))return w('<rect x="40" y="32" width="100" height="76" rx="8" class="metal"/><rect x="55" y="48" width="70" height="30" class="screen"/><text x="90" y="68" text-anchor="middle" class="digital">0.00 kWh</text>');
+ if(n.includes("data logger"))return w('<rect x="35" y="35" width="110" height="70" rx="10" class="metal"/><rect x="50" y="48" width="80" height="28" class="screen"/><circle cx="62" cy="90" r="6" class="knob"/><circle cx="90" cy="90" r="6" class="knob"/><circle cx="118" cy="90" r="6" class="knob"/>');
+ if(n.includes("temperature sensor"))return w('<rect x="65" y="25" width="50" height="78" rx="8" class="metal"/><rect x="77" y="38" width="26" height="40" class="screen"/><path d="M90 78 V120" class="wire-svg"/>');
+ if(n.includes("solar")||n.includes("energy meter")||n.includes("gas sensor"))return w('<rect x="35" y="38" width="110" height="64" rx="8" class="metal"/><rect x="52" y="52" width="76" height="24" class="screen"/><text x="90" y="69" text-anchor="middle" class="digital">LIVE</text>');
+ if(n.includes("sample bottle")||n.includes("sample bottles"))return w('<path d="M62 28 H118 V46 H108 V112 Q90 124 72 112 V46 H62 Z" class="glass"/><rect x="72" y="62" width="36" height="34" class="liquid"/>');
+ if(n.includes("soil sieve"))return w('<ellipse cx="90" cy="48" rx="55" ry="18" class="metal"/><path d="M35 48 V98 Q90 120 145 98 V48" class="metal"/><ellipse cx="90" cy="48" rx="45" ry="12" class="quadrat"/>');
+ if(n.includes("soil sampling kit"))return w('<path d="M55 25 H125 L118 110 H62 Z" class="metal"/><path d="M90 25 V110" class="scale-svg"/><circle cx="90" cy="52" r="14" class="knob"/>');
+ if(n.includes("sample net"))return w('<path d="M82 25 L95 82" class="metal"/><path d="M95 82 Q130 72 150 100 Q125 126 95 116 Q80 100 95 82" class="glass"/>');
+ if(n.includes("counting tray"))return w('<rect x="28" y="42" width="124" height="62" rx="10" class="tile"/><circle cx="58" cy="73" r="10" class="well"/><circle cx="90" cy="73" r="10" class="well"/><circle cx="122" cy="73" r="10" class="well"/>');
+ if(n.includes("field notebook")||n.includes("field data sheet"))return w('<rect x="42" y="22" width="96" height="100" class="paper-svg"/><line x1="55" y1="48" x2="125" y2="48" class="scale-svg"/><line x1="55" y1="65" x2="125" y2="65" class="scale-svg"/><line x1="55" y1="82" x2="125" y2="82" class="scale-svg"/>');
+ return null;
+}
+apparatusSvg=function(name){return auditedExtraSvg(name)||__apparatusSvgV2(name)};
+const __opKindAuditV2=opKind;
+opKind=function(name){
+ const n=String(name||"").toLowerCase();
+ if(n.includes("ph meter"))return"phmeter";
+ if(n.includes("force meter")||n.includes("newton meter"))return"force";
+ if(n.includes("ray box")||n.includes("lamp")||n.includes("light source"))return"light";
+ if(n.includes("heater")||n.includes("heat source")||n.includes("bunsen"))return"heater";
+ if(n.includes("pH meter"))return"phmeter";
+ return __opKindAuditV2(name);
+};
+
 init();
 })();

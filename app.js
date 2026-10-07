@@ -1227,5 +1227,13 @@ opKind=function(name){
  return __opKindAuditV2(name);
 };
 
+
+$("#toggle3D")?.addEventListener("click",e=>{
+ const on=!document.body.classList.contains("flat-lab");
+ document.body.classList.toggle("flat-lab",!on);
+ e.currentTarget.classList.toggle("active",on);
+ e.currentTarget.textContent=on?"3D View":"Flat View";
+});
+
 init();
 })();

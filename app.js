@@ -7,7 +7,179 @@ const normalizeSubject=s=>s==="Environmental Science"?"Environmental":s;
 const fallback={Physics:["DC power supply","Ammeter","Voltmeter","Connecting wires"],Chemistry:["Beaker","Conical flask","Measuring cylinder","Thermometer"],Biology:["Microscope","Microscope slide","Coverslip","Plant sample"],Environmental:["Quadrat","Soil sample","Measuring instruments","Data sheet"]};
 const ranges=n=>{n=n.toLowerCase();if(n.includes("ph"))return[1,14,.1,7];if(n.includes("angle"))return[0,85,1,30];if(n.includes("temperature"))return[5,90,1,25];if(n.includes("voltage"))return[0,12,.1,6];if(n.includes("resistance"))return[1,100,1,20];if(n.includes("mass"))return[1,500,1,50];if(/length|distance|height|diameter|volume/.test(n))return[1,100,.1,20];if(n.includes("time"))return[1,120,1,10];return[0,100,.1,20]};
 const CHEMISTRY_APPARATUS={"acid-base":["Burette","Volumetric pipette","Conical flask","Retort stand","Burette clamp","White tile","Wash bottle"],"ph-indicators":["Spotting tile","Dropping pipette","Test-tube rack","Test tube"],"separation":["Filter funnel","Filter paper","Beaker","Evaporating basin","Balance","Glass rod"],"chromatography":["Chromatography paper","Capillary tube","Beaker","Pencil","Ruler"],"rates":["Conical flask","Measuring cylinder","Stopwatch","Thermometer","White tile"],"electrolysis":["Beaker","Graphite electrodes","DC power supply","Connecting wires","Switch"],"displacement":["Test tubes","Test-tube rack","Metal strips","Measuring cylinder"],"flame-tests":["Nichrome wire","Bunsen burner","Test tube","Test-tube rack"],"salt-preparation":["Conical flask","Evaporating basin","Filter funnel","Filter paper","Crystallising dish","Glass rod","Bunsen burner","Tripod"],"determining-water-of-crystallisation":["Evaporating basin","Balance","Bunsen burner","Tripod","Tongs","Desiccator"],"qualitative-analysis-of-cations":["Test tubes","Test-tube rack","Dropping pipette","Glass rod"],"qualitative-analysis-of-anions":["Test tubes","Test-tube rack","Dropping pipette","Glass rod"],"test-for-halide-ions":["Test tubes","Test-tube rack","Dropping pipette","Glass rod"],"test-for-sulfate-ions":["Test tubes","Test-tube rack","Dropping pipette","Glass rod"],"test-for-ammonium-ions":["Test tube","Test-tube rack","Dropping pipette","Bunsen burner","Damp red litmus paper"],"alkene-addition-reaction-model":["Test tube","Test-tube rack","Dropping pipette"],"alcohol-oxidation":["Test tube","Test-tube rack","Dropping pipette","Water bath","Thermometer"],"organic-functional-group-tests":["Test tubes","Test-tube rack","Dropping pipette","Water bath","Bunsen burner"],"gas-volume-from-a-carbonate":["Conical flask","Gas syringe","Delivery tube","Rubber bung","Balance"],"gas-volume-and-molar-volume":["Conical flask","Gas syringe","Delivery tube","Rubber bung","Balance","Measuring cylinder"],"relative-formula-mass-by-mass-data":["Balance","Crucible","Tongs","Bunsen burner","Tripod"],"moles-and-avogadro-constant":["Balance","Volumetric flask","Measuring cylinder","Beaker","Glass rod"],"preparation-of-a-standard-solution":["Balance","Beaker","Glass rod","Funnel","Volumetric flask","Wash bottle"],"acid-alkali-titration-with-concordant-results":["Burette","Volumetric pipette","Conical flask","Retort stand","Burette clamp","White tile"],"back-titration":["Balance","Burette","Volumetric pipette","Conical flask","Measuring cylinder","Retort stand","Burette clamp"],"redox-titration-with-potassium-manganate-vii":["Burette","Volumetric pipette","Conical flask","Retort stand","Burette clamp","White tile"],"iodine-thiosulfate-titration":["Burette","Volumetric pipette","Conical flask","Retort stand","Burette clamp","White tile"],"gravimetric-analysis-of-a-carbonate":["Balance","Beaker","Filter funnel","Filter paper","Evaporating basin","Bunsen burner"],"enthalpy-change-of-neutralisation":["Polystyrene cup","Thermometer","Measuring cylinder","Stirring rod","Stopwatch"],"enthalpy-change-of-combustion":["Spirit burner","Copper calorimeter","Thermometer","Balance","Tripod"],"enthalpy-change-by-calorimetry":["Polystyrene cup","Thermometer","Measuring cylinder","Stirring rod","Balance"],"hess-s-law-investigation":["Polystyrene cup","Thermometer","Measuring cylinder","Stirring rod","Balance"],"bond-enthalpy-model":["Molecular model kit","Balance","Thermometer","Stopwatch"],"rate-and-concentration":["Conical flask","Measuring cylinder","Stopwatch","White tile"],"rate-and-temperature":["Conical flask","Water bath","Thermometer","Stopwatch","Measuring cylinder"],"rate-and-surface-area":["Conical flask","Balance","Stopwatch","Measuring cylinder"],"rate-and-catalyst":["Conical flask","Stopwatch","Measuring cylinder","Gas syringe"],"activation-energy-from-arrhenius-data":["Water bath","Thermometer","Stopwatch","Conical flask"],"equilibrium-and-concentration":["Test tubes","Test-tube rack","Dropping pipette","Measuring cylinder"],"equilibrium-and-temperature":["Test tubes","Test-tube rack","Water bath","Thermometer"],"equilibrium-and-pressure":["Gas syringe","Pressure sensor","Temperature sensor"],"ph-measurement-with-a-ph-meter":["pH meter","Beaker","Wash bottle","Stirring rod"],"buffer-solution-investigation":["pH meter","Burette","Volumetric pipette","Conical flask","Beaker"],"solubility-and-temperature":["Test tube","Water bath","Thermometer","Balance","Measuring cylinder"],"ksp-precipitation-model":["Test tubes","Test-tube rack","Dropping pipette","Measuring cylinder"],"electrochemical-cell-voltage":["Beaker","Voltmeter","Connecting wires","Metal electrodes","Salt bridge"],"electrochemical-series":["Beaker","Voltmeter","Connecting wires","Metal electrodes","Salt bridge"],"electrolysis-and-faraday-s-law":["Beaker","Graphite electrodes","DC power supply","Ammeter","Stopwatch","Connecting wires","Balance"],"electroplating":["Beaker","DC power supply","Ammeter","Metal electrodes","Connecting wires"],"conductivity-of-ionic-solutions":["Beaker","Conductivity probe","DC power supply","Ammeter","Connecting wires"]};
-const req=e=>{if(!e)return [];if(normalizeSubject(e.subject)==="Chemistry"&&CHEMISTRY_APPARATUS[e.id])return CHEMISTRY_APPARATUS[e.id];if(normalizeSubject(e.subject)==="Chemistry")return ["Beaker","Conical flask","Measuring cylinder","Balance"];return [...new Set((e.materials?.length?e.materials:fallback[e?.subject]||fallback.Physics).filter(Boolean))].slice(0,8)};
+
+const PRACTICAL_APPARATUS_BY_ID={
+ // Physics
+ "measurement-of-length-with-vernier-calipers":["Vernier calipers","Ruler","Object"],
+ "measurement-of-small-diameter-with-a-micrometer":["Micrometer screw gauge","Object"],
+ "measurement-of-time-with-a-stopwatch":["Stopwatch","Object"],
+ "acceleration-down-an-inclined-plane":["Inclined plane","Trolley","Metre rule","Stopwatch"],
+ "determining-g-with-a-free-fall-method":["Clamp stand","Steel ball","Stopwatch","Metre rule"],
+ "determining-g-with-a-pendulum":["Clamp stand","String","Pendulum bob","Stopwatch","Metre rule"],
+ "projectile-motion":["Projectile launcher","Metre rule","Stopwatch","Carbon paper"],
+ "conservation-of-momentum":["Dynamics trolley","Track","Balance","Photogates"],
+ "elastic-collision-on-a-track":["Dynamics trolley","Track","Photogates"],
+ "kinetic-energy-and-speed":["Dynamics trolley","Track","Photogates","Balance"],
+ "gravitational-potential-energy":["Mass hanger","Metre rule","Balance"],
+ "work-done-by-a-force":["Force meter","Metre rule","Block"],
+ "efficiency-of-a-mechanical-system":["Force meter","Metre rule","Pulley","Masses"],
+ "power-of-a-motor":["Motor","Power supply","Stopwatch","Balance"],
+ "pressure-in-a-liquid":["Pressure sensor","Measuring cylinder","Metre rule"],
+ "archimedes-principle":["Eureka can","Measuring cylinder","Balance","Force meter"],
+ "upthrust-and-floating":["Measuring cylinder","Balance","Force meter","Object"],
+ "elastic-potential-energy-in-a-spring":["Spring","Clamp stand","Masses","Metre rule"],
+ "stress-and-strain":["Wire","Clamp stand","Masses","Metre rule","Micrometer screw gauge"],
+ "young-modulus":["Wire","Clamp stand","Masses","Metre rule","Micrometer screw gauge"],
+ "thermal-expansion-of-a-solid":["Expansion apparatus","Thermometer","Heat source"],
+ "cooling-curve":["Beaker","Thermometer","Stopwatch","Heat source"],
+ "heating-curve-and-specific-heat-capacity":["Beaker","Thermometer","Balance","Heater","Stopwatch"],
+ "latent-heat-of-fusion":["Ice","Heater","Thermometer","Balance","Stopwatch"],
+ "latent-heat-of-vaporisation":["Beaker","Heater","Thermometer","Balance","Stopwatch"],
+ "thermal-conductivity":["Metal rods","Heat source","Thermometers","Stopwatch"],
+ "waves-on-a-string":["Signal generator","String","Pulley","Mass hanger","Metre rule"],
+ "frequency-and-wavelength":["Signal generator","String","Metre rule","Stopwatch"],
+ "sound-speed-and-resonance":["Resonance tube","Signal generator","Stopwatch","Metre rule"],
+ "standing-waves-in-an-air-column":["Resonance tube","Signal generator","Metre rule"],
+ "diffraction-through-a-single-slit":["Ray box","Single slit","Screen","Metre rule"],
+ "interference-with-double-slits":["Laser/light source","Double slit","Screen","Metre rule"],
+ "polarisation-of-light":["Light source","Polarising filters","Screen","Protractor"],
+ "reflection-from-a-plane-mirror":["Plane mirror","Optics pins","Ruler","Protractor"],
+ "refraction-through-a-glass-block":["Ray box","Glass block","Protractor","Ruler"],
+ "critical-angle-and-total-internal-reflection":["Ray box","Semicircular glass block","Protractor","Ruler"],
+
+ // Biology
+ "measurement-with-a-light-microscope":["Microscope","Prepared slide","Stage micrometer"],
+ "preparing-a-temporary-microscope-slide":["Microscope","Microscope slide","Coverslip","Dropping pipette"],
+ "staining-plant-cells":["Microscope","Microscope slide","Coverslip","Dropping pipette","Stain"],
+ "staining-animal-cells":["Microscope","Microscope slide","Coverslip","Dropping pipette","Stain"],
+ "microscope-calibration-with-a-stage-micrometer":["Microscope","Stage micrometer","Eyepiece graticule"],
+ "cell-size-and-surface-area-to-volume-ratio":["Ruler","Cork borer","Balance","Measuring cylinder"],
+ "osmosis-in-potato-tissue":["Cork borer","Measuring cylinder","Balance","Test tubes"],
+ "water-potential-and-osmosis":["Cork borer","Measuring cylinder","Balance","Test tubes"],
+ "plasmolysis-in-plant-cells":["Microscope","Microscope slide","Coverslip","Dropping pipette"],
+ "diffusion-through-a-membrane":["Beaker","Partially permeable membrane","Dropping pipette","Stopwatch"],
+ "food-test-for-starch":["Test tubes","Dropping pipette","Spotting tile","Iodine reagent"],
+ "food-test-for-reducing-sugars":["Test tubes","Dropping pipette","Water bath","Benedict's reagent"],
+ "food-test-for-protein":["Test tubes","Dropping pipette","Spotting tile","Biuret reagent"],
+ "food-test-for-lipids":["Test tubes","Dropping pipette","Ethanol","Water"],
+ "vitamin-c-investigation":["Test tubes","Dropping pipette","Measuring cylinder","Stopwatch"],
+ "enzyme-activity-and-temperature":["Test tubes","Water bath","Thermometer","Stopwatch","Dropping pipette"],
+ "enzyme-activity-and-ph":["Test tubes","pH solutions","Dropping pipette","Stopwatch"],
+ "enzyme-concentration-and-rate":["Test tubes","Dropping pipette","Stopwatch"],
+ "substrate-concentration-and-enzyme-rate":["Test tubes","Measuring cylinder","Dropping pipette","Stopwatch"],
+ "competitive-inhibition-model":["Test tubes","Dropping pipette","Stopwatch"],
+ "photosynthesis-and-light-intensity":["Aquatic plant","Lamp","Beaker","Ruler","Stopwatch"],
+ "photosynthesis-and-carbon-dioxide":["Aquatic plant","Beaker","Measuring cylinder","Stopwatch"],
+ "photosynthesis-and-temperature":["Aquatic plant","Water bath","Thermometer","Stopwatch"],
+ "leaf-starch-test":["Water bath","Test tube","Iodine solution","Forceps"],
+ "chlorophyll-separation-by-chromatography":["Chromatography paper","Capillary tube","Solvent","Beaker","Pencil"],
+ "respiration-in-germinating-seeds":["Respirometer","Thermometer","Stopwatch"],
+ "respiration-and-temperature":["Respirometer","Water bath","Thermometer","Stopwatch"],
+ "respiration-and-oxygen-availability":["Respirometer","Gas syringe","Stopwatch"],
+ "anaerobic-respiration-in-yeast":["Test tubes","Delivery tube","Water bath","Stopwatch"],
+ "respiratory-quotient-model":["Respirometer","Gas syringe","Stopwatch"],
+ "transpiration-and-air-movement":["Potometer","Lamp","Fan","Stopwatch"],
+ "transpiration-and-humidity":["Potometer","Humidity chamber","Stopwatch"],
+ "transpiration-and-light":["Potometer","Lamp","Stopwatch"],
+ "potometer-investigation":["Potometer","Ruler","Stopwatch"],
+ "water-uptake-by-roots":["Measuring cylinder","Balance","Stopwatch"],
+ "mineral-ion-uptake-model":["Beakers","Balance","Measuring cylinder"],
+ "heart-rate-and-exercise":["Stopwatch","Heart-rate sensor"],
+ "respiration-rate-and-exercise":["Stopwatch","Respiration-rate sensor"],
+ "population-sampling-with-quadrats":["Quadrat frame","Tape measure","Field notebook"],
+ "transect-sampling":["Transect tape","Quadrat frame","Field notebook"],
+ "capture-recapture-population-estimate":["Quadrat frame","Marker tags","Counting tray"],
+ "species-distribution-and-abiotic-factors":["Quadrat frame","Transect tape","Thermometer","Light meter","pH meter"],
+
+ // Environmental Management
+ "water-ph-survey":["Sample bottles","pH meter","Measuring cylinder"],
+ "dissolved-oxygen-survey":["Sample bottles","DO meter","Thermometer"],
+ "biochemical-oxygen-demand-model":["Sample bottles","DO meter","Incubator","Stopwatch"],
+ "water-turbidity-investigation":["Turbidity tube","Sample bottles"],
+ "nitrate-pollution-investigation":["Sample bottles","Colorimeter","Measuring cylinder"],
+ "phosphate-pollution-investigation":["Sample bottles","Colorimeter","Measuring cylinder"],
+ "water-hardness-test":["Test tubes","Measuring cylinder","Dropping pipette"],
+ "water-treatment-sequence":["Beaker","Filter funnel","Filter paper","Measuring cylinder"],
+ "chlorination-model":["Beaker","Measuring cylinder","Dropping pipette","Chlorine test kit"],
+ "eutrophication-investigation":["Beakers","Measuring cylinder","Thermometer","Light meter"],
+ "soil-texture-by-sedimentation":["Measuring cylinder","Balance","Soil sample","Stopwatch"],
+ "soil-moisture-investigation":["Balance","Oven","Soil sample","Crucible"],
+ "soil-ph-investigation":["pH meter","Beaker","Measuring cylinder"],
+ "soil-organic-matter":["Balance","Crucible","Heat source"],
+ "soil-permeability":["Permeameter","Measuring cylinder","Stopwatch"],
+ "soil-infiltration-rate":["Infiltration ring","Measuring cylinder","Stopwatch"],
+ "soil-erosion-investigation":["Soil trays","Water source","Balance"],
+ "soil-nutrient-comparison":["Soil test kit","Sample bags","Balance"],
+ "compost-decomposition":["Balance","Thermometer","Compost containers","Stopwatch"],
+ "crop-yield-and-soil-fertility":["Quadrat frame","Balance","Ruler","Field notebook"],
+ "quadrat-biodiversity-survey":["Quadrat frame","Tape measure","Field notebook"],
+ "transect-biodiversity-survey":["Transect tape","Quadrat frame","Field notebook"],
+ "population-density-survey":["Quadrat frame","Tape measure","Counting tray"],
+ "species-frequency-investigation":["Quadrat frame","Field notebook"],
+ "species-abundance-investigation":["Quadrat frame","Counting tray","Field notebook"],
+ "simpson-s-diversity-index":["Quadrat frame","Counting tray","Field notebook"],
+ "deforestation-and-carbon-storage":["Quadrat frame","Measuring tape","Balance","Field notebook"],
+ "forest-regeneration-model":["Quadrat frame","Measuring tape","Field notebook"],
+ "habitat-fragmentation":["Measuring tape","Quadrat frame","Field notebook"],
+ "carrying-capacity-model":["Quadrat frame","Counting tray","Field notebook"],
+ "fish-stock-sustainability":["Measuring tape","Sample net","Counting tray","Field notebook"],
+ "maximum-sustainable-yield":["Counting tray","Balance","Field notebook"],
+ "water-resource-demand":["Measuring cylinder","Stopwatch","Balance"],
+ "irrigation-efficiency":["Measuring cylinder","Measuring tape","Balance","Stopwatch"],
+ "agricultural-runoff-model":["Beakers","Measuring cylinder","Soil trays","Colorimeter"],
+ "fertiliser-use-and-yield":["Balance","Measuring cylinder","Quadrat frame","Field notebook"],
+ "pesticide-bioaccumulation-model":["Beakers","Measuring cylinder","Balance","Field notebook"],
+ "food-chain-biomagnification":["Beakers","Measuring cylinder","Balance","Field notebook"],
+ "carbon-cycle-model":["Beakers","Balance","Gas sensor","Thermometer"],
+ "nitrogen-cycle-model":["Beakers","Test tubes","Colorimeter","Measuring cylinder"],
+ "greenhouse-gas-emissions":["Gas sensor","Gas syringe","Thermometer","Stopwatch"],
+ "carbon-footprint-comparison":["Balance","Energy meter","Data sheet"],
+ "climate-change-temperature-model":["Temperature sensors","Data logger","Thermometer"],
+ "sea-level-rise-model":["Measuring cylinder","Ruler","Water tray"],
+ "energy-resource-comparison":["Energy meter","Thermometer","Stopwatch","Balance"]
+};
+function mappedApparatus(e){
+ if(!e)return[];
+ if(PRACTICAL_APPARATUS_BY_ID[e.id])return PRACTICAL_APPARATUS_BY_ID[e.id];
+ const s=normalizeSubject(e.subject);
+ if(s==="Chemistry"&&CHEMISTRY_APPARATUS[e.id])return CHEMISTRY_APPARATUS[e.id];
+ if(s==="Biology"){
+  if(e.id==="food-tests")return["Test tubes","Test-tube rack","Dropping pipette","Water bath","Spotting tile"];
+  if(e.id==="microscope")return["Microscope","Prepared slide","Coverslip","Lens paper"];
+  if(e.id==="osmosis")return["Cork borer","Measuring cylinder","Balance","Test tubes","Stopwatch"];
+  if(e.id==="enzyme")return["Test tubes","Water baths","Thermometer","Stopwatch","Dropping pipette"];
+  if(e.id==="photosynthesis")return["Aquatic plant","Beaker","Lamp","Stopwatch"];
+  if(e.id==="respiration")return["Respirometer","Thermometer","Water bath","Stopwatch"];
+  if(e.id==="transpiration")return["Potometer","Stopwatch","Lamp","Scale"];
+  if(e.id==="ecology-quadrat")return["Quadrat frame","Tape measure","Field notebook"];
+  return["Microscope","Measuring cylinder","Dropping pipette","Test tubes","Stopwatch"].slice(0,5);
+ }
+ if(s==="Environmental"){
+  if(e.id==="water-quality")return["Sample bottles","pH meter","Turbidity tube","DO kit"];
+  if(e.id==="soil-composition")return["Measuring cylinder","Balance","Soil sample","Water"];
+  if(e.id==="greenhouse")return["Two chambers","Temperature sensors","Heat source","Data logger"];
+  if(e.id==="weather")return["Barometer","Thermometer","Hygrometer","Anemometer"];
+  if(/quadrat|population|species|biodiversity|deforestation|forest|habitat/.test((e.name||"").toLowerCase()))return["Quadrat frame","Transect tape","Field notebook"];
+  if(/water|dissolved|nitrate|phosphate|chlorination|eutrophication/.test((e.name||"").toLowerCase()))return["Sample bottles","Measuring cylinder","Field data sheet"];
+  if(/soil|compost|fertility|erosion|infiltration|permeability/.test((e.name||"").toLowerCase()))return["Soil sampling kit","Measuring cylinder","Balance","Stopwatch"];
+  if(/weather|climate|temperature/.test((e.name||"").toLowerCase()))return["Thermometer","Temperature sensor","Data logger"];
+  return["Field sampling kit","Measuring instruments","Field data sheet"];
+ }
+ if(s==="Physics"){
+  if(e.id==="measurement-of-length-with-vernier-calipers")return PRACTICAL_APPARATUS_BY_ID[e.id];
+  if(e.id==="measurement-of-small-diameter-with-a-micrometer")return PRACTICAL_APPARATUS_BY_ID[e.id];
+  if(/pendulum/.test((e.name||"").toLowerCase()))return["Clamp stand","String","Pendulum bob","Stopwatch","Metre rule"];
+  if(/lens|refraction|reflection|polarisation|diffraction|interference/.test((e.name||"").toLowerCase()))return["Ray box","Optical component","Screen","Metre rule","Protractor"];
+  if(/thermal|heat|cooling|heating|latent/.test((e.name||"").toLowerCase()))return["Heater","Thermometer","Balance","Stopwatch","Beaker"];
+  if(/wave|sound|resonance/.test((e.name||"").toLowerCase()))return["Signal generator","String/air column","Metre rule","Stopwatch"];
+  if(/force|moment|friction|energy|work|power|spring|stress|young/.test((e.name||"").toLowerCase()))return["Force meter","Metre rule","Masses","Clamp stand"];
+  if(/gas|pressure/.test((e.name||"").toLowerCase()))return["Gas syringe","Pressure sensor","Measuring cylinder","Thermometer"];
+  return["DC power supply","Ammeter","Voltmeter","Connecting wires"];
+ }
+ return[];
+}
+
+const req=e=>{if(!e)return [];const mapped=mappedApparatus(e);if(mapped.length)return [...new Set(mapped)].slice(0,8);const s=normalizeSubject(e.subject);const raw=(e.materials?.length?e.materials:fallback[e?.subject]||fallback.Physics).filter(Boolean).filter(x=>!["Standard laboratory apparatus","Standard laboratory glassware","Chemical reagents","Measuring equipment","Measuring instruments","Data sheet","Field data sheet"].includes(x));return [...new Set(raw)].slice(0,8)};
 const newState=e=>({setup:[],values:(e.controls||["Variable A","Variable B"]).slice(0,2).map((n,i)=>ranges(n)[3]),rows:[],running:false,completed:false,chemicals:{},pours:[],connections:[],markers:[],resistorResistance:20,apparatusOps:{},selectedApparatus:null,fieldSamples:[],environment:{light:500,temp:25,soilPH:7,turbidity:0}});
 function toast(t){const x=$("#toast");if(!x)return;x.textContent=t;x.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.remove("show"),1900)}
 function save(){localStorage.setItem("sls-redesign-state",JSON.stringify({subject,current:current?.id,S}))}
@@ -30,7 +202,23 @@ if(n.includes("stopwatch"))return w('<circle cx="90" cy="75" r="48" class="metal
 if(n.includes("lens"))return w('<ellipse cx="90" cy="70" rx="28" ry="53" class="lens"/><line x1="90" y1="17" x2="90" y2="123" class="lens-axis"/>');
 if(n.includes("quadrat"))return w('<rect x="34" y="22" width="112" height="96" class="quadrat"/><line x1="71" y1="22" x2="71" y2="118" class="quadrat-line"/><line x1="109" y1="22" x2="109" y2="118" class="quadrat-line"/><line x1="34" y1="54" x2="146" y2="54" class="quadrat-line"/><line x1="34" y1="86" x2="146" y2="86" class="quadrat-line"/>');
 return w('<path d="M52 28 H128 L118 108 Q90 123 62 108 Z" class="glass"/><path d="M58 76 Q90 67 122 76 L117 104 Q90 114 63 104 Z" class="liquid"/>')}
-function specialApparatusSvg(name){const n=String(name).toLowerCase(),w=b=>'<svg class="apparatus-svg" viewBox="0 0 180 140" aria-label="'+esc(name)+'">'+b+'</svg>';if(n.includes("burette"))return w('<path d="M78 12 H102 V103 L90 121 L78 103 Z" class="glass"/><rect x="83" y="30" width="14" height="54" class="liquid"/><line x1="106" y1="25" x2="126" y2="25" class="scale-svg"/><line x1="106" y1="44" x2="122" y2="44" class="scale-svg"/><circle cx="90" cy="104" r="6" class="knob"/>');if(n.includes("volumetric pipette")||n==="pipette")return w('<path d="M84 17 Q90 8 96 17 V47 Q90 59 84 47 Z M84 47 V116 Q90 128 96 116 V47" class="glass"/><ellipse cx="90" cy="48" rx="15" ry="10" class="glass-rim"/>');if(n.includes("measuring cylinder"))return w('<path d="M65 14 H115 L109 119 Q90 128 71 119 Z" class="glass"/><path d="M71 73 Q90 66 109 73 L106 114 Q90 121 74 114 Z" class="liquid"/><line x1="112" y1="35" x2="127" y2="35" class="scale-svg"/><line x1="112" y1="55" x2="124" y2="55" class="scale-svg"/><line x1="112" y1="75" x2="127" y2="75" class="scale-svg"/>');if(n.includes("filter funnel")||n==="funnel")return w('<path d="M34 22 H146 L101 76 V120 H79 V76 Z" class="glass"/>');if(n.includes("spotting tile"))return w('<rect x="25" y="32" width="130" height="76" rx="9" class="tile"/><circle cx="50" cy="55" r="7" class="well"/><circle cx="75" cy="55" r="7" class="well"/><circle cx="100" cy="55" r="7" class="well"/><circle cx="125" cy="55" r="7" class="well"/><circle cx="50" cy="82" r="7" class="well"/><circle cx="75" cy="82" r="7" class="well"/><circle cx="100" cy="82" r="7" class="well"/><circle cx="125" cy="82" r="7" class="well"/>');if(n.includes("nichrome wire"))return w('<path d="M43 106 L70 77 L87 47 L107 25" class="wire-svg"/><circle cx="43" cy="106" r="9" class="handle"/><circle cx="108" cy="24" r="5" class="wire-tip"/>');if(n.includes("bunsen burner"))return w('<rect x="61" y="94" width="58" height="22" rx="4" class="metal"/><rect x="78" y="45" width="24" height="50" class="metal"/><path d="M90 45 C76 30 87 13 90 10 C93 13 104 30 90 45" class="flame-svg"/>');if(n.includes("gas syringe"))return w('<rect x="42" y="48" width="90" height="40" rx="6" class="glass"/><rect x="57" y="55" width="48" height="26" class="liquid"/><rect x="105" y="43" width="10" height="50" class="plunger"/>');
+function specialApparatusSvg(name){const n=String(name).toLowerCase(),w=b=>'<svg class="apparatus-svg" viewBox="0 0 180 140" aria-label="'+esc(name)+'">'+b+'</svg>';if(n.includes("burette clamp"))return w('<rect x="42" y="62" width="96" height="12" rx="5" class="metal"/><rect x="84" y="20" width="12" height="96" class="metal"/><circle cx="48" cy="68" r="10" class="knob"/><circle cx="132" cy="68" r="10" class="knob"/>');
+if(n==="white tile"||n.includes("white tile"))return w('<rect x="25" y="35" width="130" height="70" rx="5" class="tile"/><rect x="36" y="46" width="108" height="48" rx="3" class="white-surface"/>');
+if(n.includes("glass block"))return w('<path d="M42 36 H138 V104 H42 Z" class="glass"/><line x1="90" y1="36" x2="90" y2="104" class="scale-svg"/>');
+if(n.includes("force meter")||n.includes("newton meter"))return w('<rect x="65" y="20" width="50" height="92" rx="10" class="metal"/><rect x="76" y="36" width="28" height="46" class="screen"/><line x1="90" y1="82" x2="90" y2="105" class="spring-svg"/><text x="90" y="63" text-anchor="middle" class="digital">0.0 N</text>');
+if(n.includes("micrometer"))return w('<path d="M48 96 Q48 42 98 42 H128 V58 H98 Q75 58 75 96 H48 Z" class="metal"/><line x1="98" y1="50" x2="145" y2="50" class="metal"/><circle cx="145" cy="50" r="14" class="knob"/><line x1="52" y1="96" x2="128" y2="96" class="metal"/>');
+if(n.includes("ray box"))return w('<rect x="32" y="48" width="72" height="54" rx="8" class="metal"/><circle cx="72" cy="75" r="16" class="screen"/><path d="M104 70 H151" class="ray-svg"/><path d="M104 80 H151" class="ray-svg"/>');
+if(n.includes("glass block"))return w('<rect x="45" y="35" width="90" height="70" class="glass"/>');
+if(n.includes("protractor"))return w('<path d="M28 104 Q90 25 152 104 Z" class="protractor-svg"/><path d="M43 101 Q90 48 137 101" class="protractor-inner"/>');
+if(n.includes("pressure sensor"))return w('<rect x="42" y="40" width="96" height="62" rx="8" class="metal"/><rect x="56" y="53" width="68" height="25" class="screen"/><text x="90" y="70" text-anchor="middle" class="digital">101 kPa</text>');
+if(n.includes("cork borer"))return w('<rect x="55" y="26" width="70" height="18" rx="7" class="metal"/><path d="M125 26 L145 35 L125 44 Z" class="metal"/>');
+if(n.includes("potometer"))return w('<path d="M30 65 H115 V85 H30 Z" class="glass"/><path d="M115 65 H145 V45" class="glass-line-svg"/><circle cx="90" cy="75" r="6" class="bubble-svg"/>');
+if(n.includes("respirometer"))return w('<path d="M48 50 H118 V98 H48 Z" class="glass"/><path d="M118 62 H150 V84 H118" class="glass-line-svg"/><circle cx="126" cy="73" r="5" class="bubble-svg"/>');
+if(n.includes("turbidity tube"))return w('<rect x="65" y="15" width="50" height="110" rx="8" class="glass"/><path d="M70 78 H110 V116 H70 Z" class="liquid"/><circle cx="90" cy="109" r="7" class="target-dot"/>');
+if(n.includes("barometer"))return w('<circle cx="90" cy="70" r="45" class="metal"/><circle cx="90" cy="70" r="35" class="screen"/><line x1="90" y1="70" x2="116" y2="50" class="hand"/>');
+if(n.includes("hygrometer"))return w('<rect x="44" y="40" width="92" height="60" rx="8" class="metal"/><text x="90" y="75" text-anchor="middle" class="digital">RH 50%</text>');
+if(n.includes("anemometer"))return w('<circle cx="90" cy="70" r="8" class="knob"/><path d="M90 62 L55 35 Q45 28 38 38" class="metal"/><path d="M98 70 L130 45 Q140 37 147 47" class="metal"/><path d="M90 78 L115 110 Q122 120 112 126" class="metal"/>');
+if(n.includes("burette"))return w('<path d="M78 12 H102 V103 L90 121 L78 103 Z" class="glass"/><rect x="83" y="30" width="14" height="54" class="liquid"/><line x1="106" y1="25" x2="126" y2="25" class="scale-svg"/><line x1="106" y1="44" x2="122" y2="44" class="scale-svg"/><circle cx="90" cy="104" r="6" class="knob"/>');if(n.includes("volumetric pipette")||n==="pipette")return w('<path d="M84 17 Q90 8 96 17 V47 Q90 59 84 47 Z M84 47 V116 Q90 128 96 116 V47" class="glass"/><ellipse cx="90" cy="48" rx="15" ry="10" class="glass-rim"/>');if(n.includes("measuring cylinder"))return w('<path d="M65 14 H115 L109 119 Q90 128 71 119 Z" class="glass"/><path d="M71 73 Q90 66 109 73 L106 114 Q90 121 74 114 Z" class="liquid"/><line x1="112" y1="35" x2="127" y2="35" class="scale-svg"/><line x1="112" y1="55" x2="124" y2="55" class="scale-svg"/><line x1="112" y1="75" x2="127" y2="75" class="scale-svg"/>');if(n.includes("filter funnel")||n==="funnel")return w('<path d="M34 22 H146 L101 76 V120 H79 V76 Z" class="glass"/>');if(n.includes("spotting tile"))return w('<rect x="25" y="32" width="130" height="76" rx="9" class="tile"/><circle cx="50" cy="55" r="7" class="well"/><circle cx="75" cy="55" r="7" class="well"/><circle cx="100" cy="55" r="7" class="well"/><circle cx="125" cy="55" r="7" class="well"/><circle cx="50" cy="82" r="7" class="well"/><circle cx="75" cy="82" r="7" class="well"/><circle cx="100" cy="82" r="7" class="well"/><circle cx="125" cy="82" r="7" class="well"/>');if(n.includes("nichrome wire"))return w('<path d="M43 106 L70 77 L87 47 L107 25" class="wire-svg"/><circle cx="43" cy="106" r="9" class="handle"/><circle cx="108" cy="24" r="5" class="wire-tip"/>');if(n.includes("bunsen burner"))return w('<rect x="61" y="94" width="58" height="22" rx="4" class="metal"/><rect x="78" y="45" width="24" height="50" class="metal"/><path d="M90 45 C76 30 87 13 90 10 C93 13 104 30 90 45" class="flame-svg"/>');if(n.includes("gas syringe"))return w('<rect x="42" y="48" width="90" height="40" rx="6" class="glass"/><rect x="57" y="55" width="48" height="26" class="liquid"/><rect x="105" y="43" width="10" height="50" class="plunger"/>');
 if(n.includes("chromatography paper"))return w('<rect x="58" y="12" width="64" height="116" class="paper-svg"/><line x1="58" y1="92" x2="122" y2="92" class="baseline-svg"/><circle cx="76" cy="92" r="5" class="spot-svg"/><circle cx="92" cy="92" r="5" class="spot-svg"/><circle cx="108" cy="92" r="5" class="spot-svg"/><path d="M76 88 C78 64 80 42 82 20" class="chromatogram-svg"/><path d="M92 88 C94 58 97 38 100 20" class="chromatogram-svg"/><path d="M108 88 C110 70 114 44 118 20" class="chromatogram-svg"/>');
 if(n.includes("capillary tube"))return w('<rect x="84" y="16" width="12" height="108" rx="6" class="glass"/><line x1="87" y1="34" x2="93" y2="34" class="scale-svg"/>');
 if(n==="pencil"||n.includes("pencil"))return w('<path d="M42 105 L118 29 L135 46 L59 122 Z" class="pencil-svg"/><path d="M118 29 L132 15 L146 30 L135 46 Z" class="pencil-svg"/><path d="M42 105 L30 118 L59 122 Z" class="pencil-tip-svg"/>');

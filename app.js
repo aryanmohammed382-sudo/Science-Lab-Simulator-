@@ -1087,6 +1087,12 @@ function renderApparatusContext(index){
   body+='<div class="context-row"><label>Temperature <output id="v2TempOut">'+(o.temp??25)+' °C</output><input id="v2Temp" type="range" min="0" max="100" step="1" value="'+(o.temp??25)+'"></label><button id="v2ApplyTemp">Apply temperature</button></div>';
  }else if(kind==="microscope"){
   body+='<div class="context-row"><label>Magnification<select id="v2Mag"><option value="40" '+(o.magnification===40?"selected":"")+'>×40</option><option value="100" '+(o.magnification===100?"selected":"")+'>×100</option><option value="400" '+(o.magnification===400?"selected":"")+'>×400</option></select></label><button id="v2Observe">Observe specimen</button></div>';
+ }else if(kind==="force"){
+  body+='<div class="context-row"><label>Force (N)<input id="v2Force" type="number" min="0" max="100" step="0.01" value="'+(o.force||0)+'"></label><button id="v2ForceRecord">Record force</button></div>';
+ }else if(kind==="light"){
+  body+='<div class="context-row"><label>Light output <output id="v2LightOut">'+(o.light||50)+'%</output><input id="v2Light" type="range" min="0" max="100" step="1" value="'+(o.light||50)+'"></label></div>';
+ }else if(kind==="heater"){
+  body+='<div class="context-row"><label>Heater power <output id="v2HeatOut">'+(o.heat||50)+'%</output><input id="v2Heat" type="range" min="0" max="100" step="1" value="'+(o.heat||50)+'"></label></div>';
  }else if(kind==="power"){
   body+='<div class="context-row"><label>Supply voltage <output id="v2VoltageOut">'+(o.voltage??6).toFixed(1)+' V</output><input id="v2Voltage" type="range" min="0" max="12" step="0.1" value="'+(o.voltage??6)+'"></label></div>';
  }else if(kind==="resistor"){
@@ -1119,7 +1125,6 @@ function renderApparatusContext(index){
  $("#v2Transfer")?.addEventListener("click",()=>{const t=+($("#v2Target")?.value??-1),a=+($("#v2Amount")?.value||0);if(t>=0)transferApparatus(index,t,a,"mL");});
  $("#v2TransferInto")?.addEventListener("click",()=>{const source=+($("#v2Source")?.value??-1),a=+($("#v2Amount")?.value||0);if(source>=0)transferApparatus(source,index,a,"mL");});
  $("#v2TransferInto2")?.addEventListener("click",()=>{const source=+($("#v2Source2")?.value??-1),a=+($("#v2Amount2")?.value||0);if(source>=0)transferApparatus(source,index,a,"mL");});
- $("#v2-transfer").forEach(()=>{});
  host.querySelectorAll("[data-v2-transfer]").forEach(btn=>btn.addEventListener("click",()=>{const t=targets[0]?.j;if(t!=null)transferApparatus(index,t,+btn.dataset.v2Transfer,"mL");}));
  $("#v2Mass")?.addEventListener("input",e=>{o.mass=+e.target.value;});
  $("#v2Weigh")?.addEventListener("click",()=>{o.mass=+($("#v2Mass")?.value||0);S.values[0]=o.mass;save();renderConnections();renderApparatusContext(index);toast("Balance reading recorded: "+o.mass.toFixed(2)+" g");});

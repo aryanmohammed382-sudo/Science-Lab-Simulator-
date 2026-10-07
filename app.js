@@ -1144,7 +1144,7 @@ function renderApparatusContext(index){
  }else if(kind==="microscope"){
   body+='<div class="context-row"><label>Magnification<select id="v2Mag"><option value="40" '+(o.magnification===40?"selected":"")+'>×40</option><option value="100" '+(o.magnification===100?"selected":"")+'>×100</option><option value="400" '+(o.magnification===400?"selected":"")+'>×400</option></select></label><button id="v2Observe">Observe specimen</button></div>';
  }else if(kind==="stirrer"||kind==="stirrod"){
-  body+='<div class="context-row"><label>Target vessel<select id="v2Target"><option value="">Choose target…</option>'+targetOptions+'</select></label><button id="v2Stir">'+(o.stirring?"Stop stirring":"Start stirring")+(kind==="stirrer"?" · motor":" · manually")+"</button></div>';
+  body+='<div class="context-row"><label>Target vessel<select id="v2Target"><option value="">Choose target…</option>'+targetOptions+'</select></label><button id="v2Stir">'+(o.stirring?"Stop stirring":"Start stirring")+(kind==="stirrer"?" · motor":" · manually")+'</button></div>';
  }else if(kind==="force"){
   body+='<div class="context-row"><label>Force (N)<input id="v2Force" type="number" min="0" max="100" step="0.01" value="'+(o.force||0)+'"></label><button id="v2ForceRecord">Record force</button></div>';
  }else if(kind==="light"){

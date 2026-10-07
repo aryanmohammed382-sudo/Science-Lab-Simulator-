@@ -49,3 +49,18 @@
 .resistance-badge{position:absolute;right:5px;top:5px;padding:3px 6px;border-radius:7px;background:#183b53;color:#fff;font-size:8px;font-weight:900;z-index:20;box-shadow:0 2px 5px rgba(0,0,0,.16)}
 .connection-node{fill:#d53f43;stroke:#fff;stroke-width:.6}.paper-svg{fill:#fffdf5;stroke:#8fa5b4;stroke-width:2}.paper-fold{fill:none;stroke:#8fa5b4;stroke-width:1.5}.tile{fill:#eef3f6;stroke:#8fa5b4;stroke-width:2}.well{fill:#fff;stroke:#a4b7c3;stroke-width:1.5}.handle{fill:#263e52}.wire-tip{fill:#d3a431}.flame-svg{fill:#f0a42d}.tripod-top{fill:none;stroke:#6f8190;stroke-width:6}.tripod-leg{stroke:#6f8190;stroke-width:5}.tongs{stroke:#657a89;stroke-width:6;fill:none}.electrode{fill:#444b50;stroke:#20282e;stroke-width:2}.plunger{fill:#74899a}.picker-field small{font-size:8px;color:#72879a}
 @media(max-width:700px){.chemical-picker-row{grid-template-columns:1fr}.chemical-picker-row .interaction-action{width:100%}}
+
+.operation-empty,.operation-state,.operation-head,.operation-grid,.live-reading{font-size:12px}
+.operation-empty{padding:12px;border:1px dashed #6d8daa;border-radius:10px;background:#f5f9fc;display:flex;flex-direction:column;gap:4px;color:#274968}
+.operation-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.operation-head button{border:0;background:#e7eef5;color:#234968;border-radius:7px;padding:5px 8px;cursor:pointer}
+.operation-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:end}
+.operation-grid label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:#274968}
+.operation-grid input,.operation-grid select{width:100%;box-sizing:border-box;border:1px solid #b9cad8;border-radius:7px;padding:7px;background:#fff;color:#173a5b}
+.operation-grid button{border:0;border-radius:8px;padding:8px 10px;background:#173f63;color:#fff;font-weight:800;cursor:pointer}
+.operation-grid button:hover{filter:brightness(1.08)}
+.operation-grid small{grid-column:1/-1;color:#60798e;line-height:1.35}
+.operation-state{margin-top:8px;padding:7px 9px;background:#eef5fa;border-radius:7px;color:#36566f}
+.live-reading{font-weight:900;font-size:16px;background:#102d4d;color:#fff;padding:10px;border-radius:8px}
+.placed-item.apparatus-selected{outline:3px solid #20b486;outline-offset:3px;z-index:30}
+.paper-svg{fill:#f9fbfd;stroke:#aebdca;stroke-width:2}.baseline-svg{stroke:#8b5a2b;stroke-width:2}.spot-svg{fill:#e34b65}.chromatogram-svg{stroke:#e34b65;stroke-width:3;fill:none}.pencil-svg{fill:#f0c76d;stroke:#7c6334;stroke-width:2}.pencil-tip-svg{fill:#444;stroke:#222;stroke-width:2}.rack-svg{fill:#6f879a;stroke:#29485f;stroke-width:2}.rack-hole{fill:#1f3b50;stroke:#9fb3c2;stroke-width:3}.rack-leg{stroke:#29485f;stroke-width:4}.rubber-svg{fill:#d84b72;stroke:#7d2341;stroke-width:2}.glass-line-svg{stroke:#7b9bad;stroke-width:4;fill:none}.valve-svg{fill:#e2b33f}.plastic-svg{fill:#c8e1ed;stroke:#5b8195;stroke-width:2}.gauze-svg{fill:#b7b7b7;stroke:#5c6670;stroke-width:2}.specimen-svg{fill:#7cc7a5;stroke:#477c62;stroke-width:1}.tape-svg{fill:#f0c85e;stroke:#81661c;stroke-width:2}

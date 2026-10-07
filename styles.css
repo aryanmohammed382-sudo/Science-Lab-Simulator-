@@ -127,3 +127,5 @@
  .context-row button{grid-column:1/-1}
  .apparatus-context{width:calc(100% - 20px);right:10px;bottom:10px}
 }
+
+.flat-lab .placed-item{transform:translate(-50%,-50%);box-shadow:0 7px 17px #18334b38}.flat-lab .placed-item:hover{transform:translate(-50%,-50%)}.flat-lab .bench-surface{transform:none}.flat-lab .bench{perspective:none}

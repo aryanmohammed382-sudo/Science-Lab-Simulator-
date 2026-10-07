@@ -1017,5 +1017,146 @@ document.addEventListener("click",e=>{
  if(e.target.closest(".placed-item")||e.target.closest(".apparatus-card")||e.target.closest(".chemical-card"))return;
  if(markerMode&&e.target.closest("#bench"))placeMarkerAtEvent(e);
 });
+
+/* ===== Interface V2: 3D bench, auto-setup and contextual apparatus operations ===== */
+const INTERFACE_V2_LAYOUTS=[
+ [14,28],[35,26],[56,27],[77,27],[24,62],[46,62],[68,62],[86,60]
+];
+function seedBenchForExperiment(e){
+ if(!e)return;
+ const names=req(e);
+ S.setup=names.map((name,i)=>({
+  name,
+  x:INTERFACE_V2_LAYOUTS[i%INTERFACE_V2_LAYOUTS.length][0],
+  y:INTERFACE_V2_LAYOUTS[i%INTERFACE_V2_LAYOUTS.length][1],
+  z:INTERFACE_V2_LAYOUTS[i%INTERFACE_V2_LAYOUTS.length][1],
+  resistance:/resistor/i.test(name)?20:undefined,
+  liquid:[],
+ }));
+ ensureOps();
+ S.selectedApparatus=null;
+ S.connections=[];
+ S.markers=[];
+ toast("Experiment bench prepared with all required apparatus");
+}
+function apparatusLabel(name){
+ const n=String(name||"").toLowerCase();
+ if(/power supply|dc supply|battery/.test(n))return"Power source";
+ if(/burette/.test(n))return"Burette";
+ if(/pipette/.test(n))return"Volumetric transfer";
+ if(/measuring cylinder/.test(n))return"Volume measurement";
+ if(/balance/.test(n))return"Mass measurement";
+ if(/thermometer/.test(n))return"Temperature";
+ if(/stopwatch|stop-clock/.test(n))return"Time measurement";
+ if(/microscope/.test(n))return"Microscopy";
+ if(/pH meter/.test(n))return"pH measurement";
+ if(/quadrat/.test(n))return"Sampling frame";
+ return"Apparatus";
+}
+function renderApparatusContext(index){
+ const host=$("#apparatusContext");
+ if(!host)return;
+ const item=S.setup[index];
+ if(!item){host.classList.add("hidden");return}
+ ensureOps();
+ const o=S.apparatusOps[index]||{};
+ const kind=opKind(item.name);
+ const liquid=liquidTotal(item,"mL");
+ const sources=S.setup.map((x,j)=>({x,j})).filter(v=>v.j!==index&&liquidTotal(v.x,"mL")>0);
+ const targets=S.setup.map((x,j)=>({x,j})).filter(v=>v.j!==index);
+ const sourceOptions=sources.map(v=>'<option value="'+v.j+'">'+esc(v.x.name)+' — '+formatQuantity(liquidTotal(v.x,"mL"),"mL")+'</option>').join("");
+ const targetOptions=targets.map(v=>'<option value="'+v.j+'">'+esc(v.x.name)+'</option>').join("");
+ let quick='';
+ if(targets.length)quick='<div class="context-quick"><button data-v2-transfer="1">1 mL</button><button data-v2-transfer="5">5 mL</button><button data-v2-transfer="10">10 mL</button><button data-v2-transfer="20">20 mL</button><button data-v2-transfer="25">25 mL</button></div>';
+ let body='<div class="context-head"><div><strong>'+esc(item.name)+'</strong><small>'+apparatusLabel(item.name)+' · '+formatQuantity(liquid,"mL")+' liquid</small></div><button id="v2CloseContext" class="context-close">×</button></div>';
+ body+='<div class="context-actions">';
+ if(kind==="burette"){
+  body+='<div class="context-row"><label>Fill from<select id="v2Source"><option value="">Choose source…</option>'+sourceOptions+'</select></label><label>Amount (mL)<input id="v2Amount" type="number" min="0.05" max="50" step="0.05" value="20"></label><button id="v2TransferInto">Fill burette</button></div>';
+  body+='<div class="context-row"><label>Tap opening <output id="v2OpeningOut">'+(o.opening??100)+'%</output><input id="v2Opening" type="range" min="0" max="100" step="1" value="'+(o.opening??100)+'"></label><label>Open time<select id="v2Duration"><option>0.1</option><option>0.2</option><option>0.5</option><option selected>1</option><option>2</option><option>5</option></select> s</label><button id="v2Dispense">Dispense</button><button id="v2Drop">1 drop</button></div>';
+ }else if(kind==="pipette"){
+  body+='<div class="context-row"><label>Source<select id="v2Source"><option value="">Choose source…</option>'+sourceOptions+'</select></label><button id="v2TransferInto">Load 25 mL</button><button id="v2Dispense">Dispense 25 mL</button></div>';
+ }else if(kind==="dropper"){
+  body+='<div class="context-row"><label>Target<select id="v2Target">'+targetOptions+'</select></label><button id="v2Dispense">Dispense 1 drop</button></div>';
+ }else if(kind==="cylinder"||kind==="syringe"){
+  body+='<div class="context-row"><label>Target<select id="v2Target">'+targetOptions+'</select></label><label>Amount (mL)<input id="v2Amount" type="number" min="0.1" max="100" step="0.1" value="10"></label><button id="v2Dispense">Transfer</button></div>';
+ }else if(kind==="balance"){
+  body+='<div class="context-row"><label>Sample mass (g)<input id="v2Mass" type="number" min="0" max="500" step="0.01" value="'+(o.mass||0)+'"></label><button id="v2Weigh">Weigh / record</button></div>';
+ }else if(kind==="stopwatch"){
+  body+='<div class="context-row"><label>Timing (s)<input id="v2Time" type="number" min="0.1" max="3600" step="0.1" value="'+(o.time||10)+'"></label><button id="v2TimeStart">Start / record</button></div>';
+ }else if(kind==="thermometer"||kind==="waterbath"){
+  body+='<div class="context-row"><label>Temperature <output id="v2TempOut">'+(o.temp??25)+' °C</output><input id="v2Temp" type="range" min="0" max="100" step="1" value="'+(o.temp??25)+'"></label><button id="v2ApplyTemp">Apply temperature</button></div>';
+ }else if(kind==="microscope"){
+  body+='<div class="context-row"><label>Magnification<select id="v2Mag"><option value="40" '+(o.magnification===40?"selected":"")+'>×40</option><option value="100" '+(o.magnification===100?"selected":"")+'>×100</option><option value="400" '+(o.magnification===400?"selected":"")+'>×400</option></select></label><button id="v2Observe">Observe specimen</button></div>';
+ }else if(kind==="power"){
+  body+='<div class="context-row"><label>Supply voltage <output id="v2VoltageOut">'+(o.voltage??6).toFixed(1)+' V</output><input id="v2Voltage" type="range" min="0" max="12" step="0.1" value="'+(o.voltage??6)+'"></label></div>';
+ }else if(kind==="resistor"){
+  body+='<div class="context-row"><label>Resistance<select id="v2Resistance">'+[1,2,5,10,20,50,100,220,330,470,1000].map(v=>'<option value="'+v+'" '+(Number(item.resistance||20)===v?"selected":"")+'>'+v+' Ω</option>').join("")+'</select></label></div>';
+ }else if(kind==="phmeter"){
+  body+='<div class="context-row"><label>pH <output id="v2PhOut">'+(o.pH??7).toFixed(2)+'</output><input id="v2Ph" type="range" min="0" max="14" step="0.01" value="'+(o.pH??7)+'"></label></div>';
+ }else if(kind==="quadrat"||kind==="transect"){
+  body+='<div class="context-row"><button id="v2Sample">Record field observation</button><span class="context-reading">'+(o.samples||0)+' observations</span></div>';
+ }else if(kind==="length"){
+  body+='<div class="context-row"><label>Reading (mm)<input id="v2Length" type="number" min="0" max="2000" step="0.01" value="'+(o.distance||0)+'"></label><button id="v2Measure">Record measurement</button></div>';
+ }else{
+  body+='<div class="context-row"><label>Target<select id="v2Target">'+targetOptions+'</select></label><label>Amount (mL)<input id="v2Amount" type="number" min="0.1" max="100" step="0.1" value="10"></label><button id="v2Transfer">Transfer</button></div>';
+ }
+ if(/beaker|flask|test tube|volumetric flask|spotting tile|evaporating basin|crucible|gas syringe/i.test(item.name)&&targets.length){
+  body+='<div class="context-row secondary"><label>Transfer into this '+esc(item.name)+' from<select id="v2Source2"><option value="">Choose source…</option>'+sourceOptions+'</select></label><label>Amount (mL)<input id="v2Amount2" type="number" min="0.1" max="'+apparatusCapacity(item.name)+'" step="0.1" value="10"></label><button id="v2TransferInto2">Pour into '+esc(item.name)+'</button></div>';
+ }
+ body+='</div><div class="context-note">Clicking an apparatus now opens its real-world controls. Quantities change the source and target inventories; container capacity is enforced.</div>';
+ host.innerHTML=body;
+ host.classList.remove("hidden");
+ const close=()=>{host.classList.add("hidden");S.selectedApparatus=null;document.querySelectorAll(".placed-item").forEach(x=>x.classList.remove("apparatus-selected"));};
+ $("#v2CloseContext")?.addEventListener("click",close);
+ $("#v2Opening")?.addEventListener("input",e=>{o.opening=+e.target.value;$("#v2OpeningOut").textContent=o.opening+"%";$("#opOpeningOut")&&($("#opOpeningOut").textContent=o.opening+"%");save();});
+ $("#v2Duration")?.addEventListener("change",e=>{o.duration=+e.target.value;save();});
+ $("#v2Dispense")?.addEventListener("click",()=>{
+  const amount=kind==="burette"?1:kind==="pipette"?25:kind==="dropper"?0.05:+($("#v2Amount")?.value||1);
+  if(kind==="burette"||kind==="dropper"||kind==="pipette"){o.targetIndex=$("#v2Target")?.value===""?o.targetIndex:+($("#v2Target")?.value);dispenseFrom(index,amount,"mL");}
+  else {const t=+($("#v2Target")?.value??-1); if(t>=0)transferApparatus(index,t,amount,"mL");}
+ });
+ $("#v2Drop")?.addEventListener("click",()=>{o.targetIndex=o.targetIndex??null;dispenseFrom(index,0.05,"mL");});
+ $("#v2Transfer")?.addEventListener("click",()=>{const t=+($("#v2Target")?.value??-1),a=+($("#v2Amount")?.value||0);if(t>=0)transferApparatus(index,t,a,"mL");});
+ $("#v2TransferInto")?.addEventListener("click",()=>{const source=+($("#v2Source")?.value??-1),a=+($("#v2Amount")?.value||0);if(source>=0)transferApparatus(source,index,a,"mL");});
+ $("#v2TransferInto2")?.addEventListener("click",()=>{const source=+($("#v2Source2")?.value??-1),a=+($("#v2Amount2")?.value||0);if(source>=0)transferApparatus(source,index,a,"mL");});
+ $("#v2-transfer").forEach(()=>{});
+ host.querySelectorAll("[data-v2-transfer]").forEach(btn=>btn.addEventListener("click",()=>{const t=targets[0]?.j;if(t!=null)transferApparatus(index,t,+btn.dataset.v2Transfer,"mL");}));
+ $("#v2Mass")?.addEventListener("input",e=>{o.mass=+e.target.value;});
+ $("#v2Weigh")?.addEventListener("click",()=>{o.mass=+($("#v2Mass")?.value||0);S.values[0]=o.mass;save();renderConnections();renderApparatusContext(index);toast("Balance reading recorded: "+o.mass.toFixed(2)+" g");});
+ $("#v2TimeStart")?.addEventListener("click",()=>{o.time=+($("#v2Time")?.value||0);S.values[0]=o.time;save();toast("Stopwatch reading recorded: "+o.time+" s");});
+ $("#v2Temp")?.addEventListener("input",e=>{o.temp=+e.target.value;$("#v2TempOut").textContent=o.temp+" °C";});
+ $("#v2ApplyTemp")?.addEventListener("click",()=>{S.values[0]=o.temp;save();toast("Temperature applied: "+o.temp+" °C");});
+ $("#v2Mag")?.addEventListener("change",e=>{o.magnification=+e.target.value;save();});
+ $("#v2Observe")?.addEventListener("click",()=>toast("Specimen observed at ×"+o.magnification));
+ $("#v2Voltage")?.addEventListener("input",e=>{o.voltage=+e.target.value;$("#v2VoltageOut").textContent=o.voltage.toFixed(1)+" V";save();});
+ $("#v2Resistance")?.addEventListener("change",e=>{item.resistance=+e.target.value;S.resistorResistance=item.resistance;renderBench();renderConnections();renderApparatusContext(index);save();});
+ $("#v2Ph")?.addEventListener("input",e=>{o.pH=+e.target.value;$("#v2PhOut").textContent=o.pH.toFixed(2);});
+ $("#v2Sample")?.addEventListener("click",()=>{o.samples=(o.samples||0)+1;S.fieldSamples.push({apparatus:item.name,sample:o.samples,distance:o.distance||0});save();renderApparatusContext(index);toast("Field observation "+o.samples+" recorded");});
+ $("#v2Length")?.addEventListener("input",e=>{o.distance=+e.target.value;});
+ $("#v2Measure")?.addEventListener("click",()=>{o.distance=+($("#v2Length")?.value||0);S.values[0]=o.distance;save();toast("Measurement recorded: "+o.distance+" mm");});
+}
+const __selectApparatusV2=selectApparatus;
+selectApparatus=function(index){
+ __selectApparatusV2(index);
+ renderApparatusContext(index);
+};
+function __seedAfterLoadV2(){
+ if(current&&(!S.setup||!S.setup.length)){seedBenchForExperiment(current);renderAll();save();}
+}
+const __loadV2=load;
+load=function(e){
+ __loadV2(e);
+ seedBenchForExperiment(e);
+ renderAll();
+ save();
+};
+const __resetV2=reset;
+reset=function(){
+ __resetV2();
+ seedBenchForExperiment(current);
+ renderAll();
+ save();
+};
+
 init();
 })();

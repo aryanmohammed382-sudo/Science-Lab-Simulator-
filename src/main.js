@@ -147,6 +147,14 @@ try {
 
 // Record world observations regardless of whether the 3D renderer is available.
 world.onEvent = (ev) => {
+  if (ui.log) {
+    ui.log.push({
+      at: new Date().toISOString(),
+      severity: ev.severity || (ev.type === 'safety' ? 'caution' : 'info'),
+      text: ev.text || ev.type || 'Laboratory event'
+    });
+    if (ui.log.length > 500) ui.log.splice(0, ui.log.length - 500);
+  }
   if (ev.type === 'reaction' || ev.type === 'electrolysis' || ev.type === 'prediction') {
     notebook.add({
       kind: 'observation',

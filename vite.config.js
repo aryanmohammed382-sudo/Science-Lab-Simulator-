@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 
-// Relative base keeps the build working from any GitHub Pages sub-path
-// (e.g. https://<user>.github.io/<repo>/) as well as from a custom domain.
+// This repository is deployed as a GitHub Pages project site.
+// Keep the base explicit so production asset URLs always resolve from
+// /Science-Lab-Simulator-/ instead of the domain root.
 export default defineConfig({
-  base: './',
+  base: '/Science-Lab-Simulator-/',
   build: {
     outDir: 'dist',
     target: 'es2022',

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -38,24 +38,8 @@ jobs:
         run: |
           test -f dist/index.html
           test -d dist/assets
-          grep -q "src/main" dist/index.html || true
-
-      # GitHub Pages for this repository is configured to serve the main branch root.
-      # Publish the exact Vite production output there so the live site cannot serve
-      # the source-only index.html.
-      - name: Publish production build to branch root
-        run: |
-          cp -R dist/. .
-          touch .nojekyll
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "Production build already matches branch root."
-          else
-            git commit -m "Publish production build [skip ci]"
-            git push origin HEAD:main
-          fi
+          grep -q "assets/" dist/index.html
+          test -s dist/index.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

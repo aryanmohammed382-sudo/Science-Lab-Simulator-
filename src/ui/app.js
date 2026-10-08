@@ -3,7 +3,7 @@ import { APPARATUS, apparatusByCategory, APPARATUS_CATEGORIES, searchApparatus, 
 import { SUBSTANCES, SUBSTANCE_CATEGORIES, searchSubstances, allSubstances } from '../core/substances.js'
 import { Notebook, Dataset, toCSV, downloadText, timestampName, exportJSON, saveLab, loadLab, deleteSave, makeSave, validateSave } from '../core/storage.js'
 import { round } from '../core/util.js'
-import { mountNotebookTab as renderNotebookInner } from './tabs_notebook.js';
+import { renderNotebook as renderNotebookInner } from './tabs_notebook.js';
 import { renderLibraryBody } from './tabs_library.js'
 import { renderSafetyLog } from './tabs_safety.js'
 import { renderData } from './tabs_data.js'

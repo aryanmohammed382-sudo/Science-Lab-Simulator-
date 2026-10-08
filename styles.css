@@ -283,3 +283,5 @@ body.instructions-mode .instructions-view{display:grid}
 .instruction-empty{padding:20px 10px;font-size:9px;color:#7890a4;text-align:center}
 @media(max-width:1200px){.instructions-view{grid-template-columns:220px minmax(0,1fr)}.instruction-procedure-mount{grid-column:1/-1;min-height:430px}}
 @media(max-width:800px){.instructions-view{grid-template-columns:1fr}.instruction-experiment-nav{max-height:330px}.instruction-columns{grid-template-columns:1fr}.required-apparatus-list{grid-template-columns:1fr}.lab-mode-tabs{order:3;width:100%;justify-content:center}.lab-title-actions{flex-wrap:wrap}}
+
+.instruction-header-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.instruction-mode-switch .lab-mode-tab{padding:7px 9px;font-size:8px}@media(max-width:800px){.instruction-header-actions{align-items:stretch}.instruction-mode-switch{width:100%}}

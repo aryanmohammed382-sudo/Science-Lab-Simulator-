@@ -40,23 +40,6 @@ jobs:
           test -d dist/assets
           grep -q "src/main" dist/index.html || true
 
-      # The repository's GitHub Pages configuration currently serves the main
-      # branch directly. Keep the root of main synchronized with the Vite
-      # production build so Pages serves the actual bundled application.
-      - name: Publish production build to the Pages-served root
-        run: |
-          cp -R dist/. .
-          touch .nojekyll
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "Production build is already published."
-          else
-            git commit -m "Publish production build [skip ci]"
-            git push origin HEAD:main
-          fi
-
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

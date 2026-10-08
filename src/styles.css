@@ -47,6 +47,66 @@ html, body {
 .status-clock { color: var(--muted); }
 
 /* ======================================================================================
+   WEBGL FALLBACK
+   ====================================================================================== */
+
+.webgl-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(79,134,184,0.08), transparent 48%),
+    #0a0f13;
+}
+
+.webgl-fallback-card {
+  width: min(620px, 90%);
+  padding: 24px 26px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: rgba(21, 30, 37, 0.96);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.28);
+}
+
+.webgl-fallback-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 24px;
+  margin-bottom: 10px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--accent-2);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.webgl-fallback-card h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.webgl-fallback-card p {
+  margin: 6px 0;
+  color: var(--muted);
+}
+
+.webgl-fallback-card .webgl-fallback-detail {
+  margin-top: 14px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--danger);
+  background: rgba(220, 107, 94, 0.08);
+  color: var(--warn);
+  font-family: monospace;
+  font-size: 11px;
+}
+
+/* ======================================================================================
    TOPBAR
    ====================================================================================== */
 

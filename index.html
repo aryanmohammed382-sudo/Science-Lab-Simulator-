@@ -1,50 +1,14 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Virtual Science Laboratory</title>
     <meta name="description" content="Interactive 3D virtual laboratory simulator for IGCSE, AS/A Level, undergraduate and research science." />
+    <title>Virtual Science Laboratory</title>
     <link rel="icon" href="data:," />
   </head>
   <body>
     <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
-<script>
-  // In production (GitHub Pages, etc.) serve the built bundle from dist/.
-  // In development with `npm run dev`, Vite serves src/main.js via its dev server.
-  // Try the built asset first; if it 404s fall back to the dev entry so the
-  // project also works when run through `vite` locally.
-  (function () {
-    var app = document.getElementById('app');
-    if (!app) return;
-    var bundle = 'dist/assets/index-byWRlIX2.js';
-    var dev = '/src/main.js';
-    var tried = 0;
-    function load(src) {
-      var s = document.createElement('script');
-      s.type = 'module';
-      s.src = src;
-      s.crossOrigin = 'anonymous';
-      s.onerror = function () {
-        tried++;
-        if (src === bundle && tried < 2) {
-          load(dev);
-        } else {
-          app.textContent = 'Failed to load the laboratory. If you are running this from source, start the dev server with \u2018npm run dev\u2019.';
-        }
-      };
-      app.appendChild(s);
-    }
-    // Probe whether the production bundle exists by fetching it as a header-only
-    // request first. If the fetch fails we fall straight to the dev entry.
-    var x = new XMLHttpRequest();
-    x.open('HEAD', bundle, true);
-    x.timeout = 2500;
-    x.onload = function () { load(bundle); };
-    x.onerror = function () { load(dev); };
-    x.ontimeout = function () { load(dev); };
-    try { x.send(null); } catch (e) { load(dev); }
-  })();
-</script>

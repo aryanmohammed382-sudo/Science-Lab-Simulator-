@@ -201,3 +201,85 @@ body.experiment-active .bench .connection-line{stroke-width:1.2}
 @media(min-width:1450px){body.experiment-active .bench{height:650px}body.experiment-active .chemical-sidebar,body.experiment-active .procedure-panel{height:800px}}
 @media(max-width:1250px){body.experiment-active .workspace-grid{grid-template-columns:225px minmax(560px,1fr) 285px}.chemical-sidebar{height:700px}}
 @media(max-width:950px){body.experiment-active .workspace-grid{grid-template-columns:1fr}.chemical-sidebar,.procedure-panel{position:static!important;height:auto!important}.lab-column{grid-column:1}.chemical-sidebar{order:1}.lab-column{order:2}.procedure-panel{order:3}.chemical-sidebar-content{max-height:380px}.bench{height:540px}}
+
+/* ===== V24: approved two-tab experiment workflow ===== */
+.lab-mode-tabs{display:flex;align-items:center;gap:3px;padding:3px;border:1px solid #b9cbd8;background:#e9f0f5;border-radius:8px}
+.lab-mode-tab{border:0;background:transparent;color:#36566f;padding:8px 11px;border-radius:6px;font-size:9px;font-weight:900;cursor:pointer;white-space:nowrap}
+.lab-mode-tab.active{background:#2478d9;color:#fff;box-shadow:0 3px 8px #1a5e9a30}
+body.experiment-active .workspace-grid{display:block}
+body.experiment-active .lab-column{width:100%}
+body.experiment-active .chemical-sidebar,body.experiment-active .procedure-panel{display:none!important}
+body.experiment-active .bench{height:610px}
+body.instructions-mode .welcome,body.instructions-mode .workspace-grid{display:none!important}
+body.instructions-mode .instructions-view{display:grid}
+.instructions-view{display:none;grid-template-columns:245px minmax(0,1fr) 315px;gap:10px;max-width:1760px;margin:10px auto 28px;padding:0 14px;min-height:760px}
+.instruction-experiment-nav,.instruction-main,.instruction-procedure-mount{background:#fff;border:1px solid #d1dee7;border-radius:8px;box-shadow:0 8px 25px #17384b10;min-width:0}
+.instruction-experiment-nav{overflow:hidden;display:flex;flex-direction:column}
+.instruction-nav-head{display:flex;align-items:center;justify-content:space-between;padding:14px 13px 10px;border-bottom:1px solid #e5edf2}
+.instruction-nav-head h3{margin:2px 0 0;color:#183d60;font-size:14px}
+.instruction-nav-head>span:last-child{font-size:8px;font-weight:900;color:#71879a}
+.instruction-search{height:34px;margin:10px;border:1px solid #cad9e4;border-radius:7px;display:flex;align-items:center;gap:6px;padding:0 9px;color:#7890a4}
+.instruction-search input{border:0;outline:0;width:100%;font-size:9px}
+.instruction-experiment-list{overflow:auto;padding:0 8px 10px}
+.instruction-experiment-item{width:100%;display:grid;grid-template-columns:38px 1fr;gap:8px;align-items:center;text-align:left;border:1px solid transparent;background:#fff;border-radius:8px;padding:8px;margin:2px 0;cursor:pointer;color:#234968}
+.instruction-experiment-item:hover{background:#f4f9fc;border-color:#d4e3eb}
+.instruction-experiment-item.active{background:#e9f4ff;border-color:#9bc7ee;box-shadow:inset 3px 0 #2478d9}
+.instruction-experiment-item b{display:block;font-size:9px;line-height:1.25}
+.instruction-experiment-item small{display:block;font-size:7px;color:#7890a4;margin-top:3px}
+.instruction-experiment-icon{height:36px;width:36px;display:grid;place-items:center;background:#f4f8fb;border-radius:6px;overflow:hidden}
+.instruction-experiment-icon .mini-svg{width:30px;height:25px}
+.instruction-main{display:flex;flex-direction:column;overflow:hidden}
+.instruction-main-head{padding:16px 17px 12px;border-bottom:1px solid #e3ebf1;display:flex;justify-content:space-between;gap:15px;align-items:flex-end}
+.instruction-main-head h2{font-size:18px;margin:3px 0;color:#163d60}
+.instruction-main-head p{font-size:9px;color:#71879a;margin:0;max-width:650px}
+.eyebrow,.card-kicker{font-size:7px;letter-spacing:.12em;font-weight:900;color:#237bd6}
+.instruction-main-tabs{display:flex;border-bottom:1px solid #cfdde6}
+.instruction-main-tab{border:0;background:#fff;padding:8px 12px;font-size:9px;font-weight:900;color:#637c90;cursor:pointer;border-bottom:2px solid transparent}
+.instruction-main-tab.active{color:#2478d9;border-bottom-color:#2478d9}
+.instruction-content{padding:12px 15px;overflow:auto;max-height:590px}
+.instruction-content.hidden{display:none}
+.instruction-card{border:1px solid #dce7ee;border-radius:9px;background:#fbfdfe;padding:11px;margin-bottom:9px}
+.objective-card{display:flex;gap:11px;background:linear-gradient(135deg,#eef7ff,#fff);border-color:#cfe2f1}
+.instruction-card-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:8px;background:#2478d9;color:#fff;font-size:16px;flex:none}
+.instruction-card h3{font-size:11px;color:#173f63;margin:3px 0 4px}
+.instruction-card p{font-size:9px;line-height:1.55;color:#526b7d;margin:0}
+.instruction-columns{display:grid;grid-template-columns:1.35fr .9fr;gap:9px}
+.card-heading{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.card-heading>span{width:23px;height:23px;border-radius:6px;background:#e9f4ff;color:#2478d9;display:grid;place-items:center;font-size:11px}
+.card-heading h3{margin:0}
+.required-apparatus-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.required-apparatus-chip{min-height:48px;border:1px solid #e0e9ef;border-radius:7px;background:#fff;display:flex;align-items:center;gap:7px;padding:5px}
+.instruction-apparatus-svg{width:40px;height:31px;display:grid;place-items:center;flex:none;overflow:hidden}
+.instruction-apparatus-svg svg{width:40px;height:31px}
+.required-apparatus-chip span:last-child{font-size:8px;font-weight:800;color:#31536b;line-height:1.25}
+.variable-list{display:flex;flex-direction:column;gap:6px}
+.variable-list div{padding:7px;border-radius:7px;background:#f5f9fc;border:1px solid #e3ebf1}
+.variable-list b{display:block;font-size:7px;text-transform:uppercase;letter-spacing:.08em;color:#71879a}
+.variable-list span{display:block;font-size:8px;color:#274968;margin-top:2px;font-weight:800}
+.instruction-steps{margin:0;padding-left:20px;color:#4e687a}
+.instruction-steps li{font-size:9px;line-height:1.6;margin:4px 0}
+.observation-card{background:#fffdf7;border-color:#efe2b8}
+.equation-pill{display:inline-block;margin-top:8px;padding:6px 8px;border-radius:6px;background:#eef5fa;color:#214b6c;font-size:9px;font-weight:900}
+.instruction-notes{padding:15px;flex:1}
+.instruction-notes.hidden{display:none}
+.instruction-notes textarea{width:100%;height:520px;resize:vertical;border:1px solid #ccdbe5;border-radius:9px;padding:12px;box-sizing:border-box;outline:none;font:10px/1.6 inherit;color:#244a64;background:#fbfdff}
+.notes-save-state{font-size:7px;color:#7890a4;margin-top:6px}
+.instruction-chemical-mount{padding:0 15px 15px}
+.instruction-chemical-mount .chemical-sidebar{display:flex!important;width:100%;height:auto;max-height:430px;border-radius:9px;box-shadow:none}
+.instruction-chemical-mount .chemical-sidebar-content{max-height:270px}
+.instruction-procedure-mount{overflow:hidden}
+.instructions-view .procedure-panel{display:block!important;height:100%!important;position:static!important;border:0!important;border-radius:8px!important;box-shadow:none!important;overflow:auto}
+.instructions-view .procedure-panel .tabs{position:sticky;top:0;z-index:2;background:#fff}
+.instructions-view .procedure-panel .tab[data-tab="notes"],.instructions-view .procedure-panel .tab[data-tab="notebook"]{display:none}
+.instructions-view .procedure-panel .tab-content{padding:13px}
+.instructions-view .procedure-panel .procedure-title{font-size:14px;color:#173f63;margin:0 0 10px}
+.instructions-view .procedure-panel .step{padding:8px 0;border-bottom:1px solid #edf2f5}
+.instructions-view .procedure-panel .step p{font-size:8px;line-height:1.5}
+.instructions-view .procedure-panel .step-num{width:22px;height:22px;font-size:8px}
+.instructions-view .procedure-panel .apparatus-check{margin-top:12px;padding:9px}
+.instructions-view .procedure-panel .check-row{font-size:8px;padding:5px 0}
+.instructions-view .procedure-panel .procedure-note{font-size:8px;line-height:1.5}
+.hidden-instructions-lab{display:none!important}
+.instruction-empty{padding:20px 10px;font-size:9px;color:#7890a4;text-align:center}
+@media(max-width:1200px){.instructions-view{grid-template-columns:220px minmax(0,1fr)}.instruction-procedure-mount{grid-column:1/-1;min-height:430px}}
+@media(max-width:800px){.instructions-view{grid-template-columns:1fr}.instruction-experiment-nav{max-height:330px}.instruction-columns{grid-template-columns:1fr}.required-apparatus-list{grid-template-columns:1fr}.lab-mode-tabs{order:3;width:100%;justify-content:center}.lab-title-actions{flex-wrap:wrap}}

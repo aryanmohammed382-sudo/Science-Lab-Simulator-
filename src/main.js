@@ -11,6 +11,7 @@ import { World } from './three/world.js';
 import { buildLaboratory } from './three/lab.js';
 import { LabUI } from './ui/app.js';
 import { Notebook } from './core/storage.js';
+import './styles.css';
 
 provideBuilders({ buildApparatus });
 
@@ -63,6 +64,7 @@ const ui = new LabUI({
   onSelect: (id) => { ui.selectedId = id; ui._refresh(); ui._renderInspector(); }
 });
 
+ui.mount(document.getElementById('app'));
 ui.setTab('bench');
 world.onEvent = (ev) => {
   if (ev.type === 'reaction' || ev.type === 'electrolysis' || ev.type === 'prediction') {

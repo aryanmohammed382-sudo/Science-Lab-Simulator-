@@ -1,4 +1,4 @@
-import { el, clear, button, table, section, list } from './dom.js';
+import { el, clear, button, table, section } from './dom.js';
 import { listSaves, loadLab as readSave, deleteSave as deleteLab, exportJSON, timestampName, downloadText } from '../core/storage.js';
 
 export function renderSaves(that) {

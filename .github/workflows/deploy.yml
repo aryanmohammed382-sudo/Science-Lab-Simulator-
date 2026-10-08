@@ -38,7 +38,9 @@ jobs:
         run: |
           test -f dist/index.html
           test -d dist/assets
-          grep -q "assets/" dist/index.html
+          grep -q "/Science-Lab-Simulator-/assets/" dist/index.html
+          grep -q "assets/.*\.js" dist/index.html
+          grep -q "assets/.*\.css" dist/index.html
           test -s dist/index.html
 
       - name: Configure GitHub Pages

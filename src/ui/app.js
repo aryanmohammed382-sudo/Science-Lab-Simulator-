@@ -60,7 +60,7 @@ export class LabUI {
   }
   mount(rootContainer) {
     const root = el('div', { class: 'app' })
-    this.dom.canvasHost = document.getElementById('canvasHost') || el('div', { class: 'canvas-host' })
+    this.dom.canvasHost = null
     root.append(this.buildTopBar())
     root.append(el('div', { class: 'main' }, this.buildLeft(), this.buildCentre(), this.buildRight()))
     root.append(this.buildStatusBar())
@@ -147,8 +147,9 @@ export class LabUI {
 
   buildCentre() {
     const wrap = el('main', { class: 'viewport' })
-    const host = document.getElementById('canvasHost') || el('div', { class: 'canvas-host' })
+    const host = el('div', { class: 'canvas-host' })
     host.id = 'canvasHost'
+    this.dom.canvasHost = host
     const overlay = el('div', { class: 'overlay hidden' })
     this.dom.overlay = overlay
     host.append(overlay)

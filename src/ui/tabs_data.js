@@ -1,4 +1,4 @@
-import { el, clear, button, select, section, table, chip } from './dom.js';
+import { el, clear, button, select, section, table, chip, fmt } from './dom.js';
 import { Chart } from './charts.js';
 import { Dataset } from '../core/storage.js';
 import { downloadText, timestampName, toCSV } from '../core/storage.js';
@@ -38,4 +38,3 @@ export function renderData(that) {
   return o;
 }
 
-function fmt(v, dp) { return v == null || Number.isNaN(v) ? '-' : Number(v).toFixed(dp||2); }

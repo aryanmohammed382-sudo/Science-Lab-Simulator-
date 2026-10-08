@@ -1,93 +1,48 @@
 # Science Lab Simulator
 
-A fast, browser-based virtual laboratory for students. It runs entirely on the client, with experiment state and notebook data stored locally in the browser.
+A browser-based virtual science laboratory built with Vite and Three.js. It runs entirely on the client: experiment state, notebook data and saves are stored locally in the browser (localStorage).
 
-## Cambridge curriculum coverage
+## What it simulates
 
-The library now contains **200 practical simulations: 50 Physics, 50 Chemistry, 50 Biology and 50 Environmental Management**.
+- **Chemistry** — substances, ions, mixtures, precipitation, gas evolution, redox, neutralisation, electrolysis, pH, colour changes, temperature, reaction kinetics and equilibrium.
+- **Physics** — electrical circuits solved with a Modified Nodal Analysis engine (wires, cells, resistors, lamps, diodes/LEDs, switches, ammeters, voltmeters), thermal heating/boiling, and measurement with resolution/uncertainty.
+- **Biology** — food tests, enzyme reactions, microscopy-style observations and qualitative tests.
+- **Environmental Management** — practicals with reagents, measurements and safety notes.
 
-The science tracks are designed around the progression from **Cambridge IGCSE** into **Cambridge International AS & A Level**:
+The laboratory includes a 3D bench environment (benches, shelf, fume hood, sink, safety stations), a procedural apparatus catalogue, a liquid system (fill, pour, decant, pipette, burette, tilt-based pouring), wiring terminals for circuits, heat sources (Bunsen burner/hot plate), instruments (thermometer, voltmeter, ammeter, rheostat, stopwatch, pH meter) and a safety rule engine with educational warnings.
 
-- **Physics:** Cambridge IGCSE Physics 0625/0972 and AS & A Level Physics 9702
-- **Chemistry:** Cambridge IGCSE Chemistry 0620/0971 and AS & A Level Chemistry 9701
-- **Biology:** Cambridge IGCSE Biology 0610/0970 and AS & A Level Biology 9700
-- **Environmental Management:** Cambridge IGCSE Environmental Management 0680 and Cambridge International AS Level Environmental Management 8291
+## Built
 
-The Physics, Chemistry and Biology selections deliberately include both familiar IGCSE practical contexts and more advanced AS/A Level investigations. The practical design emphasises measurement, manipulation, data presentation, analysis, conclusions and evaluation, matching the practical-skills focus of the Cambridge science syllabuses.
+- `npm install` (or use the bundled package-lock.json)
+- `npm run dev` — live dev server
+- `npm run build` — production build into `dist/`
+- `npm run preview` — preview the production build locally
+- `npm test` — run the Node unit tests (chemistry, circuit, library and world simulation)
 
-Environmental Management is aligned to IGCSE 0680 and AS 8291. Cambridge currently offers this subject at AS rather than a corresponding A Level, so the simulator does not falsely label it as an A Level track.
+## Files
 
-## Experiment areas
+- `index.html` — application shell (loads the built bundle in production; in dev it loads `src/main.js` via Vite)
+- `package.json` / `package-lock.json` / `vite.config.js` — build tooling
+- `src/main.js` — app entry point (renderer, camera, controls, world, UI, loop)
+- `src/styles.css` — full interface stylesheet
+- `src/ui/` — LabUI (top bar, left inventory, centre viewport, right inspector, tabs for bench / experiments / notebook / safety log / data & graphs / research / saves)
+- `src/three/` — renderer, camera, run loop, world model, laboratory geometry, procedural apparatus mesh factory, interaction (pick/drag/rotate/tilt/wire), liquid system, electrical wiring, simulation step loop, materials
+- `src/core/` — science engines: species, substances, mixtures, reactions, circuit (MNA), electrolysis, thermal, measurement, safety, apparatus catalogue, storage, util
+- `src/core/experiments/` — chemistry, biology, physics, research, schema, index
 
-### Physics — 50
-Measurement and uncertainty · motion and acceleration · forces · momentum · energy and power · pressure and density · elasticity · thermal physics · waves and sound · optics · electromagnetic effects · radioactivity · electricity and electronics.
+## Running on GitHub Pages
 
-### Chemistry — 50
-Quantitative chemistry · titration · gravimetric analysis · gas volumes · energetics · kinetics · equilibrium · acids and bases · electrochemistry · qualitative analysis · organic chemistry · chromatography · separation and purification · spectroscopy.
+After pushing `main`, enable GitHub Pages for the repository and set the source to the `main` branch `/ (root)`. The root `index.html` loads the built bundle, so publish the `dist/` output or build and serve the root `index.html` against the built assets.
 
-### Biology — 50
-Microscopy · cells and membranes · biological molecules · enzymes · transport · photosynthesis · respiration · plant physiology · human physiology · ecology · biodiversity · sampling · genetics · evolution · microbiology.
-
-### Environmental Management — 50
-Water quality · pollution · water treatment · eutrophication · soils · agriculture · biodiversity · populations · habitat management · resource management · fisheries · energy · waste · carbon cycling · climate change · environmental impact assessment.
-
-## Practical-skill design
-
-The simulator is intended to build the skills needed for Cambridge practical assessments:
-
-- selecting and using appropriate apparatus
-- making measurements and repeated readings
-- controlling variables
-- recording observations and quantitative data
-- presenting results in tables
-- identifying relationships between variables
-- calculating derived quantities
-- drawing conclusions from evidence
-- evaluating procedures and suggesting improvements
-- working safely with laboratory and field equipment
-
-These skills are particularly important because Cambridge IGCSE practical assessment tests experimental skills and contexts, while the AS & A Level science courses place strong emphasis on advanced practical skills and experimental investigation.
-
-## Scientific simulation layer
-
-The latest laboratory upgrade adds an experiment-specific science layer on top of the reusable apparatus engine. Every catalogue entry now resolves to a named scientific profile containing its own apparatus, variables, equations/formulas, laws and principles, procedure, observations, explanation of why the observed event occurs, and experiment-specific takeaways. This keeps the 200-practical catalogue maintainable without presenting the student with a generic “change two numbers” experiment.
-
-The laboratory workspace now includes:
-
-- **Key Details** with objective, apparatus/materials, formulas, symbol meanings, laws/principles, reaction information and key takeaways
-- **Live observation** text that changes with the simulated experimental state
-- **Experiment status** that progresses from ready to performing/reaction to complete
-- **Specific apparatus scenes** for circuits, pendulums, titrations, precipitation, electrolysis, pH testing, food tests, microscopy, optics, thermal work, waves, fieldwork and more
-- **Progressive reaction states** for relevant chemistry/biology/environmental practicals rather than an instant before/after swap
-- **Reaction-specific colours and precipitation states**, including nucleation, suspension and settling behaviour where appropriate
-- **Measurement-linked recording**, so recorded readings are generated from the current simulated state rather than decorative graph points
-- **Why did this happen?** explanations connected to the scientific principle or equation behind an observed event
-- **Experiment completion summary and XP feedback** after the required measurements are recorded
-
-The chemistry precipitation model is deliberately state-driven: clear solution → initial nucleation → increasing suspended particles/cloudiness → settling → accumulated solid layer. Particle positions are deterministic from the reaction state, so the solid does not visually jump between frames. Precipitate colour is selected from the named reaction rather than using one universal coloured block. Qualitative-analysis simulations use named ion tests (for example chloride, bromide, iodide, sulfate and carbonate) with reaction-specific equations and observations.
-
-## Design goals
-
-- **Instant startup:** no runtime API, backend, database, image CDN or font CDN is required.
-- **Accurate core relationships:** existing simulations use standard school-level equations such as V = IR, T = 2π√(L/g), density = mass/volume, P = VI, the lens equation, Snell's law and Q = It.
-- **Visually structured:** each practical uses a reusable virtual bench, live readings, controls, an observation table and a mission.
-- **Student-safe:** every experiment has a materials list and a safety note.
-- **Offline-friendly architecture:** the simulations are local JavaScript and CSS, so GitHub Pages does not need a server.
-- **Expandable:** experiments are data-driven in `experiments.js`; simulation behaviour is handled by reusable engines in `app.js`.
+For a pure static-pages setup without a build step on GitHub, build locally first (`npm run build`) and either:
+- push the `dist/` contents to a `gh-pages` branch, or
+- configure GitHub Pages to serve the `dist/` folder if supported, or
+- replace the root `index.html` with one that loads a prebuilt bundle you commit.
 
 ## Important modelling note
 
 These are educational simulations, not substitutes for supervised laboratory work. Where a real experiment involves complex apparatus, uncertainty, heat transfer, reaction kinetics or biological variation, the simulator uses an idealised educational model rather than pretending to reproduce every real-world effect.
 
-The catalogue has been audited so every one of the 200 practicals resolves to an apparatus, variables, units, formula/law set, procedure and takeaways. Chemistry entries that previously fell through to generic placeholder chemistry now have named reactions or physical-process descriptions, dedicated apparatus scenes where needed, and reaction-specific visual states. The reusable engine remains underneath this data layer so the catalogue stays maintainable.
+## License
 
-## Files
-
-- `index.html` — application shell
-- `styles.css` — responsive visual system and apparatus
-- `experiments.js` — curriculum catalogue, objectives, controls, materials and safety
-- `app.js` — simulation calculations, navigation, observation recording and local progress
-
-## Running
-
-Open `index.html` directly or publish the repository with GitHub Pages. No build step is required.
+Copyright Aryan Mohammed. Edit the LICENSE file or add one as needed before publishing.

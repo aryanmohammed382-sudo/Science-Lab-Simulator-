@@ -32,6 +32,11 @@ export class Interaction {
     this.canvas = canvas || renderer.domElement;
     this.onSelect = onSelect;
     this.onStatus = onStatus;
+    // Always provide a status method before camera/input initialization. The
+    // constructor calls setCameraMode(), so this must exist before that call.
+    this.status = (text, severity) => {
+      if (typeof this.onStatus === 'function') this.onStatus(text, severity);
+    };
 
     this.mode = 'orbit';
     this.raycaster = new THREE.Raycaster();

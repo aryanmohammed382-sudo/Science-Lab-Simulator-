@@ -15,15 +15,43 @@ import './styles.css';
 
 provideBuilders({ buildApparatus });
 
+const appRoot = document.getElementById('app');
+const showStartupError = (error, phase = 'startup') => {
+  console.error('Virtual Science Laboratory startup error:', error);
+  if (!appRoot) return;
+  const message = error instanceof Error ? error.message : String(error);
+  appRoot.innerHTML = `
+    <div style="height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;background:#0e151c;color:#d9e1e8;font-family:system-ui,sans-serif;padding:32px">
+      <div style="max-width:760px;border:1px solid #35424f;background:#151e25;border-radius:10px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <h1 style="margin:0 0 10px;font-size:22px">Virtual Science Laboratory could not start</h1>
+        <p style="color:#aebbc5;margin:0 0 18px">The page loaded, but the simulator stopped during <b>${phase}</b>.</p>
+        <pre style="white-space:pre-wrap;background:#0a0f13;border:1px solid #27333d;padding:16px;border-radius:6px;color:#e9c149;overflow:auto">${message.replace(/[&<>]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[s]))}</pre>
+        <p style="color:#7d8b95;margin:18px 0 0;font-size:12px">Open the browser console for the full stack trace.</p>
+      </div>
+    </div>`;
+};
+window.addEventListener('error', (event) => {
+  if (!window.__lab) showStartupError(event.error || event.message, 'JavaScript initialization');
+});
+window.addEventListener('unhandledrejection', (event) => {
+  if (!window.__lab) showStartupError(event.reason, 'asynchronous initialization');
+});
+
 const WORLD_HEIGHT = 600;
 const WORLD_DEPTH = 700;
 const WORLD_WIDTH = 900;
 
-const renderer = createRenderer({
-  width: window.innerWidth,
-  height: window.innerHeight,
-  antialias: true
-});
+let renderer;
+try {
+  renderer = createRenderer({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    antialias: true
+  });
+} catch (error) {
+  showStartupError(error, 'WebGL renderer creation');
+  throw error;
+}
 renderer.domElement.classList.add('lab-canvas');
 renderer.domElement.style.display = 'block';
 renderer.domElement.style.width = '100%';
@@ -40,7 +68,12 @@ orbit.minDistance = 40;
 orbit.maxDistance = 520;
 
 const world = new World({ scene });
-buildLaboratory(scene);
+try {
+  buildLaboratory(scene);
+} catch (error) {
+  showStartupError(error, 'laboratory scene construction');
+  throw error;
+}
 
 // A small welcome run: a bench and a beaker so the scene isn't empty on
 // first load.
@@ -65,7 +98,12 @@ const ui = new LabUI({
   onSelect: (id) => { ui.selectedId = id; ui._refresh(); ui._renderInspector(); }
 });
 
-ui.mount(document.getElementById('app'));
+try {
+  ui.mount(appRoot);
+} catch (error) {
+  showStartupError(error, 'user interface construction');
+  throw error;
+}
 ui.dom.canvasHost.appendChild(renderer.domElement);
 ui.setTab('bench');
 world.onEvent = (ev) => {

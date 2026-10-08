@@ -70,6 +70,36 @@ export class LabUI {
     return root
   }
   cameraMode(v) { if (this.interaction && v !== undefined) this.interaction.setCameraMode(v) }
+
+  // Place an apparatus selected from the inventory without bypassing the
+  // existing Interaction/ghost-placement system.
+  _placeFromInventory(def) {
+    if (!def) return
+    if (!this.interaction) {
+      this._status('Interaction system is not available.')
+      return
+    }
+    this.interaction.startGhost(def)
+  }
+
+  // Dispense a standard 25 mL portion of a shelf reagent into the selected
+  // container. This keeps the reagent shelf tied to the same World.fill()
+  // chemistry/reaction engine used elsewhere in the simulator.
+  _dispenseReagent(sub) {
+    if (!sub) return
+    const obj = this.selectedObject()
+    if (!obj || !obj.mixture) {
+      this._status('Select a container before dispensing a reagent.')
+      return
+    }
+    const result = this.world.fill(obj.id, { substanceId: sub.id, volumeML: 25 })
+    if (result?.error) {
+      this._status(result.error, 'danger')
+      return
+    }
+    this._status(`Added 25 mL of ${sub.name} to the ${obj.name}.`)
+    this._refresh()
+  }
   _focusSelected() { if (this.interaction) this.interaction.focusSelected() }
   onSelect(id) { this.selectedId = id; this._refresh(); this._renderInspector() }
   onGhost(def) { this.onGhost && this.onGhost(def) }

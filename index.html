@@ -6,9 +6,40 @@
     <meta name="description" content="Interactive 3D virtual laboratory simulator for IGCSE, AS/A Level, undergraduate and research science." />
     <title>Virtual Science Laboratory</title>
     <link rel="icon" href="data:," />
+    <style>
+      html, body { margin: 0; width: 100%; height: 100%; background: #0a0f13; }
+      #app { width: 100%; height: 100%; }
+      .boot-screen {
+        height: 100%; display: flex; align-items: center; justify-content: center;
+        background: #0a0f13; color: #d9e1e8;
+        font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, sans-serif;
+      }
+      .boot-card {
+        width: min(520px, calc(100vw - 40px)); padding: 24px;
+        background: #151e25; border: 1px solid #27333d; border-radius: 8px;
+      }
+      .boot-title { margin: 0 0 8px; font-size: 18px; font-weight: 600; }
+      .boot-text { margin: 0; color: #7d8b95; }
+      .boot-mark { color: #e9c149; font-weight: 700; margin-right: 8px; }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
+    <div id="app">
+      <div class="boot-screen" aria-live="polite">
+        <div class="boot-card">
+          <h1 class="boot-title"><span class="boot-mark">VR</span>Virtual Science Laboratory</h1>
+          <p class="boot-text">Starting the interactive laboratory…</p>
+        </div>
+      </div>
+    </div>
+    <noscript>
+      <div class="boot-screen">
+        <div class="boot-card">
+          <h1 class="boot-title">JavaScript is required</h1>
+          <p class="boot-text">Enable JavaScript to use the 3D virtual laboratory.</p>
+        </div>
+      </div>
+    </noscript>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>

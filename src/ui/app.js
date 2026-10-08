@@ -1,7 +1,7 @@
 import { el, clear, fmt, chip, button, select, slider, section, table, badge } from './dom.js'
 import { APPARATUS, apparatusByCategory, APPARATUS_CATEGORIES, searchApparatus, allApparatus } from '../core/apparatus.js'
 import { SUBSTANCES, SUBSTANCE_CATEGORIES, searchSubstances, allSubstances } from '../core/substances.js'
-import { Notebook, Dataset, toCSV, downloadText, timestampName, exportJSON } from '../core/storage.js'
+import { Notebook, Dataset, toCSV, downloadText, timestampName, exportJSON, saveLab, loadLab, deleteSave, makeSave, validateSave } from '../core/storage.js'
 import { round } from '../core/util.js'
 import { mountNotebookTab as renderNotebookInner } from './tabs_notebook.js';
 import { renderLibraryBody } from './tabs_library.js'
@@ -406,7 +406,14 @@ export class LabUI {
       world: this.world?.serialize?.() ?? null
     }
     try {
-      const save = saveLab(data)
+      const save = saveLab(makeSave({
+        world: data.world,
+        name: data.name,
+        description: data.description,
+        subject: data.subject,
+        level: data.level,
+        notebook: data.notebook
+      }))
       if (save) this._status(`Saved "${data.name}" as ${save.id}`)
       else this._status('Save failed.')
     } catch (err) { this._status('Save failed: ' + err.message) }
@@ -426,12 +433,13 @@ export class LabUI {
 
   _loadSave(id) {
     try {
-      const data = loadLab(id)
-      if (!data) { this._status('Save not found.'); return }
-      if (this.world) this.world.restore(data)
-      Notebook.fromJSON(this.notebook, data.notebook || {})
-      if (data.subject) this.experimentFilter.subject = data.subject
-      if (data.level) this.experimentFilter.level = data.level
+      const result = loadLab(id)
+      if (!result?.ok) { this._status(`Load failed: ${result?.error || 'save not found'}`); return }
+      const data = result.data
+      if (this.world && data.world) this.world.restore(data.world)
+      if (data.notebook) this.notebook = Notebook.fromJSON(data.notebook)
+      if (data.subject && this.experimentFilter) this.experimentFilter.subject = data.subject
+      if (data.level && this.experimentFilter) this.experimentFilter.level = data.level
       this._status(`Loaded "${data.name}".`)
       this._refresh()
       this._renderSaves()
@@ -440,7 +448,7 @@ export class LabUI {
 
   _removeSave(id) {
     try {
-      deleteSaved(id)
+      deleteSave(id)
       this._status(`Removed save ${id}.`)
       this._renderSaves()
     } catch (err) { this._status('Remove failed: ' + err.message) }
@@ -460,11 +468,19 @@ export class LabUI {
       reader.onload = (ev) => {
         try {
           const data = JSON.parse(ev.target.result)
-          const resolved = makeSave(data)
-          validateSave(resolved)
-          const id = crypto.randomUUID()
-          saveLab(resolved)
-          this._status(`Imported "${data.name}" (id: ${id})`)
+          const resolved = makeSave({
+            world: data.world,
+            name: data.name || 'Imported experiment',
+            description: data.description || '',
+            level: data.level || 'igcse',
+            subject: data.subject || 'chemistry',
+            notebook: data.notebook || null,
+            camera: data.camera || null
+          })
+          const problems = validateSave(resolved)
+          if (problems.length) throw new Error(problems.join('; '))
+          const saved = saveLab(resolved)
+          this._status(`Imported "${saved.name}" (id: ${saved.id})`)
           this._renderSaves()
         } catch (err) { this._status('Import failed: ' + err.message) }
       }

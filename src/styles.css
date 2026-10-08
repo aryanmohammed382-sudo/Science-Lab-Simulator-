@@ -30,8 +30,10 @@ html, body {
 
 .app { display: grid; grid-template-columns: 280px 1fr 310px; grid-template-rows: 52px 1fr 28px; height: 100vh; }
 
-.topbar { grid-column: 1 / -1; }
-.main { overflow: hidden; }
+.topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; padding: 0 14px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; }
+.main { grid-column: 1 / -1; display: grid; grid-template-columns: 280px minmax(0, 1fr) 310px; min-height: 0; overflow: hidden; }
+.viewport { min-width: 0; min-height: 0; }
+.panel { min-height: 0; }
 
 .panel { background: var(--panel); border-right: 1px solid var(--line); overflow: auto; padding: 12px; }
 .panel.right { border-right: none; border-left: 1px solid var(--line); }

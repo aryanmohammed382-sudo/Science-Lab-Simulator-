@@ -9,7 +9,9 @@ export function createRenderer({ width, height, antialias = true } = {}) {
   const h = height || window.innerHeight;
   const renderer = new THREE.WebGLRenderer({
     antialias,
-    alpha: false
+    alpha: false,
+    powerPreference: 'high-performance',
+    failIfMajorPerformanceCaveat: false
   });
   renderer.setSize(w, h);
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));

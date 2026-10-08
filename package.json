@@ -1,0 +1,19 @@
+{
+  "name": "virtual-science-lab",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Interactive 3D virtual laboratory simulator for IGCSE, AS/A Level, undergraduate and research work.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.20"
+  }
+}

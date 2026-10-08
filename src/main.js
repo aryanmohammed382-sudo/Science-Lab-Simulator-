@@ -25,6 +25,9 @@ const renderer = createRenderer({
   antialias: true
 });
 renderer.domElement.classList.add('lab-canvas');
+renderer.domElement.style.display = 'block';
+renderer.domElement.style.width = '100%';
+renderer.domElement.style.height = '100%';
 
 const camera = createCamera({
   position: new THREE.Vector3(0, 140, 260)
@@ -126,7 +129,10 @@ window.__lab = { world, scene, camera, interaction, ui, notebook };
 
 // resize the renderer when the window changes size
 window.addEventListener('resize', () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
+  const host = ui.dom.canvasHost;
+  const width = host?.clientWidth || window.innerWidth;
+  const height = host?.clientHeight || window.innerHeight;
+  renderer.setSize(width, height);
+  camera.aspect = width / Math.max(height, 1);
   camera.updateProjectionMatrix();
 });

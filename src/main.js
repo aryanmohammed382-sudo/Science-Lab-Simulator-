@@ -24,9 +24,7 @@ const renderer = createRenderer({
   height: window.innerHeight,
   antialias: true
 });
-renderer.domElement.id = 'canvasHost';
-renderer.domElement.classList.add('canvas-host');
-document.body.appendChild(renderer.domElement);
+renderer.domElement.classList.add('lab-canvas');
 
 const camera = createCamera({
   position: new THREE.Vector3(0, 140, 260)
@@ -65,6 +63,7 @@ const ui = new LabUI({
 });
 
 ui.mount(document.getElementById('app'));
+ui.dom.canvasHost.appendChild(renderer.domElement);
 ui.setTab('bench');
 world.onEvent = (ev) => {
   if (ev.type === 'reaction' || ev.type === 'electrolysis' || ev.type === 'prediction') {

@@ -89,6 +89,8 @@ const interaction = new Interaction({
 });
 
 const notebook = new Notebook();
+let statusSink = null;
+
 const ui = new LabUI({
   world,
   interaction,
@@ -97,6 +99,8 @@ const ui = new LabUI({
   onGhost: (def) => interaction.startGhost(def),
   onSelect: (id) => { ui.selectedId = id; ui._refresh(); ui._renderInspector(); }
 });
+statusSink = ui.status;
+interaction.onStatus = (text, severity) => statusSink?.(text, severity);
 
 try {
   ui.mount(appRoot);

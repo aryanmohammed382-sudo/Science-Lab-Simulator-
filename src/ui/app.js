@@ -429,8 +429,16 @@ export class LabUI {
   }
 
   _renderSaves() { renderSaves(this) }
-  _renderLibrary() { renderLibraryBody(this) }
-  _renderNotebook() { renderNotebookInner(this) }
+  _renderLibrary() {
+    if (!this.dom.overlay) return
+    clear(this.dom.overlay)
+    this.dom.overlay.append(renderLibraryBody(this))
+  }
+  _renderNotebook() {
+    if (!this.dom.overlay) return
+    clear(this.dom.overlay)
+    this.dom.overlay.append(renderNotebookInner(this))
+  }
   _renderSafetyLog() { renderSafetyLog(this) }
   _renderData() { renderData(this) }
   _renderResearch() { renderResearch(this) }

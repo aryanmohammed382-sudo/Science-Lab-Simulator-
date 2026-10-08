@@ -264,16 +264,28 @@ export class LabUI {
       Object.keys(this.dom).forEach(k => { if (k.startsWith('tab_')) this.dom[k].classList.toggle('active', k === 'tab_' + tab) })
     }
     if (this.dom && this.dom.overlay) {
-      this.dom.overlay.classList.toggle('hidden', tab !== 'bench')
+      this.dom.overlay.classList.toggle('hidden', tab === 'bench')
       if (tab !== 'bench') {
         clear(this.dom.overlay)
         switch (tab) {
-          case 'library': this.dom.overlay.append(renderLibraryBody(this)); break
-          case 'notebook': this.dom.overlay.append(renderNotebookInner(this)); break
-          case 'safety': this.dom.overlay.append(renderSafetyLog(this)); break
-          case 'data': this.dom.overlay.append(renderData(this)); break
-          case 'research': this.dom.overlay.append(renderResearch(this)); break
-          case 'saves': this.dom.overlay.append(renderSaves(this)); break
+          case 'library':
+            this.dom.overlay.append(renderLibraryBody(this))
+            break
+          case 'notebook':
+            this.dom.overlay.append(renderNotebookInner(this))
+            break
+          case 'safety':
+            renderSafetyLog(this)
+            break
+          case 'data':
+            renderData(this)
+            break
+          case 'research':
+            renderResearch(this)
+            break
+          case 'saves':
+            renderSaves(this)
+            break
         }
       }
     }

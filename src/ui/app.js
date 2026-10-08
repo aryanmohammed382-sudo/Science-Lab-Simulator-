@@ -59,6 +59,11 @@ export class LabUI {
     }
   }
   mount(rootContainer) {
+    // Replace the HTML boot screen with the real application shell.
+    // The boot screen is intentionally present in index.html so a slow load
+    // never flashes a blank page, but it must not remain in the document after
+    // the UI has mounted because it occupies the full viewport.
+    clear(rootContainer)
     const root = el('div', { class: 'app' })
     this.dom.canvasHost = null
     root.append(this.buildTopBar())
